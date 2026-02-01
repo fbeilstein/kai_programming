@@ -1,7 +1,10 @@
 # Programming and Mathematical Modelling
 
-## Lecture 1. Recap on Python
+## Schedule
+Monday 13:30 (next week Wednesday 12:30)
 
+### Lecture 1. Recap on Python
+-  [Notes in Colab](https://colab.research.google.com/github/fbeilstein/kai_programming/blob/master/lecture_1_python_refresher.ipynb)
 
 ## Draft for Syllabus
 
