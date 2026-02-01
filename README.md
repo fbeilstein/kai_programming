@@ -28,4 +28,5 @@ Monday 13:30 (next week Wednesday 12:30)
 
 ## Useful Resources
 
-1. [[BOOK] From Python to Numpy](https://www.labri.fr/perso/nrougier/from-python-to-numpy)
+1. [[BOOK] ProGit](https://git-scm.com/book/en/v2)
+2. [[BOOK] From Python to Numpy](https://www.labri.fr/perso/nrougier/from-python-to-numpy)
