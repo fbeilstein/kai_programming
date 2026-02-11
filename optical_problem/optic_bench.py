@@ -5,6 +5,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.patches import Polygon
 import numpy as np
 import importlib
+import json
+from tkinter import filedialog
+
 
 # Ensure core student functions are available
 try:
@@ -65,6 +68,9 @@ class OpticBenchApp(tk.Tk):
                                   textvariable=self.n_var, width=6, command=self.update_n)
         self.spin_n.pack(side=tk.LEFT, padx=5)
         self.spin_n.bind('<Return>', lambda e: self.update_n())
+        
+        tk.Button(toolbar, text="Save Lab", command=self.dump_bench).pack(side=tk.LEFT, padx=5)
+        tk.Button(toolbar, text="Load Lab", command=self.load_bench).pack(side=tk.LEFT, padx=5)
 
     def update_n(self):
         """Applies the UI value of n to the selected lens and re-simulates."""
@@ -303,6 +309,89 @@ class OpticBenchApp(tk.Tk):
     def toggle_source(self):
         self.source_type = "point" if self.source_type == "parallel" else "parallel"
         self.btn_mode.config(text=f"Mode: {self.source_type.capitalize()}"); self.draw_scene()
+
+
+
+
+    def dump_bench(self):
+        """Saves all current lenses and source settings to a JSON file."""
+        def json_format(obj):
+            """Recursively converts NumPy types to standard Python types for JSON."""
+            if isinstance(obj, (np.float32, np.float64)):
+                return float(obj)
+            if isinstance(obj, (np.int32, np.int64)):
+                return int(obj)
+            if isinstance(obj, (np.bool_, bool)):
+                return bool(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            if isinstance(obj, dict):
+                return {k: json_format(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [json_format(i) for i in obj]
+            return obj
+
+        data = {
+            "source_type": self.source_type,
+            "source_pos": self.source_pos.tolist(),
+            "lenses": []
+        }
+        
+        for lens in self.lenses:
+            # We wrap the lens data in our json_format helper
+            lens_entry = {
+                "x": lens.x,
+                "y": lens.y,
+                "angle": lens.angle,
+                "n": lens.n,
+                "geo": lens.geo # Assuming you updated the attribute name in LensObject
+            }
+            data["lenses"].append(json_format(lens_entry))
+        
+        file_path = filedialog.asksaveasfilename(defaultextension=".json", 
+                                                filetypes=[("JSON Files", "*.json")])
+        if file_path:
+            try:
+                with open(file_path, 'w') as f:
+                    json.dump(data, f, indent=4)
+            except Exception as e:
+                from tkinter import messagebox
+                messagebox.showerror("Save Error", f"Failed to save bench: {e}")
+
+
+    def load_bench(self):
+        """Clears the bench and loads a state from a JSON file."""
+        file_path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
+        if not file_path: return
+        
+        try:
+            with open(file_path, 'r') as f:
+                # FIX: Changed json.json.load to json.load
+                data = json.load(f)
+            
+            # Reset current state
+            self.lenses = []
+            self.selected_lens = None
+            
+            # Restore Source settings
+            self.source_type = data.get("source_type", "parallel")
+            self.source_pos = np.array(data.get("source_pos", [-120.0, 0.0]))
+            self.btn_mode.config(text=f"Mode: {self.source_type.capitalize()}")
+            
+            # Restore Lenses
+            for l_data in data["lenses"]:
+                # Reconstruct LensObject using the 'geo' blueprint
+                new_lens = LensObject(l_data["geo"], x_pos=l_data["x"], y_pos=l_data["y"])
+                new_lens.angle = l_data["angle"]
+                new_lens.n = l_data["n"]
+                self.lenses.append(new_lens)
+            
+            self.update_inspector()
+            self.draw_scene()
+            
+        except Exception as e:
+            messagebox.showerror("Load Error", f"Failed to load bench: {e}")
+
 
 if __name__ == "__main__":
     OpticBenchApp().mainloop()
