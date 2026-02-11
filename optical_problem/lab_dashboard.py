@@ -95,7 +95,7 @@ class OpticsDebugger(tk.Tk):
             level_suite = unittest.TestSuite([t for t in suite if f"test_l{num}" in t._testMethodName])
             res = unittest.TextTestRunner(verbosity=0).run(level_suite)
             canvas, light = self.status_indicators[num]
-            color = "#4ec9b0" if (res.wasSuccessful() and res.testsRun > 0) else "#f44747" if res.testsRun > 0 else "gray"
+            color = "#4ec9b0" if (res.wasSuccessful() and res.testsRun > 0) else "#f44747" if res.testsRun > 0 else "red"
             canvas.itemconfig(light, fill=color)
         self.update_plot()
 
