@@ -33,3 +33,4 @@ Wednesday 12:30 (next week Monday 13:30)
 
 1. [[BOOK] ProGit](https://git-scm.com/book/en/v2)
 2. [[BOOK] From Python to Numpy](https://www.labri.fr/perso/nrougier/from-python-to-numpy)
+3. [[INERACTIVE TUTORIAL] Learn Git Branching](https://learngitbranching.js.org/)
