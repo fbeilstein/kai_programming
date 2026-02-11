@@ -4,7 +4,8 @@ import numpy as np
 from implementation_tasks import (
     intersect_line_infinite, intersect_segment,
     intersect_circle_infinite, intersect_arc,
-    calculate_normal_segment, calculate_normal_arc
+    calculate_normal_segment, calculate_normal_arc,
+    refract_vector
 )
 
 class TestOpticsMath(unittest.TestCase):
@@ -72,6 +73,20 @@ class TestOpticsMath(unittest.TestCase):
         n = calculate_normal_arc(hit, rd, center)
         # Vector (Hit-Center) is [-5, 0]. rd is [1, 0]. Dot is -5 (already faces ray).
         self.assertAlmostEqual(n[0], -1.0)
+
+    def test_l7_refraction(self):
+        """Verifies Snell's Law: 45deg incident ray from Air(1.0) to Glass(1.5)."""
+        ray_dir = np.array([1.0, -1.0]) / np.sqrt(2) # 45 degrees
+        normal = np.array([0.0, 1.0]) # Surface is horizontal, normal points up
+        
+        # Expected: Light bends toward the normal
+        new_dir = refract_vector(ray_dir, normal, 1.0, 1.5)
+        
+        # Check if refracted ray is valid and normalized
+        self.assertIsNotNone(new_dir)
+        self.assertAlmostEqual(np.linalg.norm(new_dir), 1.0)
+        # The X-component should be smaller than incident in this specific geometry
+        self.assertLess(abs(new_dir[0]), abs(ray_dir[0]))
 
 if __name__ == '__main__':
     unittest.main()
