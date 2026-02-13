@@ -8,6 +8,7 @@ import importlib
 import json
 from tkinter import filedialog
 from io_manager import IOManager
+from inspector import Inspector
 
 
 # Ensure core student functions are available
@@ -31,6 +32,9 @@ class OpticBenchApp(tk.Tk):
         
         # Ruler state
         self.ruler_active = False; self.ruler_start = None; self.ruler_line = None
+        
+        # Physical Properties Inspector
+        self.inspector = Inspector(self, self.draw_scene)
 
         self.setup_ui()
         self.setup_plot()
@@ -46,13 +50,6 @@ class OpticBenchApp(tk.Tk):
         
         self.btn_ruler = tk.Button(toolbar, text="Ruler: OFF", command=self.toggle_ruler)
         self.btn_ruler.pack(side=tk.LEFT, padx=10)
-
-        # Physics Inspector
-        self.inspect_frame = tk.LabelFrame(self, text="Physics Inspector", width=250)
-        self.inspect_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5)
-        self.inspect_frame.pack_propagate(False)
-        self.lbl_phys = tk.Label(self.inspect_frame, text="Select a lens.", justify=tk.LEFT, fg="blue", font=("Consolas", 10))
-        self.lbl_phys.pack(pady=20, padx=10)
 
         self.fig = Figure(figsize=(8, 6), dpi=100); self.ax = self.fig.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self); self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -78,7 +75,8 @@ class OpticBenchApp(tk.Tk):
         if self.selected_lens:
             self.selected_lens.n = self.n_var.get()
             self.draw_scene()      # Re-draws rays with new refraction
-            self.update_inspector() # Updates the text panel
+            self.inspector.sync_with_selected(self.selected_lens)
+            #self.update_inspector() # Updates the text panel
 
     def setup_plot(self):
         self.ax.set_xlim(-150, 150); self.ax.set_ylim(-85, 85); self.ax.set_aspect('equal')
@@ -95,53 +93,6 @@ class OpticBenchApp(tk.Tk):
             self.ax.set_title("")
             self.canvas.draw()
 
-    def update_inspector(self):
-        if not self.selected_lens: 
-            self.lbl_phys.config(text="Select a lens.")
-            return
-            
-        p = self.selected_lens.phys 
-        n = self.selected_lens.n
-        theta_deg = self.selected_lens.angle
-
-        if p.get('is_slab', False):
-            try:
-                # Pass the actual rotation (converted to radians) to the student function
-                h_val = tasks.calculate_slab_displacement(p['d'], n, np.arcsin(np.sin(np.radians(int(theta_deg)))))
-                h_str = f"{h_val:.2f} mm" if h_val is not None else "Not Implemented"
-            except: 
-                h_str = "Error in Task"
-            
-            text = (f"Type: SLAB\n"
-                    f"n:     {n:.3f}\n"
-                    f"d:     {p['d']:.1f} mm\n"
-                    f"Angle: {theta_deg:+.1f}°\n"
-                    f"-------------------\n"
-                    f"Displacement:\n{h_str}")
-        else:
-            # PRE-PROCESSING: Convert absolute radii to signed radii for the student
-            # Front: Convex is (+), Concave is (-)
-            R1_signed = p['R1_abs'] if p['is_convex_front'] else -p['R1_abs']
-            
-            # Back: Convex is (-), Concave is (+) for the standard 1/R1 - 1/R2 form
-            # In optical convention, R2 is negative if it curves away from the source
-            R2_signed = -p['R2_abs'] if p['is_convex_back'] else p['R2_abs']
-            
-            try:
-                # Student only sees the standard 4-parameter call
-                f_val = tasks.calculate_focal_length(R1_signed, R2_signed, p['d'], n)
-                f_str = f"{f_val:.2f} mm" if f_val is not None else "n/a"
-            except:
-                f_str = "Error"
-            
-            text = (f"Type: LENS\nn: {n:.3f}\n"
-                    f"R1 (signed): {R1_signed:.1f}\n"
-                    f"R2 (signed): {R2_signed:.1f}\n"
-                    f"d (center): {p['d']:.1f}\n"
-                    f"-------------------\n"
-                    f"Theor. f: {f_str}")
-        
-        self.lbl_phys.config(text=text)
         
         
     def open_architect(self): 
@@ -152,21 +103,23 @@ class OpticBenchApp(tk.Tk):
         new_lens = LensObject(geometry_data, x_pos=0, y_pos=0)
         spawn_found = False
         # Original design offset loop
-        for offset in [0, 25, -25, 50, -50, 75, -75, 100, -100]:
-            new_lens.x = offset
-            collision = False
-            for other in self.lenses:
-                if new_lens.intersects(other): 
-                    collision = True
+        for offset_Y in [0, 25, -25, 50, -50, 75, -75, 100, -100]:
+            for offset_X in [0, 25, -25, 50, -50, 75, -75, 100, -100]:
+                new_lens.x = offset_X
+                new_lens.y = offset_Y
+                collision = False
+                for other in self.lenses:
+                    if new_lens.intersects(other): 
+                        collision = True
+                        break
+                if not collision: 
+                    spawn_found = True
                     break
-            if not collision: 
-                spawn_found = True
-                break
         
         if spawn_found: 
             self.lenses.append(new_lens)
             self.selected_lens = new_lens
-            self.update_inspector()
+            self.update_n()
             self.draw_scene()
         else: 
             messagebox.showwarning("Bench Full", "Could not find a clear spot to spawn the lens!")
@@ -288,7 +241,7 @@ class OpticBenchApp(tk.Tk):
                 self.start_mouse_angle = np.degrees(np.arctan2(dy, dx))
                 self.start_lens_angle = lens.angle
                 break
-        self.update_inspector()
+        self.inspector.sync_with_selected(self.selected_lens)
         self.draw_scene()
 
     def on_drag(self, event):
@@ -317,7 +270,7 @@ class OpticBenchApp(tk.Tk):
                     collision = True; break
             if collision: self.dragging_lens.x, self.dragging_lens.y, self.dragging_lens.angle = old_x, old_y, old_angle
             self.last_mouse_pos = (event.xdata, event.ydata)
-            self.update_inspector()
+            self.inspector.sync_with_selected(self.selected_lens)
             self.draw_scene()
 
     def on_release(self, event): 
@@ -331,7 +284,7 @@ class OpticBenchApp(tk.Tk):
         if self.selected_lens:
             self.lenses.remove(self.selected_lens)
             self.selected_lens = None  # Clear the reference
-            self.update_inspector()     # Clear the sidebar text
+            self.inspector.sync_with_selected(self.selected_lens)
             self.draw_scene()          # Refresh the plot                
         
     def toggle_source(self):
