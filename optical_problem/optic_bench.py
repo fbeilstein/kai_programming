@@ -6,9 +6,12 @@ from matplotlib.patches import Polygon
 import numpy as np
 import importlib
 import json
+import itertools
 from tkinter import filedialog
 from io_manager import IOManager
 from inspector import Inspector
+from ray_source import ParallelRaySource, PointRaySource
+from ray_tracer import RayTracer
 
 
 # Ensure core student functions are available
@@ -99,23 +102,16 @@ class OpticBenchApp(tk.Tk):
         LensArchitect(self, self.add_lens_callback)
 
     # --- RESTORED ORIGINAL SPAWN LOGIC ---
-    def add_lens_callback(self, geometry_data):
+    def add_lens_callback(self, geometry_data):        
         new_lens = LensObject(geometry_data, x_pos=0, y_pos=0)
         spawn_found = False
-        # Original design offset loop
-        for offset_Y in [0, 25, -25, 50, -50, 75, -75, 100, -100]:
-            for offset_X in [0, 25, -25, 50, -50, 75, -75, 100, -100]:
-                new_lens.x = offset_X
-                new_lens.y = offset_Y
-                collision = False
-                for other in self.lenses:
-                    if new_lens.intersects(other): 
-                        collision = True
-                        break
-                if not collision: 
-                    spawn_found = True
-                    break
-        
+        offsets = itertools.product([0, 25, -25, 50, -50], [0, 25, -25, 50, -50])        
+        for ox, oy in offsets:
+            new_lens.x, new_lens.y = ox, oy
+            if not any(new_lens.intersects(other) for other in self.lenses):
+                spawn_found = True
+                break
+                
         if spawn_found: 
             self.lenses.append(new_lens)
             self.selected_lens = new_lens
@@ -151,75 +147,41 @@ class OpticBenchApp(tk.Tk):
 
     def run_simulation(self):
         importlib.reload(tasks)
-        media = {0: {'n': 1.0}}; curves = []
+        media = {0: {'n': 1.0}} #; curves = []
         for i, lens in enumerate(self.lenses):
-            media[i+1] = {'n': lens.n} 
-            curves.extend(lens.get_curves(i+1))
+            media[i+1] = {'n': lens.n}
 
-
-
-        rays = []
+        # 2. Initialize the appropriate Source
         if self.source_type == "parallel":
-            for y in np.linspace(-85, 85, 50):
-                rays.append({'p': np.array([-150.0, y]), 'd': np.array([1.0, 0.0]), 'm': 0})
+            source = ParallelRaySource(self.source_pos)
+            rays = source.generate_rays()
         else:
-            src = np.array([self.source_pos[0], self.source_pos[1]])
-            
-            # Check if source is starting inside a lens
-            start_medium = 0
-            for i, lens in enumerate(self.lenses):
-                if lens.contains(src): 
-                    start_medium = i + 1
-                    break
-            
-            # Full circle (0 to 2pi), 120 rays for smooth look
-            # We omit the last point to avoid duplicating 0 and 360
-            for angle in np.linspace(0, 2*np.pi, 120, endpoint=False):
-                d = np.array([np.cos(angle), np.sin(angle)])
-                rays.append({'p': src, 'd': d, 'm': start_medium})
+            source = PointRaySource(self.source_pos)
+            rays = source.generate_rays(self.lenses)
 
-
+        selected_id = None
+        if self.selected_lens:
+            try:
+                selected_id = self.lenses.index(self.selected_lens) + 1
+            except ValueError:
+                selected_id = None
 
         for ray in rays:
-            curr_p, curr_d, curr_m = ray['p'], ray['d'], ray['m']
-            path_points = [curr_p]
-            
-            exit_point = None
-            exit_vector = None
+            RayTracer.trace(ray, self.lenses)
+            # Draw the main ray path (Red)
+            pts = np.array(ray.points)
+            self.ax.plot(pts[:,0], pts[:,1], 'r-', lw=0.8, alpha=0.5)
+            # DRAW VIRTUAL RAYS FOR THE SELECTED LENS ONLY
+            if selected_id and selected_id in ray.exits:
+                # Check if it's actually a diverging lens
+                if self.selected_lens.get_internal_focal_length() < 0:
+                    exit_p, exit_d = ray.exits[selected_id]
+                    if exit_d is not None:
+                        # Draw green dashed line backwards from the exit point
+                        v_pts = np.array([exit_p, exit_p - exit_d * 1000])
+                        self.ax.plot(v_pts[:,0], v_pts[:,1], 'g--', lw=0.6, alpha=0.3)
 
-            while True:
-                hit, n_d, n_m = trace_ray_step(curr_p, curr_d, curr_m, curves, media)
-                
-                # --- THE CORRECT FILTER ---
-                # Check if we are exiting A lens (curr_m > 0) into air (n_m == 0)
-                if curr_m > 0 and n_m == 0 and self.selected_lens:
-                    # Map the current medium index back to the lens object
-                    # media[1] -> self.lenses[0], etc.
-                    hitting_lens = self.lenses[curr_m - 1]
-                    
-                    # ONLY if the lens we are exiting is the SELECTED one AND it's diverging
-                    if hitting_lens == self.selected_lens and hitting_lens.get_internal_focal_length() < 0:
-                        exit_point = hit
-                        exit_vector = n_d
-
-                if hit is None: 
-                    path_points.append(curr_p + curr_d * 300)
-                    break
-                
-                path_points.append(hit)
-                if n_d is None: 
-                    break
-                curr_p, curr_d, curr_m = hit + n_d * 1e-4, n_d, n_m
-            
-            # Draw Red Rays
-            self.ax.plot(np.array(path_points)[:,0], np.array(path_points)[:,1], 'r-', lw=0.8, alpha=0.5)
-
-            # Draw Green Virtual Rays from the specific exit point
-            if exit_point is not None and exit_vector is not None:
-                v_pts = np.array([exit_point, exit_point - exit_vector * 1000])
-                self.ax.plot(v_pts[:,0], v_pts[:,1], 'g--', lw=0.6, alpha=0.3)
     
-        
 
     def on_press(self, event):
         if event.xdata is None: 

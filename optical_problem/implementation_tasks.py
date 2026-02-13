@@ -4,7 +4,7 @@ import numpy as np
 #  STUDENT IMPLEMENTATION (ASSIGNMENTS 1-4)
 # =============================================================================
 
-CONST_EPSILON = 0#1e-5
+CONST_EPSILON = 0 #1e-5
 
 def z_cross(v,u):
     return v[0] * u[1] - u[0] * v[1]
@@ -139,30 +139,36 @@ def refract_vector(ray_dir, normal, n1, n2):
 #  RAY TRACING, IMPLEMENTATION PROVIDED
 # =============================================================================
 
-def trace_ray_step(ray_origin, ray_dir, current_medium_id, curves, media):
+def trace_ray_step(ray_origin, ray_dir, curves, n1, n2):
     # --- 1. GEOMETRY: FIND NEAREST INTERSECTION ---
-    # Create list of (t, curve) tuples
-    hits = [(intersect_curve(ray_origin, ray_dir, c), c) for c in curves]
+    # We iterate only through the curves of the specific lens passed in
+    hits = []
+    for c in curves:
+        t = intersect_curve(ray_origin, ray_dir, c)
+        if t is not None and t > CONST_EPSILON: # Avoid self-intersection
+            hits.append((t, c))
     
-    # Filter for valid hits and find the one with the minimum t
-    min_t, hit_curve = min(hits, key=lambda x: x[0], default=(float('inf'), None))
+    # Find the closest valid hit
+    if not hits:
+        return None, None
 
+    min_t, hit_curve = min(hits, key=lambda x: x[0])
     if hit_curve is None or min_t == float('inf'):
-        return None, None, None 
+        return None, None 
 
     best_hit = ray_origin + min_t * ray_dir
 
     # --- 2. PHYSICS & 3. REFRACTION ---
-    # (The rest of your logic remains the same)
-    n1 = media[current_medium_id]['n']
-    new_medium_id = 0 if hit_curve['medium_id'] == current_medium_id else hit_curve['medium_id']
-    n2 = media[new_medium_id]['n']
-
+    # Normal calculation remains specific to the surface geometry
     normal = calculate_normal(best_hit, ray_dir, hit_curve)
+    
+    # Use n1 and n2 directly from the arguments
     new_dir = refract_vector(ray_dir, normal, n1, n2)
 
-    return best_hit, new_dir, new_medium_id
-    
+    # Return only the point and direction; medium tracking is now the Ray's job
+    return best_hit, new_dir
+
+
 # =============================================================================
 
 
