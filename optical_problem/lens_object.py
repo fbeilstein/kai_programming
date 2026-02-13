@@ -77,7 +77,8 @@ class LensObject:
         corners = []
         for part in self.geo:
             # Skip non-geometric metadata dictionary to avoid KeyError
-            if 'type' not in part: continue
+            if 'type' not in part: 
+                continue
             
             top_local, bot_local = get_local_endpoints(part)
             corners.append((transform(top_local), transform(bot_local)))
@@ -96,7 +97,23 @@ class LensObject:
         return curves
         
         
-        
+    def to_dict(self):
+        """Returns a JSON-serializable representation of this lens."""
+        return {
+            "x": float(self.x),
+            "y": float(self.y),
+            "angle": float(self.angle),
+            "n": float(self.n),
+            "geo": self.geo # This is the raw geometry list from the architect
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        """Creates a new LensObject instance from a dictionary."""
+        obj = cls(data["geo"], x_pos=data["x"], y_pos=data["y"])
+        obj.angle = data["angle"]
+        obj.n = data["n"]
+        return obj
         
         
         
