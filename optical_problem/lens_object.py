@@ -38,7 +38,12 @@ class LensObject:
         if (np.max(pts1[:,0]) < np.min(pts2[:,0]) or np.min(pts1[:,0]) > np.max(pts2[:,0]) or
             np.max(pts1[:,1]) < np.min(pts2[:,1]) or np.min(pts1[:,1]) > np.max(pts2[:,1])): return False
         path1 = Path(pts1); path2 = Path(pts2)
-        return path1.intersects_path(path2, filled=True)
+        if path1.intersects_path(path2, filled=True): return True
+        if any(path2.contains_points(pts1)): return True
+        if any(path1.contains_points(pts2)): return True
+        if path2.contains_point(np.mean(pts1, axis=0)): return True
+        if path1.contains_point(np.mean(pts2, axis=0)): return True
+        return False
 
     def get_internal_focal_length(self):
         p = self.phys

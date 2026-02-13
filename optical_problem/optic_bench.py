@@ -143,7 +143,8 @@ class OpticBenchApp(tk.Tk):
         self.lbl_phys.config(text=text)
         
         
-    def open_architect(self): LensArchitect(self, self.add_lens_callback)
+    def open_architect(self): 
+        LensArchitect(self, self.add_lens_callback)
 
     # --- RESTORED ORIGINAL SPAWN LOGIC ---
     def add_lens_callback(self, geometry_data):
@@ -201,14 +202,29 @@ class OpticBenchApp(tk.Tk):
             media[i+1] = {'n': lens.n} 
             curves.extend(lens.get_curves(i+1))
 
-        # Determine rays
+
+
         rays = []
         if self.source_type == "parallel":
-            for y in np.linspace(-85, 85, 45): 
+            for y in np.linspace(-85, 85, 50):
                 rays.append({'p': np.array([-150.0, y]), 'd': np.array([1.0, 0.0]), 'm': 0})
         else:
-            for a in np.linspace(0, 2*np.pi, 100, endpoint=False): 
-                rays.append({'p': self.source_pos.copy(), 'd': np.array([np.cos(a), np.sin(a)]), 'm': 0})
+            src = np.array([self.source_pos[0], self.source_pos[1]])
+            
+            # Check if source is starting inside a lens
+            start_medium = 0
+            for i, lens in enumerate(self.lenses):
+                if lens.contains(src): 
+                    start_medium = i + 1
+                    break
+            
+            # Full circle (0 to 2pi), 120 rays for smooth look
+            # We omit the last point to avoid duplicating 0 and 360
+            for angle in np.linspace(0, 2*np.pi, 120, endpoint=False):
+                d = np.array([np.cos(angle), np.sin(angle)])
+                rays.append({'p': src, 'd': d, 'm': start_medium})
+
+
 
         for ray in rays:
             curr_p, curr_d, curr_m = ray['p'], ray['d'], ray['m']
@@ -217,7 +233,7 @@ class OpticBenchApp(tk.Tk):
             exit_point = None
             exit_vector = None
 
-            for _ in range(12):
+            while True:
                 hit, n_d, n_m = trace_ray_step(curr_p, curr_d, curr_m, curves, media)
                 
                 # --- THE CORRECT FILTER ---
@@ -233,10 +249,12 @@ class OpticBenchApp(tk.Tk):
                         exit_vector = n_d
 
                 if hit is None: 
-                    path_points.append(curr_p + curr_d * 300); break
+                    path_points.append(curr_p + curr_d * 300)
+                    break
                 
                 path_points.append(hit)
-                if n_d is None: break
+                if n_d is None: 
+                    break
                 curr_p, curr_d, curr_m = hit + n_d * 1e-4, n_d, n_m
             
             # Draw Red Rays
@@ -250,7 +268,8 @@ class OpticBenchApp(tk.Tk):
         
 
     def on_press(self, event):
-        if event.xdata is None: return
+        if event.xdata is None: 
+            return
         self.last_mouse_pos = (event.xdata, event.ydata)
         if self.ruler_active:
             self.ruler_start = (event.xdata, event.ydata)
@@ -261,10 +280,15 @@ class OpticBenchApp(tk.Tk):
         self.selected_lens = None
         for lens in reversed(self.lenses):
             if lens.contains((event.xdata, event.ydata)):
-                self.selected_lens = lens; self.dragging_lens = lens
+                self.selected_lens = lens
+                self.dragging_lens = lens
+                self.n_var.set(self.selected_lens.n)
                 dx, dy = event.xdata - lens.x, event.ydata - lens.y
-                self.start_mouse_angle = np.degrees(np.arctan2(dy, dx)); self.start_lens_angle = lens.angle; break
-        self.update_inspector(); self.draw_scene()
+                self.start_mouse_angle = np.degrees(np.arctan2(dy, dx))
+                self.start_lens_angle = lens.angle
+                break
+        self.update_inspector()
+        self.draw_scene()
 
     def on_drag(self, event):
         if event.xdata is None: return
@@ -296,8 +320,11 @@ class OpticBenchApp(tk.Tk):
             self.draw_scene()
 
     def on_release(self, event): 
-        self.dragging_lens = None; self.dragging_source = False; self.ruler_start = None
-        if not self.ruler_active: self.draw_scene()
+        self.dragging_lens = None
+        self.dragging_source = False
+        self.ruler_start = None
+        if not self.ruler_active: 
+            self.draw_scene()
 
     def delete_lens(self):
         if self.selected_lens:
