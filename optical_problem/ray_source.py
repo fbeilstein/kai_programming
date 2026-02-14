@@ -9,7 +9,7 @@ class ParallelRaySource:
         rays = []
         # Standard parallel grid
         for y in np.linspace(-85, 85, 50):
-            rays.append(Ray(start_pos=[-150.0, y], direction=[1.0, 0.0], start_medium=0))
+            rays.append(Ray(start_pos=[-250.0, y], direction=[1.0, 0.0], start_medium=0))
         return rays
 
 class PointRaySource:
