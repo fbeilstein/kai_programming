@@ -52,23 +52,35 @@ class Inspector:
 
     def refresh_text(self):
         """Updates the descriptive text panel based on lens type."""
-        if not self.current_lens: return
+        if not self.current_lens: 
+            return
         
         p = self.current_lens.phys 
         n = self.current_lens.n
         theta = self.current_lens.angle
         
         if p.get('is_slab', False):
-            h_val = tasks.calculate_slab_displacement(p['d'], n, np.radians(theta))
+            try:
+                # Pass the actual rotation (converted to radians) to the student function
+                #h_val = tasks.calculate_slab_displacement(p['d'], n, np.radians(theta))
+                h_val = tasks.calculate_slab_displacement(p['d'], n, np.arcsin(np.sin(np.radians(int(theta)))))
+                h_str = f"{h_val:.2f} mm" if h_val is not None else "Not Implemented"
+            except: 
+                h_str = "Error in Task"
             text = (f"Type: SLAB\nn: {n:.3f}\nd: {p['d']:.1f}mm\n"
                     f"Angle: {theta:+.1f}°\n-------------------\n"
-                    f"Displacement: {h_val:.2f}mm")
+                    f"Displacement: {h_str}")
         else:
             R1 = p['R1_abs'] if p['is_convex_front'] else -p['R1_abs']
             R2 = -p['R2_abs'] if p['is_convex_back'] else p['R2_abs']
-            f_val = tasks.calculate_focal_length(R1, R2, p['d'], n)
+            try:
+                # Student only sees the standard 4-parameter call
+                f_val = tasks.calculate_focal_length(R1, R2, p['d'], n)
+                f_str = f"{f_val:.2f} mm" if f_val is not None else "Not Implemented"
+            except:
+                f_str = "Error"
             text = (f"Type: LENS\nn: {n:.3f}\nR1: {R1:+.1f}\nR2: {R2:+.1f}\n"
                     f"d: {p['d']:.1f}\n-------------------\n"
-                    f"Theor. f: {f_val:.2f}mm")
+                    f"Theor. f: {f_str}")
         
         self.lbl_phys.config(text=text)
