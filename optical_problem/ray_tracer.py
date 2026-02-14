@@ -1,7 +1,7 @@
 import numpy as np
 import implementation_tasks as tasks
 
-EPSILON = 1e-5
+EPSILON = 1e-4
 
 class RayTracer:
     @staticmethod
