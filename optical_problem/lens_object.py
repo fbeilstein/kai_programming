@@ -104,15 +104,15 @@ class LensObject:
             "y": float(self.y),
             "angle": float(self.angle),
             "n": float(self.n),
-            "geo": self.geo # This is the raw geometry list from the architect
+            "geo": self.geo # This contains the 'physics' dict with convex/back info
         }
 
     @classmethod
     def from_dict(cls, data):
         """Creates a new LensObject instance from a dictionary."""
-        obj = cls(data["geo"], x_pos=data["x"], y_pos=data["y"])
-        obj.angle = data["angle"]
-        obj.n = data["n"]
+        # We pass n to the constructor so self.n is set correctly on load
+        obj = cls(data["geo"], x_pos=data["x"], y_pos=data["y"], 
+                  angle=data["angle"], n=data["n"])
         return obj
         
         

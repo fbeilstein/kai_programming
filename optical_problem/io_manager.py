@@ -5,13 +5,23 @@ from tkinter import filedialog, messagebox
 class IOManager:
     @staticmethod
     def _clean_types(obj):
-        """Recursively ensures all types are standard Python types for JSON."""
-        if isinstance(obj, (np.float32, np.float64)): return float(obj)
-        if isinstance(obj, (np.int32, np.int64)): return int(obj)
-        if isinstance(obj, (np.bool_, bool)): return bool(obj)
-        if isinstance(obj, np.ndarray): return obj.tolist()
-        if isinstance(obj, dict): return {k: IOManager._clean_types(v) for k, v in obj.items()}
-        if isinstance(obj, list): return [IOManager._clean_types(i) for i in obj]
+        if isinstance(obj, (np.bool_, bool)): 
+            return bool(obj)
+        
+        # Catch NumPy numbers
+        if isinstance(obj, (np.float32, np.float64)): 
+            return float(obj)
+        if isinstance(obj, (np.int32, np.int64)): 
+            return int(obj)
+            
+        # Recursive cleaning for nested structures like 'geo'
+        if isinstance(obj, np.ndarray): 
+            return obj.tolist()
+        if isinstance(obj, dict): 
+            return {k: IOManager._clean_types(v) for k, v in obj.items()}
+        if isinstance(obj, list): 
+            return [IOManager._clean_types(i) for i in obj]
+            
         return obj
 
     @staticmethod
@@ -20,11 +30,12 @@ class IOManager:
         if not file_path: return
         
         # Bench only handles bench-level data
-        data = {
+        raw_data = {
             "source_type": source_type,
             "source_pos": IOManager._clean_types(source_pos),
             "lenses": [lens.to_dict() for lens in lenses] # Lenses handle themselves!
         }
+        data = IOManager._clean_types(raw_data)
         
         try:
             with open(file_path, 'w') as f:
