@@ -180,11 +180,16 @@ def trace_ray_step(ray_origin, ray_dir, curves, n1, n2):
 def calculate_focal_length(R1, R2, d, n):
     power = (n - 1) * (1/R1 - 1/R2 + ((n - 1) * d * 1/R1 * 1/R2) / n)
     return 1.0 / power
-    
+
+#def calculate_focal_length(R1, R2, d, n):
+#    pass 
+
 
 def calculate_slab_displacement(d, n, theta):
     theta_prime = np.arcsin(np.sin(theta) / n)
     h = d * np.sin(theta - theta_prime) / np.cos(theta_prime)
     return h
-    
+
+#def calculate_slab_displacement(d, n, theta):
+#    pass    
     
