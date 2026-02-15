@@ -3,7 +3,7 @@ import numpy as np
 # Import your functions from your implementation file
 from implementation_tasks import (
     intersect_line_infinite, intersect_segment,
-    intersect_circle_infinite, intersect_arc,
+    intersect_circle, intersect_arc,
     calculate_normal_segment, calculate_normal_arc,
     refract_vector
 )
@@ -44,7 +44,7 @@ class TestOpticsMath(unittest.TestCase):
     def test_l3_circle_solutions(self):
         """Should return a list of coordinate points."""
         # Ray starts at x=-10, moves right. Hits circle radius 5 at center [0,0]
-        pts = intersect_circle_infinite(np.array([-10.0, 0.0]), np.array([1.0, 0.0]), np.array([0.0, 0.0]), 5.0)
+        pts = intersect_circle(np.array([-10.0, 0.0]), np.array([1.0, 0.0]), np.array([0.0, 0.0]), 5.0)
         
         # Expect a list/tuple of two points: [-5, 0] and [5, 0]
         self.assertEqual(len(pts), 2)

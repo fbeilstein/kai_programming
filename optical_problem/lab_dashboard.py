@@ -135,7 +135,7 @@ class OpticsDebugger(tk.Tk):
         elif self.current_lvl == 3:
             radius = np.linalg.norm(self.handles['radius_h'] - center)
             self.ax.add_patch(Circle(center, radius, color=SURF_COLOR, fill=False, lw=3, zorder=3))
-            t_raw = tasks.intersect_circle_infinite(r_o, ray_dir, center, radius)
+            t_raw = tasks.intersect_circle(r_o, ray_dir, center, radius)
             curve = {'type': 'circle', 'center': center, 'radius': radius}
 
         # --- ARC LEVELS (4, 6) ---
