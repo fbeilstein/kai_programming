@@ -115,6 +115,7 @@ class OpticsDebugger(tk.Tk):
         
         GUIDE_COLOR, SURF_COLOR, RAY_COLOR, HANDLE_COLOR = "#ff0000", "#00ffff", "#ff8c00", "#ffff00"
         t_raw, curve = float('inf'), None
+        
 
         # --- LINEAR LEVELS (1, 2, 5, 7) ---
         if self.current_lvl in [1, 2, 5, 7]:
@@ -155,22 +156,43 @@ class OpticsDebugger(tk.Tk):
             t_raw = tasks.intersect_arc(r_o, ray_dir, center, radius, axis, cos_half)
             curve = {'type': 'arc', 'center': center, 'radius': radius, 'axis': axis, 'cos_half_angle': cos_half}
 
-        # Handle Return Types (L1/L3 return lists or tuples)
-        t = t_raw[0] if isinstance(t_raw, (list, tuple)) and len(t_raw) > 0 else t_raw
-        if isinstance(t, (list, tuple)): t = float('inf') # Safety for double nesting
-        
-        is_hit = (t is not None) and (t != float('inf')) and (t > 1e-4)
+
+        # Handle Return Types (L1-L4 now return coordinates/points)
+        t = None
+        if t_raw is None or (isinstance(t_raw, (list, tuple, np.ndarray)) and len(t_raw) == 0):
+            t = None
+        elif isinstance(t_raw, (list, tuple)):
+            # It's a list of points (like from our new circle function)
+            dists = [np.linalg.norm(p - r_o) for p in t_raw if np.dot(p - r_o, ray_dir) > 1e-4]
+            t = min(dists) if dists else None
+        elif isinstance(t_raw, np.ndarray):
+            if t_raw.ndim == 1: # Single coordinate [x, y]
+                t = np.linalg.norm(t_raw - r_o)
+            elif t_raw.ndim == 2: # Array of coordinates [[x1,y1], [x2,y2]]
+                dists = [np.linalg.norm(p - r_o) for p in t_raw if np.dot(p - r_o, ray_dir) > 1e-4]
+                t = min(dists) if dists else None
+        else:
+            t = t_raw # Fallback for scalars
+
+        # Final check remains safe because t is a scalar or None
+        is_hit = (t is not None) and (not np.isinf(t)) and (t > 1e-4)
+
         hit_dist = t if is_hit else 150
         hit_pt = r_o + hit_dist * ray_dir
         self.ax.plot([r_o[0], hit_pt[0]], [r_o[1], hit_pt[1]], color=RAY_COLOR, lw=2)
 
         if is_hit:
+            # Re-calculate hit_pt from our extracted t
+            hit_pt = r_o + t * ray_dir 
             self.ax.scatter(hit_pt[0], hit_pt[1], c="#4ec9b0", s=120, edgecolors='white', zorder=10)
+            
             if self.current_lvl in [5, 6, 7]:
                 norm = tasks.calculate_normal(hit_pt, ray_dir, curve)
                 if norm is not None and np.linalg.norm(norm) > 1e-3:
                     self.ax.quiver(hit_pt[0], hit_pt[1], norm[0], norm[1], color="#c586c0", scale=12, pivot='tail')
+                    
                     if self.current_lvl == 7:
+                        # n1=1.0 (Air), n2=1.5 (Glass)
                         refr_dir = tasks.refract_vector(ray_dir, norm, 1.0, 1.5)
                         if refr_dir is not None:
                             refr_end = hit_pt + refr_dir * 40

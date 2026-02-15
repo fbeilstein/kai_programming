@@ -13,50 +13,80 @@ def z_cross(v,u):
 def intersect_line_infinite(ray_origin, ray_dir, p1, p2):
     v = p2 - p1
     denom = z_cross(v, ray_dir)
-    if abs(denom) <= CONST_EPSILON: return float('inf'), float('inf')
-    u = z_cross(ray_origin - p1, ray_dir) / denom
+    if abs(denom) <= CONST_EPSILON: 
+        return None
     t = z_cross(ray_origin - p1, v) / denom
-    return t, u
+    if t <= 0:
+        return None
+    return ray_origin + t * ray_dir
+    
 
 #def intersect_line_infinite(ray_origin, ray_dir, p1, p2):
 #    pass
     
 
 def intersect_segment(ray_origin, ray_dir, p1, p2):
-    # LEVEL 2: Implement boundary check
-    t, u = intersect_line_infinite(ray_origin, ray_dir, p1, p2)
-    if 0 <= u <= 1 and t > CONST_EPSILON: return t
-    return float('inf')
+    # 1. Get the intersection point with the infinite line
+    intersect_p = intersect_line_infinite(ray_origin, ray_dir, p1, p2)
+    if intersect_p is None:
+        return None
+    
+    # 2. Calculate the segment parameter 'u'
+    # u = (P - P1) · (P2 - P1) / |P2 - P1|^2
+    v = p2 - p1
+    u = np.dot(intersect_p - p1, v) / np.dot(v, v)
+    
+    # 3. Boundary and Direction Checks
+    # Check if point is on segment (0 <= u <= 1) 
+    # AND in front of the ray (dot product with direction > 0)
+    if 0 <= u <= 1: 
+        return intersect_p
+        
+    return None
 
 #def intersect_segment(ray_origin, ray_dir, p1, p2):
 #    pass
 
 
 def intersect_circle_infinite(ray_origin, ray_dir, center, radius):
-    # LEVEL 3: Standard quadratic intersection
     OC = ray_origin - center
     b = 2 * np.dot(ray_dir, OC)
     c = np.dot(OC, OC) - radius**2
     discriminant = b**2 - 4*c
-    if discriminant < 0: return []
+    
+    if discriminant < 0: 
+        return [] # Return empty list
+    
     sqrt_d = np.sqrt(discriminant)
-    return [(-b - sqrt_d) / 2, (-b + sqrt_d) / 2]
-
+    t_vals = [(-b - sqrt_d) / 2, (-b + sqrt_d) / 2]
+    
+    # Return a list of coordinate arrays
+    return [ray_origin + t * ray_dir for t in t_vals if t > 0]
+    
 #def intersect_circle_infinite(ray_origin, ray_dir, center, radius):
 #    pass
 
 
 def intersect_arc(ray_origin, ray_dir, center, radius, axis, cos_half_angle):
     # LEVEL 4: Angular sector check
-    ts = intersect_circle_infinite(ray_origin, ray_dir, center, radius)
-    best_t = float('inf')
-    for t in ts:
-        if t > CONST_EPSILON:
-            P = ray_origin + t * ray_dir
-            vec_CP = (P - center) / radius
-            if np.dot(vec_CP, axis) >= cos_half_angle - CONST_EPSILON:
-                if t < best_t: best_t = t
-    return best_t
+    intersect_pts = intersect_circle_infinite(ray_origin, ray_dir, center, radius)
+    
+    # Handle the case where intersect_circle_infinite returns an empty array
+    if len(intersect_pts) == 0:
+        return None
+
+    best_dist = float("inf")
+    best_p = None
+    for P in intersect_pts:
+        # 2. Angular Check: Ensure the hit is within the arc span
+        vec_CP = (P - center) / radius
+        if np.dot(vec_CP, axis) >= cos_half_angle - 1e-7: # Use a small epsilon for float stability
+            d = np.linalg.norm(P - ray_origin)
+            if d < best_dist: 
+                best_dist = d
+                best_p = P
+                
+    return best_p
 
 #def intersect_arc(ray_origin, ray_dir, center, radius, axis, cos_half_angle):
 #    pass
@@ -70,7 +100,7 @@ def intersect_curve(ray_origin, ray_dir, curve):
     elif curve['type'] == 'arc':
         return intersect_arc(ray_origin, ray_dir, curve['center'], 
                              curve['radius'], curve['axis'], curve['cos_half_angle'])
-    return float('inf')
+    return None
 # =============================================================================
 
 
@@ -144,9 +174,12 @@ def trace_ray_step(ray_origin, ray_dir, curves, n1, n2):
     # We iterate only through the curves of the specific lens passed in
     hits = []
     for c in curves:
-        t = intersect_curve(ray_origin, ray_dir, c)
-        if t is not None and t > CONST_EPSILON: # Avoid self-intersection
-            hits.append((t, c))
+        p = intersect_curve(ray_origin, ray_dir, c)
+        if p is None:
+            continue
+        d = np.linalg.norm(p - ray_origin)
+        if d > CONST_EPSILON: # Avoid self-intersection
+            hits.append((d, c))
     
     # Find the closest valid hit
     if not hits:

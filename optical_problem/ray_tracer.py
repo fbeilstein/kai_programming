@@ -1,5 +1,5 @@
 import numpy as np
-import implementation_tasks as tasks
+from implementation_tasks import trace_ray_step
 
 EPSILON = 1e-4
 
@@ -22,7 +22,7 @@ class RayTracer:
                 n2 = lens.n if ray.current_medium == 0 else 1.0
                 
                 # Your API: Returns (hit_point, new_direction) or (None, None)
-                hit, n_d = tasks.trace_ray_step(
+                hit, n_d = trace_ray_step(
                     ray.current_pos, 
                     ray.direction, 
                     lens.get_curves(0), 

@@ -12,88 +12,84 @@ class TestOpticsMath(unittest.TestCase):
 
     # --- LEVEL 1: Infinite Line Math ---
     def test_l1_infinite_hit(self):
-        """Checks if the math finds the intersection of two infinite lines."""
-        origin, rd = np.array([0, 0]), np.array([1, 0])
-        p1, p2 = np.array([5, -5]), np.array([5, 5])
+        """Checks if the math finds the intersection point."""
+        origin, rd = np.array([0.0, 0.0]), np.array([1.0, 0.0])
+        p1, p2 = np.array([5.0, -5.0]), np.array([5.0, 5.0])
         result = intersect_line_infinite(origin, rd, p1, p2)
-        if isinstance(result, (tuple, list, np.ndarray)):
-            t = result[0]
-        else:
-            t = result
-        self.assertAlmostEqual(t, 5.0)
+        
+        # We now check for a coordinate point [5, 0], not a scalar
+        self.assertIsInstance(result, np.ndarray)
+        np.testing.assert_allclose(result, [5.0, 0.0], atol=1e-7)
 
     def test_l1_parallel(self):
-        """Parallel lines should return infinity to avoid division by zero."""
-        origin, rd = np.array([0, 0]), np.array([1, 0])
-        p1, p2 = np.array([0, 5]), np.array([10, 5])
+        """Parallel lines should return None."""
+        origin, rd = np.array([0.0, 0.0]), np.array([1.0, 0.0])
+        p1, p2 = np.array([0.0, 5.0]), np.array([10.0, 5.0])
         result = intersect_line_infinite(origin, rd, p1, p2)
-        if isinstance(result, (tuple, list, np.ndarray)):
-            t = result[0]
-        else:
-            t = result
-        self.assertEqual(t, float('inf'))
+        self.assertIsNone(result)
 
     # --- LEVEL 2: Segment Logic ---
     def test_l2_segment_bounds(self):
-        """Check that t is returned only if the hit is within the [0, 1] segment."""
-        # Horizontal ray at y=0. Segment goes from x=5, y=-1 to y=1. (HIT)
-        t_hit = intersect_segment(np.array([0,0]), np.array([1,0]), np.array([5,-1]), np.array([5,1]))
-        self.assertAlmostEqual(t_hit, 5.0)
-        # Same ray, but segment is shifted to y=2 to y=4. (MISS)
-        t_miss = intersect_segment(np.array([0,0]), np.array([1,0]), np.array([5,2]), np.array([5,4]))
-        self.assertEqual(t_miss, float('inf'))
+        """Check that a point is returned only if within the [0, 1] segment."""
+        # HIT: Segment crosses the ray path
+        p_hit = intersect_segment(np.array([0,0]), np.array([1,0]), np.array([5,-1]), np.array([5,1]))
+        self.assertIsInstance(p_hit, np.ndarray)
+        np.testing.assert_allclose(p_hit, [5.0, 0.0], atol=1e-7)
+        
+        # MISS: Segment is out of bounds
+        p_miss = intersect_segment(np.array([0,0]), np.array([1,0]), np.array([5,2]), np.array([5,4]))
+        self.assertIsNone(p_miss)
 
     # --- LEVEL 3: Circle Math ---
     def test_l3_circle_solutions(self):
-        """Quadratic should return two points for a ray passing through a circle."""
-        ts = intersect_circle_infinite(np.array([-10, 0]), np.array([1, 0]), np.array([0, 0]), 5.0)
-        self.assertEqual(len(ts), 2)
-        self.assertTrue(5.0 in ts and 15.0 in ts)
+        """Should return a list of coordinate points."""
+        # Ray starts at x=-10, moves right. Hits circle radius 5 at center [0,0]
+        pts = intersect_circle_infinite(np.array([-10.0, 0.0]), np.array([1.0, 0.0]), np.array([0.0, 0.0]), 5.0)
+        
+        # Expect a list/tuple of two points: [-5, 0] and [5, 0]
+        self.assertEqual(len(pts), 2)
+        x_coords = sorted([p[0] for p in pts])
+        self.assertAlmostEqual(x_coords[0], -5.0)
+        self.assertAlmostEqual(x_coords[1], 5.0)
 
     # --- LEVEL 4: Arc Sector Logic ---
     def test_l4_arc_sector(self):
-        """Check if the angular sector logic correctly ignores the back of the circle."""
-        center = np.array([0, 0])
-        axis = np.array([-1, 0]) # Arc faces left
+        """Check if angular sector logic correctly returns the valid hit point."""
+        center = np.array([0.0, 0.0])
+        axis = np.array([-1.0, 0.0]) # Arc faces left
         cos_half = np.cos(np.radians(45))
-        # Ray from left hits front of circle at t=5, back at t=15.
-        # Only t=5 is inside the 'left-facing' arc.
-        t = intersect_arc(np.array([-10, 0]), np.array([1, 0]), center, 5.0, axis, cos_half)
-        self.assertAlmostEqual(t, 5.0)
+        
+        # Ray from left hits [-5, 0] and [5, 0]. Only [-5, 0] is inside the left-facing arc.
+        p = intersect_arc(np.array([-10.0, 0.0]), np.array([1.0, 0.0]), center, 5.0, axis, cos_half)
+        self.assertIsInstance(p, np.ndarray)
+        np.testing.assert_allclose(p, [-5.0, 0.0], atol=1e-7)
 
-    # --- LEVEL 5: Segment Normal ---
+    # --- LEVEL 5 & 6: Normals ---
     def test_l5_segment_normal_flip(self):
-        """The normal must ALWAYS point against the incoming ray."""
-        rd = np.array([1.0, 0.0]) # Ray moving right
-        p1, p2 = np.array([5, -1]), np.array([5, 1])
+        """Verify normal points against the ray direction."""
+        rd = np.array([1.0, 0.0])
+        p1, p2 = np.array([5.0, -1.0]), np.array([5.0, 1.0])
         n = calculate_normal_segment(rd, p1, p2)
-        # Normal should be [-1, 0]. Dot product must be negative.
         self.assertLess(np.dot(rd, n), 0)
         self.assertAlmostEqual(n[0], -1.0)
 
-    # --- LEVEL 6: Arc Normal ---
     def test_l6_arc_normal_radial(self):
-        """Normal should be the radial vector (Hit - Center) flipped to face the ray."""
-        center = np.array([0, 0])
-        hit = np.array([-5, 0])
-        rd = np.array([1, 0]) # Ray moving right hits left side of circle
+        """Verify normal is radial and flipped to face ray."""
+        center = np.array([0.0, 0.0])
+        hit = np.array([-5.0, 0.0])
+        rd = np.array([1.0, 0.0])
         n = calculate_normal_arc(hit, rd, center)
-        # Vector (Hit-Center) is [-5, 0]. rd is [1, 0]. Dot is -5 (already faces ray).
         self.assertAlmostEqual(n[0], -1.0)
 
+    # --- LEVEL 7: Refraction ---
     def test_l7_refraction(self):
-        """Verifies Snell's Law: 45deg incident ray from Air(1.0) to Glass(1.5)."""
+        """Verifies Snell's Law vector output."""
         ray_dir = np.array([1.0, -1.0]) / np.sqrt(2) # 45 degrees
-        normal = np.array([0.0, 1.0]) # Surface is horizontal, normal points up
-        
-        # Expected: Light bends toward the normal
+        normal = np.array([0.0, 1.0])
         new_dir = refract_vector(ray_dir, normal, 1.0, 1.5)
-        
-        # Check if refracted ray is valid and normalized
         self.assertIsNotNone(new_dir)
         self.assertAlmostEqual(np.linalg.norm(new_dir), 1.0)
-        # The X-component should be smaller than incident in this specific geometry
-        self.assertLess(abs(new_dir[0]), abs(ray_dir[0]))
+        self.assertLess(abs(new_dir[0]), abs(ray_dir[0])) # Bends toward normal
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import numpy as np
-import implementation_tasks as tasks
+from implementation_tasks import calculate_slab_displacement, calculate_focal_length
 
 class Inspector:
     def __init__(self, parent, on_update_callback):
@@ -26,11 +26,11 @@ class Inspector:
         ctrl_frame = tk.Frame(self.frame)
         ctrl_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
         
-        tk.Label(ctrl_frame, text="Index (n):").pack(side=tk.LEFT, padx=5)
-        self.spin_n = ttk.Spinbox(ctrl_frame, from_=1.0, to=4.0, increment=0.01, 
-                                  textvariable=self.n_var, width=6, command=self.sync_to_lens)
-        self.spin_n.pack(side=tk.LEFT)
-        self.n_var.trace_add("write", lambda *args: self.sync_to_lens())
+        #tk.Label(ctrl_frame, text="Index (n):").pack(side=tk.LEFT, padx=5)
+        #self.spin_n = ttk.Spinbox(ctrl_frame, from_=1.0, to=4.0, increment=0.01, 
+        #                          textvariable=self.n_var, width=6, command=self.sync_to_lens)
+        #self.spin_n.pack(side=tk.LEFT)
+        #self.n_var.trace_add("write", lambda *args: self.sync_to_lens())
 
     def sync_with_selected(self, lens):
         """Called by the Bench when a lens is clicked or loaded."""
@@ -63,7 +63,7 @@ class Inspector:
             try:
                 # Pass the actual rotation (converted to radians) to the student function
                 #h_val = tasks.calculate_slab_displacement(p['d'], n, np.radians(theta))
-                h_val = tasks.calculate_slab_displacement(p['d'], n, np.arcsin(np.sin(np.radians(int(theta)))))
+                h_val = calculate_slab_displacement(p['d'], n, np.arcsin(np.sin(np.radians(int(theta)))))
                 h_str = f"{h_val:.2f} mm" if h_val is not None else "Not Implemented"
             except: 
                 h_str = "Error in Task"
@@ -75,7 +75,7 @@ class Inspector:
             R2 = -p['R2_abs'] if p['is_convex_back'] else p['R2_abs']
             try:
                 # Student only sees the standard 4-parameter call
-                f_val = tasks.calculate_focal_length(R1, R2, p['d'], n)
+                f_val = calculate_focal_length(R1, R2, p['d'], n)
                 f_str = f"{f_val:.2f} mm" if f_val is not None else "Not Implemented"
             except:
                 f_str = "Error"
