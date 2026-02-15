@@ -164,13 +164,13 @@ class OpticsDebugger(tk.Tk):
         elif isinstance(t_raw, (list, tuple)):
             # It's a list of points (like from our new circle function)
             dists = [np.linalg.norm(p - r_o) for p in t_raw if np.dot(p - r_o, ray_dir) > 1e-4]
-            t = min(dists) if dists else None
+            t = dists[0] if dists else None
         elif isinstance(t_raw, np.ndarray):
             if t_raw.ndim == 1: # Single coordinate [x, y]
                 t = np.linalg.norm(t_raw - r_o)
             elif t_raw.ndim == 2: # Array of coordinates [[x1,y1], [x2,y2]]
                 dists = [np.linalg.norm(p - r_o) for p in t_raw if np.dot(p - r_o, ray_dir) > 1e-4]
-                t = min(dists) if dists else None
+                t = dists[0] if dists else None
         else:
             t = t_raw # Fallback for scalars
 

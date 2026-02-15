@@ -71,22 +71,15 @@ def intersect_arc(ray_origin, ray_dir, center, radius, axis, cos_half_angle):
     # LEVEL 4: Angular sector check
     intersect_pts = intersect_circle_infinite(ray_origin, ray_dir, center, radius)
     
-    # Handle the case where intersect_circle_infinite returns an empty array
     if len(intersect_pts) == 0:
         return None
 
-    best_dist = float("inf")
-    best_p = None
     for P in intersect_pts:
-        # 2. Angular Check: Ensure the hit is within the arc span
         vec_CP = (P - center) / radius
-        if np.dot(vec_CP, axis) >= cos_half_angle - 1e-7: # Use a small epsilon for float stability
-            d = np.linalg.norm(P - ray_origin)
-            if d < best_dist: 
-                best_dist = d
-                best_p = P
+        if np.dot(vec_CP, axis) >= cos_half_angle - CONST_EPSILON: # Use a small epsilon for float stability
+            return P
                 
-    return best_p
+    return None
 
 #def intersect_arc(ray_origin, ray_dir, center, radius, axis, cos_half_angle):
 #    pass
@@ -154,7 +147,8 @@ def refract_vector(ray_dir, normal, n1, n2):
     cos_theta1 = -np.dot(ray_dir, normal)
     sin2_theta1 = 1 - cos_theta1**2
     sin2_theta2 = eta**2 * sin2_theta1
-    if sin2_theta2 > 1.0: return None 
+    if sin2_theta2 > 1.0: 
+        return None 
     cos_theta2 = np.sqrt(1 - sin2_theta2)
     return eta * ray_dir + (eta * cos_theta1 - cos_theta2) * normal
 
