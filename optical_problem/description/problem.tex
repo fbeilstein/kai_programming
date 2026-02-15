@@ -135,7 +135,7 @@ Now proceed with the following problems. First solve the math part so you get th
 \textbf{Given:} A light ray starting at origin $\mathbf{O}$ with a unit direction vector $\vec{d}$, and a circle defined by its center $\mathbf{C}$ and radius $R$. \\
 \textbf{Derive:} The intersection points $\mathbf{Q}_1$ and $\mathbf{Q}_2$ of the ray and the circle. Define them in way $\mathbf{Q}_1$ is \textbf{always closer} to the ray source than $\mathbf{Q}_2$. \textbf{Hint:} substitute the ray equation $\mathbf{r}(t) = \mathbf{O} + t\vec{d}$ into the circle equation $\|\mathbf{r} - \mathbf{C}\|^2 = R^2$ and solve the resulting quadratic equation for $t$. Note that the discriminant is always a positive number.
 
-\subsubsection*{Implementation part}\textbf{Implement:} a function \lstinline|intersect_circle(ray_origin, ray_dir, center, radius)| that returns a list of intersection points $\mathbf{Q}_1$ and $\mathbf{Q}_2$ as \lstinline|numpy.array| objects. Make sure that \textbf{the point closer to the ray source preceeds in the list}. If no intersections exist, return an empty list \lstinline|[]|. If there is only one intersection point, you can either return a list containing only that point, or a list containing its two copies\,--- both cases will be valid.
+\subsubsection*{Implementation part}\textbf{Implement:} a function \lstinline|intersect_circle(ray_origin, ray_dir, center, radius)| that returns a list of intersection points $\mathbf{Q}_1$ and $\mathbf{Q}_2$ as \lstinline|numpy.array| objects. Make sure that \textbf{the point closer to the ray source preceeds in the list}. If no intersection exists, return an empty list \lstinline|[]|. If there is only one intersection point, you can either return a list containing only that point, or a list containing its two copies\,--- both cases will be valid.
 \begin{center}
 \renewcommand{\arraystretch}{2.0}
 \begin{tabular}{r | c | c | c | c | c}
@@ -154,7 +154,12 @@ Now proceed with the following problems. First solve the math part so you get th
 
 \subsubsection*{Mathematical part}
 \textbf{Given:} A light ray starting at origin $\mathbf{O}$ with a unit direction vector $\vec{d}$, and an arc defined by center $\mathbf{C}$, radius $R$, central axis unit vector $\vec{a}$, and the cosine of the half-aperture angle $\cos(\phi)$. \\
-\textbf{Derive:} The condition that an intersection point $\mathbf{Q}$ lies within the angular sector of the arc. \textbf{Hint:} use the dot product between the normalized vector $(\mathbf{Q} - \mathbf{C})$ and the axis $\vec{a}$.
+\textbf{Derive:} The condition that an intersection point $\mathbf{Q}$ lies within the angular sector of the arc (see image below). \textbf{Hint:} use the dot product between the normalized vector $(\mathbf{Q} - \mathbf{C})$ and the axis $\vec{a}$.
+
+\begin{center}
+ \includegraphics[width=0.5\textwidth]{arcs}
+\end{center}
+
 
 \subsubsection*{Implementation part}
 \textbf{Implement:} a function
