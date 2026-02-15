@@ -1,7 +1,7 @@
 # Programming and Mathematical Modelling
 
 ## Schedule
-Wednesday 12:30 (next week Monday 13:30)
+Monday 13:30 (next week Wednesday 12:30)
 
 ### Lecture 1. Recap on Python
 -  [Notes in Colab](https://colab.research.google.com/github/fbeilstein/kai_programming/blob/master/lecture_1_python_refresher.ipynb)
@@ -9,11 +9,13 @@ Wednesday 12:30 (next week Monday 13:30)
 ### Lecture 2. Recap on Numpy, Dumping to CSV
 -  [Notes in Colab](https://colab.research.google.com/github/fbeilstein/kai_programming/blob/master/lecture_2_numpy_refresher.ipynb)
 
+### Lecture 3. Solving Practical Problems
+
 ## Draft for Syllabus
 
  1. Python Recap
  2. Numpy Recap
- 3.
+ 3. Practice (Ray Tracing)
  4.
  5.
  6.
