@@ -10,6 +10,7 @@ Monday 13:30 (next week Wednesday 12:30)
 -  [Notes in Colab](https://colab.research.google.com/github/fbeilstein/kai_programming/blob/master/lecture_2_numpy_refresher.ipynb)
 
 ### Lecture 3. Solving Practical Problems
+- [Download the Problemset (Ray Tracing, Geometric Optics)](https://github.com/fbeilstein/kai_programming/releases/download/problem_1/problem_1.zip)
 
 ## Draft for Syllabus
 
