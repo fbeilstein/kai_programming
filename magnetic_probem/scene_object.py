@@ -1,12 +1,13 @@
 import vtk
 
 class SceneObject:
-    def __init__(self, plotter, actors):
+    # ADDED allow_scaling=True parameter
+    def __init__(self, plotter, actors, allow_scaling=True): 
         self.plotter = plotter
         self.actors = actors
         self.transform = vtk.vtkTransform()
         
-        # Compute local bounds exactly once
+        # 1. Compute bounds
         bounds = [None]*6
         for i, actor in enumerate(self.actors):
             b = actor.GetBounds()
@@ -19,7 +20,6 @@ class SceneObject:
                     min(bounds[4], b[4]), max(bounds[5], b[5])
                 ]
         
-        # Enlarge bounds to push handles outside the geometry
         scale = 1.05
         cx, cy, cz = (bounds[0]+bounds[1])/2, (bounds[2]+bounds[3])/2, (bounds[4]+bounds[5])/2
         dx = (bounds[1]-bounds[0]) * scale
@@ -36,8 +36,17 @@ class SceneObject:
         self.rep = vtk.vtkBoxRepresentation()
         self.rep.PlaceWidget(pad_bounds)
         
-        self.rep.GetHandleProperty().SetColor(1, 0, 0)
-        self.rep.GetHandleProperty().SetOpacity(1.0)
+        # --- NEW LOGIC FOR SCALING ---
+        if allow_scaling:
+            self.rep.GetHandleProperty().SetColor(1, 0, 0)
+            self.rep.GetHandleProperty().SetOpacity(1.0)
+        else:
+            # Disable uniform scaling (right-click drag)
+            self.widget.SetScalingEnabled(0)
+            # Disable individual axis scaling (grabbing the faces/handles)
+            self.widget.SetMoveFacesEnabled(0)
+            # Hide the spherical handles completely so they don't even appear
+            self.rep.GetHandleProperty().SetOpacity(0.0)
         
         self.widget.SetRepresentation(self.rep)
         self.widget.SetInteractor(plotter.iren.interactor)
@@ -52,5 +61,4 @@ class SceneObject:
         self.widget.SetEnabled(active)
 
     def get_rasterization_data(self):
-        """Override this in child classes to return physics data + current transform."""
         return {"transform": self.transform}
