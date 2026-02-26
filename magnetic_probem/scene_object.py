@@ -62,3 +62,10 @@ class SceneObject:
 
     def get_rasterization_data(self):
         return {"transform": self.transform}
+        
+    def destroy(self):
+        """Safely removes the widget and actors from the VTK scene."""
+        self.widget.SetEnabled(0)
+        self.widget.RemoveAllObservers()
+        for actor in self.actors:
+            self.plotter.remove_actor(actor)
