@@ -1,34 +1,27 @@
 import numpy as np
-import torch
+import cupy as cp
 
 def solve_magnetic_field(X, mu_grid, M_grid, max_iter=5000, tol=1e-5):
-    """
-    Solves for the magnetic scalar potential using a PyTorch vectorized Jacobi iteration.
-    Returns the B-field vector grid (Bx, By, Bz).
-    """
-    # 1. Hardware Engineering: Auto-detect CUDA
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"\n--- SOLVER INITIALIZED ---")
-    print(f"Hardware Acceleration: {device.type.upper()}")
+    print(f"Hardware Acceleration: CUPY (GTX 950M)")
     
-    # Extract uniform grid spacing
-    dx = X[1, 0, 0] - X[0, 0, 0]
-    dy = dx # Assuming uniform grid based on our linspace
-    dz = dx 
+    # 1. Grid Spacing
+    dx = float(X[1, 0, 0] - X[0, 0, 0])
+    dy, dz = dx, dx 
 
-    # 2. Upload arrays to GPU (or CPU fallback)
-    mu = torch.tensor(mu_grid, dtype=torch.float32, device=device)
-    M = torch.tensor(M_grid, dtype=torch.float32, device=device)
+    # 2. Upload to GPU
+    mu = cp.array(mu_grid, dtype=cp.float32)
+    M = cp.array(M_grid, dtype=cp.float32)
     
-    # 3. Compute Divergence of M (The "Magnetic Charge Density")
-    # Using central differences for the interior of the grid
-    div_M = torch.zeros_like(mu)
-    div_M[1:-1, :, :] += (M[2:, :, :, 0] - M[:-2, :, :, 0]) / (2 * dx)
-    div_M[:, 1:-1, :] += (M[:, 2:, :, 1] - M[:, :-2, :, 1]) / (2 * dy)
-    div_M[:, :, 1:-1] += (M[:, :, 2:, 2] - M[:, :, :-2, 2]) / (2 * dz)
+    # 3. Compute Divergence of M (RHS of our equation)
+    div_M = cp.zeros_like(mu)
+    div_M[1:-1, 1:-1, 1:-1] = (
+        (M[2:, 1:-1, 1:-1, 0] - M[:-2, 1:-1, 1:-1, 0]) / (2 * dx) +
+        (M[1:-1, 2:, 1:-1, 1] - M[1:-1, :-2, 1:-1, 1]) / (2 * dy) +
+        (M[1:-1, 1:-1, 2:, 2] - M[1:-1, 1:-1, :-2, 2]) / (2 * dz)
+    )
 
-    # 4. Setup Averaged Permeability Coefficients
-    # We average mu between adjacent nodes to handle the boundaries between air and iron smoothly
+    # 4. Define Coefficients (Used inside the loop)
     cx_p = 0.5 * (mu[2:, 1:-1, 1:-1] + mu[1:-1, 1:-1, 1:-1]) / dx**2
     cx_m = 0.5 * (mu[:-2, 1:-1, 1:-1] + mu[1:-1, 1:-1, 1:-1]) / dx**2
     cy_p = 0.5 * (mu[1:-1, 2:, 1:-1] + mu[1:-1, 1:-1, 1:-1]) / dy**2
@@ -39,58 +32,45 @@ def solve_magnetic_field(X, mu_grid, M_grid, max_iter=5000, tol=1e-5):
     c_sum = cx_p + cx_m + cy_p + cy_m + cz_p + cz_m
     rho_interior = div_M[1:-1, 1:-1, 1:-1]
 
-    # Initialize potential grid
-    psi = torch.zeros_like(mu)
-
-    print("Running Jacobi Relaxation Loop...")
+    # 5. Initialize Potential
+    psi = cp.zeros_like(mu)
     
-    # 5. The GPU Relaxation Loop
-    for i in range(max_iter):
-        psi_interior = psi[1:-1, 1:-1, 1:-1]
-        
-        # Grab neighbor potentials
-        p_xp = psi[2:, 1:-1, 1:-1]
-        p_xm = psi[:-2, 1:-1, 1:-1]
-        p_yp = psi[1:-1, 2:, 1:-1]
-        p_ym = psi[1:-1, :-2, 1:-1]
-        p_zp = psi[1:-1, 1:-1, 2:]
-        p_zm = psi[1:-1, 1:-1, :-2]
+    print("Running Jacobi Relaxation...")
 
-        # Calculate the new potential based on neighbors and magnetic charge
-        psi_new = (
-            cx_p * p_xp + cx_m * p_xm +
-            cy_p * p_yp + cy_m * p_ym +
-            cz_p * p_zp + cz_m * p_zm - rho_interior
+    # 6. Relaxation Loop
+    for i in range(max_iter):
+        p_old = psi.copy()
+        
+        # Jacobi Update
+        psi[1:-1, 1:-1, 1:-1] = (
+            cx_p * p_old[2:, 1:-1, 1:-1] + cx_m * p_old[:-2, 1:-1, 1:-1] +
+            cy_p * p_old[1:-1, 2:, 1:-1] + cy_m * p_old[1:-1, :-2, 1:-1] +
+            cz_p * p_old[1:-1, 1:-1, 2:] + cz_m * p_old[1:-1, 1:-1, :-2] - rho_interior
         ) / c_sum
 
-        # Check for convergence every 100 iterations to save processing time
+        # Check convergence every 100 iterations
         if i % 100 == 0:
-            diff = torch.max(torch.abs(psi_new - psi_interior))
-            if diff < tol:
-                print(f"Converged at iteration {i} (Error: {diff:.6f})")
+            diff = cp.max(cp.abs(psi[1:-1, 1:-1, 1:-1] - p_old[1:-1, 1:-1, 1:-1]))
+            if i > 0 and diff < tol: 
+                print(f"Converged at iter {i} (Err: {diff:.6e})")
                 break
-        
-        # Apply the update to the interior
-        psi[1:-1, 1:-1, 1:-1] = psi_new
-
+                
     if i == max_iter - 1:
-        print(f"Warning: Reached max iterations ({max_iter}) before strict convergence.")
+        print("Reached max iterations without full convergence.")
 
-    # 6. Calculate H-Field = -gradient(psi)
-    Hx = torch.zeros_like(mu)
-    Hy = torch.zeros_like(mu)
-    Hz = torch.zeros_like(mu)
+    # 7. Calculate B-Field = mu_r * (-grad psi) + M
+    Hx = cp.zeros_like(mu)
+    Hy = cp.zeros_like(mu)
+    Hz = cp.zeros_like(mu)
 
     Hx[1:-1, :, :] = -(psi[2:, :, :] - psi[:-2, :, :]) / (2 * dx)
     Hy[:, 1:-1, :] = -(psi[:, 2:, :] - psi[:, :-2, :]) / (2 * dy)
     Hz[:, :, 1:-1] = -(psi[:, :, 2:] - psi[:, :, :-2]) / (2 * dz)
 
-    # 7. Calculate final B-Field = mu_r * H + M
     Bx = mu * Hx + M[..., 0]
     By = mu * Hy + M[..., 1]
     Bz = mu * Hz + M[..., 2]
     
-    # Stack vectors back together and download to CPU RAM
-    B_grid = torch.stack((Bx, By, Bz), dim=-1)
-    
-    return B_grid.cpu().numpy()
+    # 8. Stack and Return to CPU
+    B_grid = cp.stack((Bx, By, Bz), axis=-1)
+    return cp.asnumpy(B_grid)

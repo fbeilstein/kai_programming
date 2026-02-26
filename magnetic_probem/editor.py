@@ -3,6 +3,8 @@ import vtk
 from magnet import Magnet
 from material import Material
 from cannon import Cannon
+from rasterizer import rasterize_scene, debug_visualize_grid
+from solver import solve_magnetic_field
 
 # -----------------------------
 # Main Setup
@@ -46,6 +48,84 @@ def spawn_material(state):
     plotter.reset_camera_clipping_range()
     plotter.render()
 
+def compute_and_show_grid(state=None):
+    if len(scene_objects) == 0:
+        print("Scene is empty. Add some objects first!")
+        return
+        
+    print("Extracting physical properties to grid...")
+    X, Y, Z, mu_grid, M_grid = rasterize_scene(scene_objects, resolution=40)
+    
+    # THE FIX: Pass M_grid to the visualizer!
+    debug_visualize_grid(X, Y, Z, mu_grid, M_grid)
+
+def simulate_and_draw_lines(state=None):
+    if len(scene_objects) == 0:
+        print("Scene is empty!")
+        return
+        
+    print("1. Rasterizing grid (50^3)...")
+    # Resolution of 50 is a great balance between speed and smooth physics
+    X, Y, Z, mu_grid, M_grid = rasterize_scene(scene_objects, resolution=50)
+    
+    print("2. Solving magnetic field on GPU...")
+    B_grid = solve_magnetic_field(X, mu_grid, M_grid)
+    
+    print("3. Tracing streamlines...")
+    # Rebuild the spatial grid in PyVista
+    grid = pv.StructuredGrid(X, Y, Z)
+    
+    # Attach our calculated vectors to the grid
+    grid["B_field"] = B_grid.reshape(-1, 3)
+    grid.set_active_vectors("B_field")
+    
+    # Generate seed points around all magnets
+    seed_points = pv.PolyData()
+    has_magnet = False
+    for obj in scene_objects:
+        if isinstance(obj, Magnet):
+            has_magnet = True
+            # Get the actual world position of the magnet to center the seed sphere
+            b = obj.actors[0].GetBounds()
+            center = [(b[0]+b[1])/2, (b[2]+b[3])/2, (b[4]+b[5])/2]
+            
+            # High-density sphere to spawn lots of lines
+            sphere = pv.Sphere(radius=0.6, center=center, theta_resolution=15, phi_resolution=15)
+            seed_points = seed_points.merge(sphere)
+            
+    if not has_magnet:
+         print("No magnets to seed lines from! Add at least one magnet.")
+         return
+
+    # Trace the physics!
+    streamlines = grid.streamlines_from_source(
+        seed_points,
+        vectors="B_field",
+        max_time=15.0,
+        initial_step_length=0.05,
+        integration_direction="both" # Trace forward (N to S) and backward
+    )
+    
+    # --- Show the results ---
+    p = pv.Plotter()
+    
+    # Draw the original meshes as semi-transparent ghosts for reference
+    for obj in scene_objects:
+        # Skip drawing the cannon in the static magnetic field view
+        if isinstance(obj, Cannon):
+            continue
+            
+        for actor in obj.actors:
+            # Extract the raw mesh and apply the current VTK transform
+            mesh = actor.mapper.dataset.copy()
+            mesh.transform(obj.transform)
+            p.add_mesh(mesh, color=actor.prop.color, opacity=0.3)
+            
+    # Draw the streamlines as colored tubes based on field strength
+    p.add_mesh(streamlines.tube(radius=0.015), cmap="plasma", render_lines_as_tubes=True)
+    p.add_axes()
+    p.show(title="Magnetic Field Simulation")
+
 def delete_selected(state=None):
     if selected["current"] is not None:
         obj_to_delete = selected["current"]
@@ -85,6 +165,12 @@ plotter.add_text("Add Material", position=(50, 70), font_size=10)
 
 plotter.add_checkbox_button_widget(toggle_cannon, position=(10, 20), size=30, color_on="yellow", color_off="darkgreen")
 plotter.add_text("Toggle Cannon", position=(50, 25), font_size=10)
+
+plotter.add_checkbox_button_widget(compute_and_show_grid, position=(10, 200), size=30, color_on="cyan", color_off="cyan")
+plotter.add_text("Compute Grid", position=(50, 205), font_size=10)
+
+plotter.add_checkbox_button_widget(simulate_and_draw_lines, position=(10, 245), size=30, color_on="green", color_off="green")
+plotter.add_text("Simulate Field", position=(50, 250), font_size=10)
 
 # -----------------------------
 # Custom Selection Engine
