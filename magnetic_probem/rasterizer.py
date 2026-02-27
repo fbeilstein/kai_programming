@@ -2,37 +2,63 @@ import numpy as np
 import vtk
 import pyvista as pv
 
-def rasterize_scene(scene_objects, grid_bounds=(-8, 8, -8, 8, -8, 8), resolution=100):
-    """
-    Converts the analytical scene into 3D NumPy arrays for physics simulation.
-    Returns: X, Y, Z, mu_grid (permeability), M_grid (magnetization vectors)
-    """
-    print(f"Rasterizing grid at {resolution}^3 resolution...")
+def rasterize_scene(scene_objects, resolution=200, padding=4.0):
+    print("1a. Auto-calculating grid bounds...")
     
-    # 1. Generate the 3D grid
-    x = np.linspace(grid_bounds[0], grid_bounds[1], resolution)
-    y = np.linspace(grid_bounds[2], grid_bounds[3], resolution)
-    z = np.linspace(grid_bounds[4], grid_bounds[5], resolution)
-    X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
-
-    # Flatten into a list of points: shape (N, 3)
-    points = np.column_stack((X.ravel(), Y.ravel(), Z.ravel()))
-    N = len(points)
-
-    # Convert to homogeneous coordinates for matrix multiplication: shape (N, 4)
-    points_h = np.column_stack((points, np.ones(N)))
-
-    # 2. Initialize physical property arrays
-    mu_grid = np.ones(N, dtype=np.float32)       # Air has relative permeability of 1.0
-    M_grid = np.zeros((N, 3), dtype=np.float32)  # Magnetization vectors (Mx, My, Mz)
-
-    # 3. Populate the grids
+    # 1. Find the absolute physical limits of all relevant objects
+    mins = []
+    maxs = []
+    has_solvable_objects = False
+    
     for obj in scene_objects:
-        data = obj.get_rasterization_data()
+        if type(obj).__name__ == "Cannon": 
+            continue # Ignore cannon for magnetic bounds
+            
+        has_solvable_objects = True
+        # Ensure we capture all parts of the object (like both poles of a magnet)
+        for actor in obj.actors:
+            b = actor.GetBounds() # VTK returns (xmin, xmax, ymin, ymax, zmin, zmax)
+            mins.append([b[0], b[2], b[4]])
+            maxs.append([b[1], b[3], b[5]])
         
-        # We don't map the Cannon into the static magnetic field properties
-        if data["type"] == "cannon":
+    if not has_solvable_objects:
+        center = np.array([0.0, 0.0, 0.0])
+        bounds_half = 5.0
+    else:
+        mins = np.min(mins, axis=0)
+        maxs = np.max(maxs, axis=0)
+        center = (maxs + mins) / 2.0
+        
+        # 2. Force a cubic grid by finding the largest dimension
+        max_span = np.max(maxs - mins) / 2.0
+        bounds_half = max_span + padding 
+        
+    print(f"    -> Center: [{center[0]:.1f}, {center[1]:.1f}, {center[2]:.1f}]")
+    print(f"    -> Box Width: {bounds_half * 2:.1f} units")
+
+    # 3. Build the strictly cubic coordinates
+    x = np.linspace(center[0] - bounds_half, center[0] + bounds_half, resolution)
+    y = np.linspace(center[1] - bounds_half, center[1] + bounds_half, resolution)
+    z = np.linspace(center[2] - bounds_half, center[2] + bounds_half, resolution)
+    
+    X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
+    
+    # --- THE FIX: Create the flattened homogeneous points array ---
+    points = np.column_stack((X.ravel(), Y.ravel(), Z.ravel()))
+    points_h = np.column_stack((points, np.ones(points.shape[0])))
+    
+    # Initialize FLAT grids for easy boolean masking
+    n_points = resolution ** 3
+    mu_grid = np.ones(n_points, dtype=np.float32)
+    M_grid = np.zeros((n_points, 3), dtype=np.float32)
+
+    print("1b. Sampling object properties onto grid...")
+    # 4. Populate the grids
+    for obj in scene_objects:
+        if type(obj).__name__ == "Cannon":
             continue 
+            
+        data = obj.get_rasterization_data()
 
         # Extract the 4x4 transform matrix to NumPy
         matrix = vtk.vtkMatrix4x4()
@@ -79,16 +105,14 @@ def rasterize_scene(scene_objects, grid_bounds=(-8, 8, -8, 8, -8, 8), resolution
             full_mask = mask_n | mask_s
 
             # Calculate the global Magnetization vector M
-            # In our local space setup, North is at +X and South is at -X.
-            # Therefore, M points along the positive local X axis.
             local_M = np.array([data["strength"], 0.0, 0.0, 0.0])
             
-            # Rotate M to global space (ignore translation, hence the 0.0)
+            # Rotate M to global space
             global_M = (m4 @ local_M)[:3]
             
             M_grid[full_mask] = global_M
 
-    # 4. Reshape back to 3D spatial dimensions
+    # 5. Reshape back to 3D spatial dimensions for the solver
     mu_grid = mu_grid.reshape((resolution, resolution, resolution))
     M_grid = M_grid.reshape((resolution, resolution, resolution, 3))
 
@@ -97,31 +121,24 @@ def rasterize_scene(scene_objects, grid_bounds=(-8, 8, -8, 8, -8, 8), resolution
 
 def debug_visualize_grid(X, Y, Z, mu_grid, M_grid):
     """Creates a quick point cloud to visualize the rasterized grid data."""
-    # Flatten the 3D arrays back into 1D lists for the point cloud
     points = np.column_stack((X.ravel(), Y.ravel(), Z.ravel()))
     mu_flat = mu_grid.ravel()
     
-    # Calculate the magnitude of the magnetization vectors
     M_mag_flat = np.linalg.norm(M_grid, axis=-1).ravel()
     
-    # Create the point cloud
     cloud = pv.PolyData(points)
     cloud["Permeability"] = mu_flat
     cloud["Magnetization"] = M_mag_flat
     
-    # Define a "Solid": high permeability OR actively magnetized
     cloud["Solid"] = ((mu_flat > 1.01) | (M_mag_flat > 0.0)).astype(float)
     
-    # Extract only the solid points
     solid_objects = cloud.threshold(0.5, scalars="Solid")
     
-    # SAFETY CATCH: Prevent the PyVista zero-point crash
     if solid_objects.n_points == 0:
-        print("WARNING: Grid is empty! Objects might be outside the grid bounds (-4 to 4).")
+        print("WARNING: Grid is empty! Objects might be outside the grid bounds.")
         return
         
     p = pv.Plotter()
-    # Color by permeability, but magnets will also be visible
     p.add_mesh(solid_objects, scalars="Permeability", cmap="plasma", point_size=6, render_points_as_spheres=True)
     p.add_axes()
     p.show(title="Rasterization Debug View")

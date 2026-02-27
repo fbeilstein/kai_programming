@@ -5,6 +5,7 @@ from material import Material
 from cannon import Cannon
 from rasterizer import rasterize_scene, debug_visualize_grid
 from solver import solve_magnetic_field
+import numpy as np
 
 # -----------------------------
 # Main Setup
@@ -54,7 +55,7 @@ def compute_and_show_grid(state=None):
         return
         
     print("Extracting physical properties to grid...")
-    X, Y, Z, mu_grid, M_grid = rasterize_scene(scene_objects, resolution=40)
+    X, Y, Z, mu_grid, M_grid = rasterize_scene(scene_objects)
     
     # THE FIX: Pass M_grid to the visualizer!
     debug_visualize_grid(X, Y, Z, mu_grid, M_grid)
@@ -64,9 +65,8 @@ def simulate_and_draw_lines(state=None):
         print("Scene is empty!")
         return
         
-    print("1. Rasterizing grid (50^3)...")
-    # Resolution of 50 is a great balance between speed and smooth physics
-    X, Y, Z, mu_grid, M_grid = rasterize_scene(scene_objects, resolution=50)
+    print("1. Rasterizing grid...")
+    X, Y, Z, mu_grid, M_grid = rasterize_scene(scene_objects)
     
     print("2. Solving magnetic field on GPU...")
     B_grid = solve_magnetic_field(X, mu_grid, M_grid)
@@ -75,8 +75,14 @@ def simulate_and_draw_lines(state=None):
     # Rebuild the spatial grid in PyVista
     grid = pv.StructuredGrid(X, Y, Z)
     
-    # Attach our calculated vectors to the grid
-    grid["B_field"] = B_grid.reshape(-1, 3)
+    # --- THE FIX: Unscramble the matrices ---
+    # Force NumPy to flatten the arrays using Fortran-order ('F')
+    # so they perfectly match PyVista's physical coordinates.
+    Bx_flat = B_grid[..., 0].flatten(order='F')
+    By_flat = B_grid[..., 1].flatten(order='F')
+    Bz_flat = B_grid[..., 2].flatten(order='F')
+    
+    grid["B_field"] = np.column_stack((Bx_flat, By_flat, Bz_flat))
     grid.set_active_vectors("B_field")
     
     # Generate seed points around all magnets
@@ -90,7 +96,10 @@ def simulate_and_draw_lines(state=None):
             center = [(b[0]+b[1])/2, (b[2]+b[3])/2, (b[4]+b[5])/2]
             
             # High-density sphere to spawn lots of lines
-            sphere = pv.Sphere(radius=0.6, center=center, theta_resolution=15, phi_resolution=15)
+            sphere = pv.Sphere(radius=1.0, 
+                                center=center, 
+                                theta_resolution=15, 
+                                phi_resolution=15)
             seed_points = seed_points.merge(sphere)
             
     if not has_magnet:
@@ -101,9 +110,9 @@ def simulate_and_draw_lines(state=None):
     streamlines = grid.streamlines_from_source(
         seed_points,
         vectors="B_field",
-        max_time=15.0,
-        initial_step_length=0.05,
-        integration_direction="both" # Trace forward (N to S) and backward
+        max_length=50.0,  # CRITICAL: Let the lines travel across the new giant box
+        initial_step_length=0.1,
+        integration_direction="both"
     )
     
     # --- Show the results ---
@@ -122,7 +131,7 @@ def simulate_and_draw_lines(state=None):
             p.add_mesh(mesh, color=actor.prop.color, opacity=0.3)
             
     # Draw the streamlines as colored tubes based on field strength
-    p.add_mesh(streamlines.tube(radius=0.015), cmap="plasma", render_lines_as_tubes=True)
+    p.add_mesh(streamlines.tube(radius=0.005), cmap="plasma", render_lines_as_tubes=False)
     p.add_axes()
     p.show(title="Magnetic Field Simulation")
 
