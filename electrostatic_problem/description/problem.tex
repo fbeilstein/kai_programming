@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\geometry{a4paper, margin=1in}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    language=Python,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegray},
+    keywordstyle=\color{magenta},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    showstringspaces=false
+}
+
+\title{Physics Lab: Electric Field Lines Tracing \\ \large Problem Set \& Implementation Guide}
+\author{Scientific Programming Course}
+\date{2026}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 1: Electric Field Direction}
+
+\subsubsection*{Mathematical part}
+\textbf{Given:} An observation point in space $\mathbf{r}$, and a set of $N$ point charges with positions $\mathbf{R}_i$ and charge values $Q_i$. \\
+\begin{center}
+
+\end{center}
+\textbf{Derive:} The normalized direction vector of the net electric field $\hat{E}$ at the observation point $\mathbf{r}$. \\
+\textbf{Hint:} Use Coulomb's law and the superposition principle: $\vec{E}(\mathbf{r}) = \sum_{i=1}^{N} \frac{Q_i}{|\mathbf{r} - \mathbf{R}_i|^3} (\mathbf{r} - \mathbf{R}_i)$. Do not forget to normalize the resulting vector. To prevent division by zero, cap the squared distances using the predefined \lstinline|CORE_RADIUS_SQ| constant. \\
+
+\subsubsection*{Implementation part}
+\textbf{Implement:} a function \lstinline|calc_E_dir(pt, charges_positions, charges_values)| that returns the normalized direction $\hat{E}$ as a \lstinline|numpy.array|.
+\begin{center}
+\renewcommand{\arraystretch}{2.0}
+\begin{tabular}{r | c | c | c | c}
+\toprule
+\textbf{Math Symbol} & $\mathbf{r}$ & $\mathbf{R}$ & $\mathbf{Q}$ & $\hat{E}$ \\ \midrule
+\textbf{Argument} & \lstinline|pt| & \lstinline|charges_positions| & \lstinline|charges_values| & \lstinline|return| \\ \midrule
+\textbf{Type} & \lstinline|np.array| & \lstinline|np.array| & \lstinline|np.array| & \lstinline|np.array| \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Test:} Launch the editor and add a charge to the scene. If the function is implemented correctly, the mathematical engine will be able to evaluate the local field direction without crashing.
+
+\vspace{1cm}
+
+\section*{Problem 2: Field Line Trajectory (RK2 Midpoint)}
+
+\subsubsection*{Mathematical part}
+\textbf{Given:} A starting point for a streamline, the sign of the source charge $s$, and the spatial configuration of all charges. \\
+\begin{center}
+
+\end{center}
+\textbf{Derive:} The iterative coordinates of the streamline utilizing the 2nd-Order Runge-Kutta (Midpoint) method. \\
+\textbf{Hint:} For each step of size $h$, first scout the midpoint $\mathbf{r}_{mid} = \mathbf{r}_n + \frac{h}{2} \hat{E}(\mathbf{r}_n) s$. Then, use the field direction at the midpoint to take the full step $\mathbf{r}_{n+1} = \mathbf{r}_n + h \hat{E}(\mathbf{r}_{mid}) s$. The integration must stop early if the line enters the \lstinline|CORE_RADIUS_SQ| of any charge. \\
+
+\subsubsection*{Implementation part}
+\textbf{Implement:} a function \lstinline|propagate_trajectory(trajectory, current_charge_sign, charges_positions, charges_values, max_steps, step_size)| that modifies the \lstinline|trajectory| array in-place and returns the total number of steps taken.
+\begin{center}
+\renewcommand{\arraystretch}{2.0}
+\begin{tabular}{r | c | c | c | c | c | c | c}
+\toprule
+\textbf{Math Symbol} & $\mathbf{T}$ & $s$ & $\mathbf{R}$ & $\mathbf{Q}$ & $N_{max}$ & $h$ & $N_{steps}$ \\ \midrule
+\textbf{Argument} & \lstinline|trajectory| & \lstinline|current_charge_sign| & \lstinline|charges_positions| & \lstinline|charges_values| & \lstinline|max_steps| & \lstinline|step_size| & \lstinline|return| \\ \midrule
+\textbf{Type} & \lstinline|np.array| & \lstinline|float| & \lstinline|np.array| & \lstinline|np.array| & \lstinline|int| & \lstinline|float| & \lstinline|int| \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Test:} Press the "Add Point Charge" button in the visual debugger window. Move the charge using Shift+Drag. Change the charge magnitude using the slider. If implemented correctly, smooth, continuous field lines will draw instantly and warp dynamically as you interact with the UI.
+
+\end{document}
