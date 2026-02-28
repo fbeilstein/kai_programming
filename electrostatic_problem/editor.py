@@ -92,8 +92,14 @@ def delete_selected(state=None):
 # Build Contextual UI
 # -----------------------------
 charge_slider = plotter.add_slider_widget(
-    callback=on_charge_change, rng=[-5.0, 5.0], value=1.0, 
-    title="Charge (Coulombs)", pointa=(0.65, 0.9), pointb=(0.95, 0.9), style="modern"
+    callback=on_charge_change, 
+    rng=[-5.0, 5.0], 
+    value=1.0, 
+    title="Charge (Coulombs)", 
+    pointa=(0.65, 0.9), 
+    pointb=(0.95, 0.9), 
+    style="modern",
+    interaction_event="always"
 )
 charge_slider.Off() 
 
