@@ -1,8 +1,7 @@
 import vtk
 
 class SceneObject:
-    # ADDED allow_scaling=True parameter
-    def __init__(self, plotter, actors, allow_scaling=True): 
+    def __init__(self, plotter, actors, allow_scaling=True, allow_rotation=True): 
         self.plotter = plotter
         self.actors = actors
         self.transform = vtk.vtkTransform()
@@ -36,17 +35,19 @@ class SceneObject:
         self.rep = vtk.vtkBoxRepresentation()
         self.rep.PlaceWidget(pad_bounds)
         
-        # --- NEW LOGIC FOR SCALING ---
+        # --- LOGIC FOR SCALING ---
         if allow_scaling:
             self.rep.GetHandleProperty().SetColor(1, 0, 0)
             self.rep.GetHandleProperty().SetOpacity(1.0)
         else:
-            # Disable uniform scaling (right-click drag)
             self.widget.SetScalingEnabled(0)
-            # Disable individual axis scaling (grabbing the faces/handles)
-            self.widget.SetMoveFacesEnabled(0)
-            # Hide the spherical handles completely so they don't even appear
+            if hasattr(self.widget, 'SetMoveFacesEnabled'):
+                self.widget.SetMoveFacesEnabled(0)
             self.rep.GetHandleProperty().SetOpacity(0.0)
+            
+        # --- LOGIC FOR ROTATION ---
+        if not allow_rotation:
+            self.widget.SetRotationEnabled(0)
         
         self.widget.SetRepresentation(self.rep)
         self.widget.SetInteractor(plotter.iren.interactor)
