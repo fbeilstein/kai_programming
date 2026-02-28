@@ -1,1 +1,15 @@
 .venv/
+electrostatic_problem/__pycache__/
+magnetic_probem/__pycache__/
+optical_problem/__pycache__/
+electrostatic_problem/description/problem.aux
+electrostatic_problem/description/problem.log
+electrostatic_problem/description/problem.out
+electrostatic_problem/description/problem.pdf
+electrostatic_problem/description/problem.synctex.gz
+optical_problem/description/problem.aux
+optical_problem/description/problem.log
+optical_problem/description/problem.out
+optical_problem/description/problem.pdf
+optical_problem/description/problem.synctex.gz
+
