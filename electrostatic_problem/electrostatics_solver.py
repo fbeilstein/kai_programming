@@ -1,64 +1,107 @@
 import numpy as np
 import pyvista as pv
+import vtk
 
-def compute_electrostatic_streamlines(scene_objects, bounds=(-10, 10, -10, 10, -10, 10), res=30):
-    """
-    Calculates the exact electric field using Coulomb's superposition principle
-    and returns PyVista streamlines.
-    """
-    # Filter out everything except charges
+def compute_electrostatic_streamlines(scene_objects):
     charges = [obj for obj in scene_objects if obj.get_rasterization_data().get("type") == "charge"]
-    
-    if not charges:
-        return None
+    if not charges: return None
 
-    # 1. Create a lightweight, fixed evaluation grid
-    x = np.linspace(bounds[0], bounds[1], res)
-    y = np.linspace(bounds[2], bounds[3], res)
-    z = np.linspace(bounds[4], bounds[5], res)
-    X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
-    
-    grid = pv.StructuredGrid(X, Y, Z)
-    pts = grid.points
-    
-    E_total = np.zeros_like(pts, dtype=np.float64)
+    charges_data = []
     seed_points = []
+    seed_dirs = []
 
-    # 2. Vectorized Coulomb's Law (Superposition)
-    for charge_obj in charges:
-        pos = np.array(charge_obj.actors[0].GetCenter())
-        q = charge_obj.charge
+    # 1. EXTRACT TRUE TRANSFORMED POSITIONS
+    for obj in charges:
+        q = obj.charge
+        if q == 0: continue
         
-        if q == 0:
-            continue
-
-        # r vector from the charge to every point in space
-        r = pts - pos
-        r_mag = np.linalg.norm(r, axis=1)[:, np.newaxis]
+        # Pull the exact World Center from the VTK matrix (Fixes Ghost Lines)
+        matrix = vtk.vtkMatrix4x4()
+        obj.transform.GetMatrix(matrix)
+        m4 = np.zeros((4, 4))
+        for i in range(4):
+            for j in range(4):
+                m4[i, j] = matrix.GetElement(i, j)
         
-        # Prevent division-by-zero explosions if a grid point is exactly inside the charge
-        r_mag[r_mag < 0.2] = 0.2 
+        b = obj.actors[0].mapper.dataset.bounds
+        base_center = np.array([(b[0]+b[1])/2, (b[2]+b[3])/2, (b[4]+b[5])/2, 1.0])
+        pos = (m4 @ base_center)[:3]
         
-        # E = q * r / |r|^3
-        E_total += (q * r) / (r_mag**3)
+        charges_data.append((q, pos))
         
-        # Drop streamline seeds directly around the charge's surface
-        sphere = pv.Sphere(radius=0.7, center=pos, theta_resolution=8, phi_resolution=8)
-        seed_points.extend(sphere.points.tolist())
+        # Create seeds just outside the visual sphere
+        sphere = pv.Sphere(radius=0.6, center=pos, theta_resolution=6, phi_resolution=6)
+        pts = sphere.points.tolist()
+        seed_points.extend(pts)
+        
+        # Positive charges trace forward (+E), negative trace backward (-E)
+        direction = 1 if q > 0 else -1
+        seed_dirs.extend([direction] * len(pts))
 
-    if len(seed_points) == 0:
-        return None
+    if not charges_data or not seed_points: return None
 
-    grid["E_field"] = E_total
-    grid.set_active_vectors("E_field")
-
-    # 3. Trace Streamlines
-    seed_poly = pv.PolyData(np.array(seed_points))
-    streamlines = grid.streamlines_from_source(
-        seed_poly,
-        vectors="E_field",
-        max_length=40.0,
-        integration_direction="both"
-    )
+    current_pts = np.array(seed_points)
+    seed_dirs = np.array(seed_dirs)[:, np.newaxis]
     
-    return streamlines
+    # 2. VECTORIZED RK2 SOLVER (Gridless & Lightning Fast)
+    lines = [[pt] for pt in current_pts]
+    step_size = 0.2
+    max_steps = 150
+    
+    def compute_E_direction(pts):
+        E_total = np.zeros_like(pts)
+        for q, p in charges_data:
+            r = pts - p
+            r_mag = np.linalg.norm(r, axis=1, keepdims=True)
+            r_mag[r_mag < 0.2] = 0.2  # Prevent divide-by-zero singularities
+            E_total += (q * r) / (r_mag**3) # Superposition of Coulomb's Law
+        
+        mags = np.linalg.norm(E_total, axis=1, keepdims=True)
+        mags[mags < 1e-9] = 1e-9
+        return E_total / mags
+
+    # Tracking array to stop lines if they hit another charge
+    active = np.ones(len(current_pts), dtype=bool)
+
+    for _ in range(max_steps):
+        if not np.any(active): break
+            
+        active_pts = current_pts[active]
+        active_dirs = seed_dirs[active]
+        
+        # Standard Runge-Kutta 2 (Midpoint) Integration
+        k1 = compute_E_direction(active_pts) * active_dirs
+        k2 = compute_E_direction(active_pts + k1 * step_size * 0.5) * active_dirs
+        
+        new_pts = active_pts + k2 * step_size
+        current_pts[active] = new_pts
+        
+        # Update lists and check for collisions
+        active_indices = np.where(active)[0]
+        for idx, pt in zip(active_indices, new_pts):
+            lines[idx].append(pt.copy())
+            
+            # Stop tracing if it sinks into a charge
+            for q, p in charges_data:
+                if np.linalg.norm(pt - p) < 0.3:
+                    active[idx] = False
+
+    # 3. CONVERT TO PYVISTA SPLINES
+    poly_lines = pv.PolyData()
+    all_pts = []
+    lines_cells = []
+    
+    pt_offset = 0
+    for line_pts in lines:
+        if len(line_pts) > 1:
+            all_pts.extend(line_pts)
+            lines_cells.append(len(line_pts))
+            lines_cells.extend(range(pt_offset, pt_offset + len(line_pts)))
+            pt_offset += len(line_pts)
+            
+    if len(all_pts) == 0: return None
+    
+    poly_lines.points = np.array(all_pts)
+    poly_lines.lines = np.array(lines_cells)
+
+    return poly_lines

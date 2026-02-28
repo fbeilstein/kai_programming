@@ -23,12 +23,15 @@ def update_field(*args):
     lines = compute_electrostatic_streamlines(scene_objects)
     
     if lines is not None and lines.n_points > 0:
-        # Using name="E_field" automatically overwrites the old mesh instantly without flickering
-        plotter.add_mesh(lines.tube(radius=0.03), color="gold", name="E_field", render=False)
+        plotter.add_mesh(lines.tube(radius=0.01), color="gold", name="E_field", reset_camera=False)
     else:
-        plotter.remove_actor("E_field", render=False)
-        
-    plotter.render()
+        # Prevent crashing if all charges are deleted or set to 0
+        try:
+            plotter.remove_actor("E_field", render=False)
+        except Exception:
+            pass
+            
+    plotter.render() # <-- This forces the instant UI update!
 
 # -----------------------------
 # UI Callbacks
@@ -42,19 +45,30 @@ def toggle_cannon(state):
     for obj in scene_objects:
         if isinstance(obj, Cannon):
             obj.is_firing = state
-            if state: obj.actors[1].GetProperty().SetColor(1.0, 1.0, 0.0) 
-            else: obj.actors[1].GetProperty().SetColor(0.0, 0.39, 0.0)
+            if state: 
+                obj.actors[1].GetProperty().SetColor(1.0, 1.0, 0.0) 
+            else: 
+                obj.actors[1].GetProperty().SetColor(0.0, 0.39, 0.0)
             plotter.render()
 
 def spawn_charge(state):
     offset = len(scene_objects) * 1.5 
-    # Start with a positive charge (+1.0)
     new_charge = ElectricCharge(plotter, center=(offset, offset, 0), charge=1.0)
     
-    # MAGIC: Bind the physical drag interaction directly to the live update!
+    # Bind the physical drag interaction directly to the live update
     new_charge.widget.AddObserver("InteractionEvent", lambda w, e: update_field())
-    
     scene_objects.append(new_charge)
+    
+    # QoL FIX: Automatically select and enable the widget for the new charge
+    if selected["current"] is not None:
+        selected["current"].set_active(False)
+    
+    selected["current"] = new_charge
+    new_charge.set_active(True)
+    
+    charge_slider.GetRepresentation().SetValue(1.0)
+    charge_slider.On()
+    
     update_field()
     plotter.reset_camera_clipping_range()
 
@@ -77,7 +91,6 @@ def delete_selected(state=None):
 # -----------------------------
 # Build Contextual UI
 # -----------------------------
-# Slider ranges from -5 to +5 to allow both positive and negative charges
 charge_slider = plotter.add_slider_widget(
     callback=on_charge_change, rng=[-5.0, 5.0], value=1.0, 
     title="Charge (Coulombs)", pointa=(0.65, 0.9), pointb=(0.95, 0.9), style="modern"
