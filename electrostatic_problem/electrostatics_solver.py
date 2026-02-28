@@ -1,21 +1,96 @@
 import numpy as np
 import pyvista as pv
 import vtk
+from numba import njit
 
+# ---------------------------------------------------------
+# THE NUMBA COMPILED CORE (Runs at C++ speed)
+# ---------------------------------------------------------
+import numpy as np
+import pyvista as pv
+import vtk
+from numba import njit
+
+# --- 1. THE VECTORIZED E-FIELD HELPER ---
+@njit(cache=True)
+def calc_E_dir(pt, c_pos, c_q):
+    """Calculates the normalized E-field direction using NumPy broadcasting."""
+    # pt is (3,), c_pos is (N, 3) -> r broadcasts to (N, 3)
+    r = pt - c_pos 
+    
+    # Calculate squared distance for all charges at once
+    r2 = np.sum(r**2, axis=1)
+    # Prevent singularities
+    r2[r2 < 0.04] = 0.04
+    r_mag = np.sqrt(r2)
+    
+    # Coulomb's law scalar factors: q / r^3
+    factor = c_q / (r_mag * r2)
+    
+    # Broadcast factors to (N, 1), multiply by r vectors, and sum into a final (3,) vector
+    E = np.sum(r * factor[:, np.newaxis], axis=0)
+    
+    # Normalize to get pure direction
+    E_mag = np.linalg.norm(E)
+    if E_mag < 1e-9: 
+        E_mag = 1e-9
+    
+    return (E / E_mag)
+
+# --- 2. THE COMPACT RK2 LOOP ---
+@njit(cache=True)
+def integrate_rk2(seed_pts, seed_dirs, c_pos, c_q, max_steps, step_size):
+    num_lines = seed_pts.shape[0]
+    trajectories = np.zeros((num_lines, max_steps, 3), dtype=np.float64)
+    counts = np.zeros(num_lines, dtype=np.int32)
+    
+    for i in range(num_lines):
+        pt = seed_pts[i].copy()
+        dir_val = seed_dirs[i]
+        
+        trajectories[i, 0] = pt
+        counts[i] = 1
+        
+        for step in range(1, max_steps):
+            # 1. E-field at current point
+            E1_dir = calc_E_dir(pt, c_pos, c_q)
+            
+            # 2. Scout the midpoint
+            mid_pt = pt + E1_dir * step_size * 0.5 * dir_val
+            
+            # 3. E-field at midpoint
+            E2_dir = calc_E_dir(mid_pt, c_pos, c_q)
+            
+            # 4. Take final step
+            pt += E2_dir * step_size * dir_val
+            
+            trajectories[i, step] = pt
+            counts[i] += 1
+            
+            # 5. Vectorized Collision Check: stop if we hit any charge
+            dist_sq = np.sum((pt - c_pos)**2, axis=1)
+            if np.any(dist_sq < 0.09):  # 0.3 squared
+                break
+                
+    return trajectories, counts
+
+# ---------------------------------------------------------
+# THE PYTHON WRAPPER
+# ---------------------------------------------------------
 def compute_electrostatic_streamlines(scene_objects):
     charges = [obj for obj in scene_objects if obj.get_rasterization_data().get("type") == "charge"]
     if not charges: return None
 
-    charges_data = []
+    charge_pos = []
+    charge_q = []
     seed_points = []
     seed_dirs = []
 
-    # 1. EXTRACT TRUE TRANSFORMED POSITIONS
+    # Extract coordinates
     for obj in charges:
         q = obj.charge
         if q == 0: continue
         
-        # Pull the exact World Center from the VTK matrix (Fixes Ghost Lines)
         matrix = vtk.vtkMatrix4x4()
         obj.transform.GetMatrix(matrix)
         m4 = np.zeros((4, 4))
@@ -27,80 +102,48 @@ def compute_electrostatic_streamlines(scene_objects):
         base_center = np.array([(b[0]+b[1])/2, (b[2]+b[3])/2, (b[4]+b[5])/2, 1.0])
         pos = (m4 @ base_center)[:3]
         
-        charges_data.append((q, pos))
+        charge_pos.append(pos)
+        charge_q.append(q)
         
-        # Create seeds just outside the visual sphere
-        sphere = pv.Sphere(radius=0.6, center=pos, theta_resolution=6, phi_resolution=6)
+        # Lower resolution (4 instead of 6) for cleaner visuals
+        sphere = pv.Sphere(radius=0.6, center=pos, theta_resolution=4, phi_resolution=4)
         pts = sphere.points.tolist()
         seed_points.extend(pts)
         
-        # Positive charges trace forward (+E), negative trace backward (-E)
-        direction = 1 if q > 0 else -1
+        direction = 1.0 if q > 0 else -1.0
         seed_dirs.extend([direction] * len(pts))
 
-    if not charges_data or not seed_points: return None
+    if not charge_pos or not seed_points: return None
 
-    current_pts = np.array(seed_points)
-    seed_dirs = np.array(seed_dirs)[:, np.newaxis]
+    # Convert to pure contiguous NumPy arrays for Numba
+    c_pos_arr = np.array(charge_pos, dtype=np.float64)
+    c_q_arr = np.array(charge_q, dtype=np.float64)
+    seed_pts_arr = np.array(seed_points, dtype=np.float64)
+    seed_dirs_arr = np.array(seed_dirs, dtype=np.float64)
     
-    # 2. VECTORIZED RK2 SOLVER (Gridless & Lightning Fast)
-    lines = [[pt] for pt in current_pts]
-    step_size = 0.2
-    max_steps = 150
-    
-    def compute_E_direction(pts):
-        E_total = np.zeros_like(pts)
-        for q, p in charges_data:
-            r = pts - p
-            r_mag = np.linalg.norm(r, axis=1, keepdims=True)
-            r_mag[r_mag < 0.2] = 0.2  # Prevent divide-by-zero singularities
-            E_total += (q * r) / (r_mag**3) # Superposition of Coulomb's Law
-        
-        mags = np.linalg.norm(E_total, axis=1, keepdims=True)
-        mags[mags < 1e-9] = 1e-9
-        return E_total / mags
+    # Execute compiled C++ speed integration
+    trajectories, counts = integrate_rk2(
+        seed_pts_arr, seed_dirs_arr, c_pos_arr, c_q_arr, 
+        max_steps=150, step_size=0.2
+    )
 
-    # Tracking array to stop lines if they hit another charge
-    active = np.ones(len(current_pts), dtype=bool)
-
-    for _ in range(max_steps):
-        if not np.any(active): break
-            
-        active_pts = current_pts[active]
-        active_dirs = seed_dirs[active]
-        
-        # Standard Runge-Kutta 2 (Midpoint) Integration
-        k1 = compute_E_direction(active_pts) * active_dirs
-        k2 = compute_E_direction(active_pts + k1 * step_size * 0.5) * active_dirs
-        
-        new_pts = active_pts + k2 * step_size
-        current_pts[active] = new_pts
-        
-        # Update lists and check for collisions
-        active_indices = np.where(active)[0]
-        for idx, pt in zip(active_indices, new_pts):
-            lines[idx].append(pt.copy())
-            
-            # Stop tracing if it sinks into a charge
-            for q, p in charges_data:
-                if np.linalg.norm(pt - p) < 0.3:
-                    active[idx] = False
-
-    # 3. CONVERT TO PYVISTA SPLINES
-    poly_lines = pv.PolyData()
+    # Convert the pre-allocated block back into PyVista splines
     all_pts = []
     lines_cells = []
-    
     pt_offset = 0
-    for line_pts in lines:
-        if len(line_pts) > 1:
-            all_pts.extend(line_pts)
-            lines_cells.append(len(line_pts))
-            lines_cells.extend(range(pt_offset, pt_offset + len(line_pts)))
-            pt_offset += len(line_pts)
-            
-    if len(all_pts) == 0: return None
     
+    for i in range(len(counts)):
+        c = counts[i]
+        if c > 1:
+            # Only slice out the array steps that were actually used
+            all_pts.extend(trajectories[i, :c])
+            lines_cells.append(c)
+            lines_cells.extend(range(pt_offset, pt_offset + c))
+            pt_offset += c
+            
+    if not all_pts: return None
+    
+    poly_lines = pv.PolyData()
     poly_lines.points = np.array(all_pts)
     poly_lines.lines = np.array(lines_cells)
 
