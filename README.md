@@ -15,6 +15,7 @@ Monday 13:30 (next week Wednesday 12:30)
 ### Lecture 4. Problem Set Debrief
 
 ### Lecture 5. Problem Set: Electrostatics
+- [Download the Problemset (Electrostatics, System of Charges)](https://github.com/fbeilstein/kai_programming/releases/download/problem_2/problem_2.zip)
 
 ## Draft for Syllabus
 
