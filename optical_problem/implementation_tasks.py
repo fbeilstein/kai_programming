@@ -49,7 +49,6 @@ def intersect_segment(ray_origin, ray_dir, p1, p2):
 
 
 def intersect_circle(ray_origin, ray_dir, center, radius):
-    return None
     OC = ray_origin - center
     b = 2 * np.dot(ray_dir, OC)
     c = np.dot(OC, OC) - radius**2
@@ -152,6 +151,7 @@ def refract_vector(ray_dir, normal, n1, n2):
         return None 
     cos_theta2 = np.sqrt(1 - sin2_theta2)
     return eta * ray_dir + (eta * cos_theta1 - cos_theta2) * normal
+
 
 #def refract_vector(ray_dir, normal, n1, n2):
 #    pass

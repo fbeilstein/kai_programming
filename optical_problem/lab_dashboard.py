@@ -141,12 +141,27 @@ class OpticsDebugger(tk.Tk):
                 module = importlib.import_module(mod_name)
                 suite = loader.loadTestsFromModule(module)
                 
-                with open(os.devnull, 'w') as f:
-                    result = unittest.TextTestRunner(stream=f, verbosity=0).run(suite)
-                
-                canvas, light = self.status_indicators[num]
-                color = "#4ec9b0" if (result.wasSuccessful() and result.testsRun > 0) else "#f44747"
-                canvas.itemconfig(light, fill=color)
+                for num, (name, mod_name, class_name) in self.tasks.items():
+                    try:
+                        module = importlib.import_module(mod_name)
+                        suite = loader.loadTestsFromModule(module)
+                        
+                        # --- CHANGED: Print directly to console with high detail ---
+                        print(f"\n--- Running Tests for L{num}: {name} ---")
+                        result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
+                        
+                        canvas, light = self.status_indicators[num]
+                        color = "#4ec9b0" if (result.wasSuccessful() and result.testsRun > 0) else "#f44747"
+                        canvas.itemconfig(light, fill=color)
+                        
+                    except Exception as e:
+                        # --- CHANGED: Print the exact import/compilation error to console ---
+                        print(f"\n--- FATAL ERROR loading L{num}: {name} ---")
+                        print(f"Error details: {e}")
+                        
+                        # Turn the light red because the file is completely broken
+                        canvas, light = self.status_indicators[num]
+                        canvas.itemconfig(light, fill="#f44747")
                 
             except Exception as e:
                 canvas, light = self.status_indicators[num]
