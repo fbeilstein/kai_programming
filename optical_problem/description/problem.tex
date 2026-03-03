@@ -34,7 +34,7 @@
 
 \maketitle
 
-\section*{Problem 0: Strart the engine}
+\section*{Problem 0: Start the engine}
 
 Consider the files given.
 \begin{center}
@@ -105,7 +105,7 @@ Now proceed with the following problems. First solve the math part so you get th
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{Test:} Press "Reload \& Retest" button and see if the bulb near the appropriate task becomes green, if not there are probably some issues with your implementation. Press "L1 Infinite Line" button in the visual debugger window. Move different points and see how the intersection point is displayed. Fix any bugs if you see inconsistencies, point dissappeares when it shouldn't or appears in the wrong place.
+\textbf{Test:} Press "Reload \& Retest" button and see if the bulb near the appropriate task becomes green, if not there are probably some issues with your implementation. Press "L1 Infinite Line" button in the visual debugger window. Move different points and see how the intersection point is displayed. Fix any bugs if you see inconsistencies, point disappears when it shouldn't or appears in the wrong place.
 
 \section*{Problem 2: Boundary Logic (The Segment)}
 
@@ -126,7 +126,7 @@ Now proceed with the following problems. First solve the math part so you get th
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{Test:} Press "Reload \& Retest", than "L2 Segment Bounds" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debuger and ensure your code works appropriately.
+\textbf{Test:} Press "Reload \& Retest", than "L2 Segment Bounds" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debugger and ensure your code works appropriately.
 
 
 \section*{Problem 3: Quadratic Geometry (Circle)}
@@ -135,7 +135,7 @@ Now proceed with the following problems. First solve the math part so you get th
 \textbf{Given:} A light ray starting at origin $\mathbf{O}$ with a unit direction vector $\vec{d}$, and a circle defined by its center $\mathbf{C}$ and radius $R$. \\
 \textbf{Derive:} The intersection points $\mathbf{Q}_1$ and $\mathbf{Q}_2$ of the ray and the circle. Define them in way $\mathbf{Q}_1$ is \textbf{always closer} to the ray source than $\mathbf{Q}_2$. \textbf{Hint:} substitute the ray equation $\mathbf{r}(t) = \mathbf{O} + t\vec{d}$ into the circle equation $\|\mathbf{r} - \mathbf{C}\|^2 = R^2$ and solve the resulting quadratic equation for $t$. Note that the discriminant is always a positive number.
 
-\subsubsection*{Implementation part}\textbf{Implement:} a function \lstinline|intersect_circle(ray_origin, ray_dir, center, radius)| that returns a list of intersection points $\mathbf{Q}_1$ and $\mathbf{Q}_2$ as \lstinline|numpy.array| objects. Make sure that \textbf{the point closer to the ray source preceeds in the list}. If no intersection exists, return an empty list \lstinline|[]|. If there is only one intersection point, you can either return a list containing only that point, or a list containing its two copies\,--- both cases will be valid.
+\subsubsection*{Implementation part}\textbf{Implement:} a function \lstinline|intersect_circle(ray_origin, ray_dir, center, radius)| that returns a list of intersection points $\mathbf{Q}_1$ and $\mathbf{Q}_2$ as \lstinline|numpy.array| objects. Make sure that \textbf{the point closer to the ray source precedes in the list}. If no intersection exists, return an empty list \lstinline|[]|. If there is only one intersection point, you can either return a list containing only that point, or a list containing its two copies\,--- both cases will be valid.
 \begin{center}
 \renewcommand{\arraystretch}{2.0}
 \begin{tabular}{r | c | c | c | c | c}
@@ -147,7 +147,7 @@ Now proceed with the following problems. First solve the math part so you get th
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{Test:} Press "Reload \& Retest", than "L3 Circle Math" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debuger and ensure your code works appropriately. \textbf{Note: only the first point from the list is displayed in the debugger.} This is to help you understand whether you return points in the correct order.
+\textbf{Test:} Press "Reload \& Retest", than "L3 Circle Math" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debugger and ensure your code works appropriately. \textbf{Note: only the first point from the list is displayed in the debugger.} This is to help you understand whether you return points in the correct order.
 
 
 \section*{Problem 4: Angular Sector (The Arc)}
@@ -179,7 +179,7 @@ $\mathbf{O}$ & $\vec{d}$ & $\mathbf{C}$ & $R$ & $\vec{a}$ & $\cos(\phi)$ & $\mat
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{Test:} Press "Reload \& Retest", than "L4 Arc Sector" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debuger and ensure your code works appropriately.
+\textbf{Test:} Press "Reload \& Retest", than "L4 Arc Sector" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debugger and ensure your code works appropriately.
 
 
 \section*{Problem 5: Surface Orientation (Segment Normal)}
@@ -222,7 +222,7 @@ $\mathbf{O}$ & $\vec{d}$ & $\mathbf{C}$ & $R$ & $\vec{a}$ & $\cos(\phi)$ & $\mat
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{Test:} Press "Reload \& Retest", than "L5 Line Normals" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debuger and ensure your code works appropriately. Try reproducing the image in the problem description, ensure that the vector points appropriately.
+\textbf{Test:} Press "Reload \& Retest", than "L5 Line Normals" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debugger and ensure your code works appropriately. Try reproducing the image in the problem description, ensure that the vector points appropriately.
 
 
 \section*{Problem 6: Radial Orientation (Arc Normal)}
@@ -264,7 +264,7 @@ $\mathbf{O}$ & $\vec{d}$ & $\mathbf{C}$ & $R$ & $\vec{a}$ & $\cos(\phi)$ & $\mat
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{Test:} Press "Reload \& Retest", than "L6 Arc Normals" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debuger and ensure your code works appropriately. Try reproducing the image in the problem description, ensure that the vector points appropriately.
+\textbf{Test:} Press "Reload \& Retest", than "L6 Arc Normals" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debugger and ensure your code works appropriately. Try reproducing the image in the problem description, ensure that the vector points appropriately.
 
 
 
@@ -288,7 +288,7 @@ $\mathbf{O}$ & $\vec{d}$ & $\mathbf{C}$ & $R$ & $\vec{a}$ & $\cos(\phi)$ & $\mat
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{Test:} Press "Reload \& Retest", than "L6 Refraction" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debuger and ensure your code works appropriately. See if the light bends. \textbf{Debugger supposes that the light is always going from the air $n_1 = 1$ into the glass $n_2 = 1.5$.} Think if the beam should get closer of further from the normal, check in the visual debugger.
+\textbf{Test:} Press "Reload \& Retest", than "L6 Refraction" buttons in the visual debugger window. Ensure unittests are passing. Move different points in visual debugger and ensure your code works appropriately. See if the light bends. \textbf{Debugger supposes that the light is always going from the air $n_1 = 1$ into the glass $n_2 = 1.5$.} Think if the beam should get closer of further from the normal, check in the visual debugger.
 
 
 \section*{Problem 8: Run Physical Simulation}
@@ -298,7 +298,7 @@ Once you have verified your mathematical implementation using the unit tests and
 \subsubsection*{Navigating the Interface}
 The simulation environment consists of several interactive components designed for real-time optical analysis:
 \begin{itemize}
-\item \textbf{The Optical Bench (Main Canvas):} This is your primary workspace where lenses and ray sources are visualized. You can interactively place, move, and rotate objects to alter the light path. Drag the lens with the left mouse button. Rotate the lens with the right mouse button. Use "n" at the top of the panel to set the refraction index. Parallell rays are going from the left;  you can change to point source and back with "Mode" button, point source is draggable with the left mouse button.
+\item \textbf{The Optical Bench (Main Canvas):} This is your primary workspace where lenses and ray sources are visualized. You can interactively place, move, and rotate objects to alter the light path. Drag the lens with the left mouse button. Rotate the lens with the right mouse button. Use "n" at the top of the panel to set the refraction index. Parallel rays are going from the left;  you can change to point source and back with "Mode" button, point source is draggable with the left mouse button.
 \item \textbf{Lens Architect:} Use this tool to define the geometry of your lenses. Drag colored points to change the lens shape. See parameters of the lens at the top. Note that a slab can be created.
 \item \textbf{Physics Inspector:} Located in the side panel, this tool allows you to select individual lens to view its properties.
 \item \textbf{Measurements:} Use "Ruler" button to go into measurement mode and back. When ruler is on you can measure distances by pressing left mouse button somewhere, dragging the mouse and releasing. You will see a line showing appropriate segment and the distance measured.
@@ -366,7 +366,7 @@ where $\theta$ is the incident angle and $\theta'$ is the refracted angle derive
 \end{center}
 
 \subsubsection*{Experimentation part}
-\textbf{Task:} Place a glass slab (or a rectangular lens defined by segments) into the path of parallell rays. Rotate the slab to create an incident angle $\theta$. View angle and expected displacement $h$ in the Physics Inspector. Using the "Ruler" tool, measure the perpendicular distance between the path of the incident ray and the path of the exiting ray.
+\textbf{Task:} Place a glass slab (or a rectangular lens defined by segments) into the path of parallel rays. Rotate the slab to create an incident angle $\theta$. View angle and expected displacement $h$ in the Physics Inspector. Using the "Ruler" tool, measure the perpendicular distance between the path of the incident ray and the path of the exiting ray.
 \begin{center}
 \includegraphics[width=0.7\textwidth]{displacement}
 \end{center}
