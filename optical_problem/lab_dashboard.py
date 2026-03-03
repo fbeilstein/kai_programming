@@ -114,10 +114,9 @@ class OpticsDebugger(tk.Tk):
         ray_dir = (r_t - r_o) / (np.linalg.norm(r_t - r_o) + 1e-9)
         
         GUIDE_COLOR, SURF_COLOR, RAY_COLOR, HANDLE_COLOR = "#ff0000", "#00ffff", "#ff8c00", "#ffff00"
-        t_raw, curve = float('inf'), None
+        t_raw, curve = None, None
         
-
-        # --- LINEAR LEVELS (1, 2, 5, 7) ---
+        # --- 1. CALL STUDENT FUNCTIONS ---
         if self.current_lvl in [1, 2, 5, 7]:
             p1, p2 = self.handles['p1'], self.handles['p2']
             slope = p2 - p1
@@ -131,19 +130,16 @@ class OpticsDebugger(tk.Tk):
                 t_raw = tasks.intersect_segment(r_o, ray_dir, p1, p2)
             curve = {'type': 'line', 'p1': p1, 'p2': p2}
 
-        # --- CIRCLE LEVEL (3) ---
         elif self.current_lvl == 3:
             radius = np.linalg.norm(self.handles['radius_h'] - center)
             self.ax.add_patch(Circle(center, radius, color=SURF_COLOR, fill=False, lw=3, zorder=3))
             t_raw = tasks.intersect_circle(r_o, ray_dir, center, radius)
             curve = {'type': 'circle', 'center': center, 'radius': radius}
 
-        # --- ARC LEVELS (4, 6) ---
         elif self.current_lvl in [4, 6]:
             radius = np.linalg.norm(self.handles['arc_p1'] - center)
             self.ax.add_patch(Circle(center, radius, color=GUIDE_COLOR, fill=False, lw=1, linestyle="--", alpha=0.3))
             
-            # Recalculate Arc Geometry from Handles
             mid = (self.handles['arc_p1'] + self.handles['arc_p2']) / 2.0
             axis = (mid - center) / (np.linalg.norm(mid - center) + 1e-9)
             vec_p1 = (self.handles['arc_p1'] - center) / (radius + 1e-9)
@@ -156,49 +152,71 @@ class OpticsDebugger(tk.Tk):
             t_raw = tasks.intersect_arc(r_o, ray_dir, center, radius, axis, cos_half)
             curve = {'type': 'arc', 'center': center, 'radius': radius, 'axis': axis, 'cos_half_angle': cos_half}
 
-
-        # Handle Return Types (L1-L4 now return coordinates/points)
-        t = None
-        if t_raw is None or (isinstance(t_raw, (list, tuple, np.ndarray)) and len(t_raw) == 0):
-            t = None
+        # --- 2. NEW LOGIC: DRAW RAW STUDENT OUTPUT ---
+        # We collect whatever the student returns into a list of points
+        student_points = []
+        if isinstance(t_raw, np.ndarray):
+            if t_raw.ndim == 1: student_points.append(t_raw)
+            elif t_raw.ndim == 2: student_points.extend(t_raw)
         elif isinstance(t_raw, (list, tuple)):
-            # It's a list of points (like from our new circle function)
-            dists = [np.linalg.norm(p - r_o) for p in t_raw if np.dot(p - r_o, ray_dir) > 1e-4]
-            t = dists[0] if dists else None
-        elif isinstance(t_raw, np.ndarray):
-            if t_raw.ndim == 1: # Single coordinate [x, y]
-                t = np.linalg.norm(t_raw - r_o)
-            elif t_raw.ndim == 2: # Array of coordinates [[x1,y1], [x2,y2]]
-                dists = [np.linalg.norm(p - r_o) for p in t_raw if np.dot(p - r_o, ray_dir) > 1e-4]
-                t = dists[0] if dists else None
-        else:
-            t = t_raw # Fallback for scalars
+            for p in t_raw:
+                if isinstance(p, np.ndarray): student_points.append(p)
 
-        # Final check remains safe because t is a scalar or None
-        is_hit = (t is not None) and (not np.isinf(t)) and (t > 1e-4)
+        # Draw the "Perfect" math ray as a dotted guide
+        max_reach = r_o + 150 * ray_dir
+        self.ax.plot([r_o[0], max_reach[0]], [r_o[1], max_reach[1]], 
+                     color=RAY_COLOR, lw=1, ls=':', alpha=0.4, zorder=1)
 
-        hit_dist = t if is_hit else 150
-        hit_pt = r_o + hit_dist * ray_dir
-        self.ax.plot([r_o[0], hit_pt[0]], [r_o[1], hit_pt[1]], color=RAY_COLOR, lw=2)
+        circled_nums = ["①", "②", "③", "④"]
 
-        if is_hit:
-            # Re-calculate hit_pt from our extracted t
-            hit_pt = r_o + t * ray_dir 
-            self.ax.scatter(hit_pt[0], hit_pt[1], c="#4ec9b0", s=120, edgecolors='white', zorder=10)
+        for i, pt in enumerate(student_points):
+            is_ahead = np.dot(pt - r_o, ray_dir) > 1e-4
+            # Use Gold (#ffd700) for hits so it doesn't clash with Cyan or Orange
+            pt_color = "#ffd700" if is_ahead else "#ff4baf" 
             
-            if self.current_lvl in [5, 6, 7]:
-                norm = tasks.calculate_normal(hit_pt, ray_dir, curve)
-                if norm is not None and np.linalg.norm(norm) > 1e-3:
-                    self.ax.quiver(hit_pt[0], hit_pt[1], norm[0], norm[1], color="#c586c0", scale=12, pivot='tail')
-                    
-                    if self.current_lvl == 7:
-                        # n1=1.0 (Air), n2=1.5 (Glass)
-                        refr_dir = tasks.refract_vector(ray_dir, norm, 1.0, 1.5)
-                        if refr_dir is not None:
-                            refr_end = hit_pt + refr_dir * 40
-                            self.ax.plot([hit_pt[0], refr_end[0]], [hit_pt[1], refr_end[1]], color="#00ff00", lw=2)
+            if self.current_lvl == 3:
+                # Use circled markers ONLY for Problem 3
+                marker_char = circled_nums[i] if i < len(circled_nums) else str(i)
+                self.ax.scatter(pt[0], pt[1], marker=f'${marker_char}$', s=250, 
+                                color=pt_color, zorder=10)
+                # Subtle glow to pop against the cyan surface
+                self.ax.scatter(pt[0], pt[1], marker='o', s=350, 
+                                facecolors='none', edgecolors='white', alpha=0.2, zorder=9)
+            else:
+                # Standard clean dot for all other levels
+                self.ax.scatter(pt[0], pt[1], color=pt_color, s=80, 
+                                edgecolors='white', zorder=10)
+            
+            # Debug coordinates
+            self.ax.text(pt[0]+3, pt[1]+1, f"({pt[0]:.1f}, {pt[1]:.1f})", 
+                         color="white", fontsize=8, alpha=0.6)
 
-        # Selective Handle Visibility
+            # Draw the solid ray segment ONLY to the first point
+            if i == 0 and is_ahead:
+                self.ax.plot([r_o[0], pt[0]], [r_o[1], pt[1]], color=RAY_COLOR, lw=2, zorder=2)
+
+        # --- 3. NORMALS AND REFRACTION (L5, L6, L7) ---
+        if self.current_lvl in [5, 6, 7] and len(student_points) > 0:
+            hit_pt = student_points[0] # Base physics on the student's return point
+            
+            # Determine which normal function to call
+            if self.current_lvl == 5 or (self.current_lvl == 7 and curve['type'] == 'line'):
+                norm = tasks.calculate_normal_segment(ray_dir, self.handles['p1'], self.handles['p2'])
+            else:
+                norm = tasks.calculate_normal_arc(hit_pt, ray_dir, center)
+
+            if norm is not None and np.linalg.norm(norm) > 1e-3:
+                self.ax.quiver(hit_pt[0], hit_pt[1], norm[0], norm[1], 
+                               color="#c586c0", scale=12, pivot='tail', zorder=11)
+                
+                if self.current_lvl == 7:
+                    refr_dir = tasks.refract_vector(ray_dir, norm, 1.0, 1.5)
+                    if refr_dir is not None:
+                        refr_end = hit_pt + refr_dir * 40
+                        self.ax.plot([hit_pt[0], refr_end[0]], [hit_pt[1], refr_end[1]], 
+                                     color="#00ff00", lw=2, zorder=2)
+
+        # --- 4. HANDLE VISIBILITY ---
         vis = ['ray_o', 'ray_t']
         if self.current_lvl in [1, 2, 5, 7]: vis += ['p1', 'p2']
         if self.current_lvl == 3: vis += ['center', 'radius_h']
