@@ -49,6 +49,7 @@ def intersect_segment(ray_origin, ray_dir, p1, p2):
 
 
 def intersect_circle(ray_origin, ray_dir, center, radius):
+    return None
     OC = ray_origin - center
     b = 2 * np.dot(ray_dir, OC)
     c = np.dot(OC, OC) - radius**2
@@ -61,7 +62,7 @@ def intersect_circle(ray_origin, ray_dir, center, radius):
     t_vals = [(-b - sqrt_d) / 2, (-b + sqrt_d) / 2]
     
     # Return a list of coordinate arrays
-    return [ray_origin + t * ray_dir for t in t_vals if t > 0]
+    return [ray_origin + t * ray_dir  for t in t_vals if t > 0]
     
 #def intersect_circle(ray_origin, ray_dir, center, radius):
 #    pass
@@ -71,7 +72,7 @@ def intersect_arc(ray_origin, ray_dir, center, radius, axis, cos_half_angle):
     # LEVEL 4: Angular sector check
     intersect_pts = intersect_circle(ray_origin, ray_dir, center, radius)
     
-    if len(intersect_pts) == 0:
+    if not intersect_pts or len(intersect_pts) == 0:
         return None
 
     for P in intersect_pts:

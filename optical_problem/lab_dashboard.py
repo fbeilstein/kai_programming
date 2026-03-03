@@ -1,17 +1,20 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
 import unittest
-import numpy as np
-import subprocess
-import sys
 import importlib
+import sys
+import os
+import subprocess
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.patches import Arc, Circle
 
-# Ensure these modules exist in your directory
-import implementation_tasks as tasks
-import test_suite
+# Ensure directories are in path for robust importing
+base_dir = os.path.dirname(os.path.abspath(__file__))
+if base_dir not in sys.path:
+    sys.path.insert(0, base_dir)
+levels_dir = os.path.join(base_dir, 'levels')
+if levels_dir not in sys.path:
+    sys.path.insert(0, levels_dir)
 
 class OpticsDebugger(tk.Tk):
     def __init__(self):
@@ -20,9 +23,14 @@ class OpticsDebugger(tk.Tk):
         self.geometry("1150x850")
         self.configure(bg="#1e1e1e")
 
+        self.current_handler = None
+        self.current_lvl_num = None
+        
         self.setup_sidebar()
         self.setup_main_area()
-        self.refresh_tests()
+        
+        # Start with Level 1
+        self.switch_sandbox(1)
 
     def setup_sidebar(self):
         self.sidebar = tk.Frame(self, bg="#252526", highlightbackground="#333333", highlightthickness=1)
@@ -31,13 +39,18 @@ class OpticsDebugger(tk.Tk):
         tk.Label(self.sidebar, text="Implementation Tasks", font=("Arial", 12, "bold"), 
                  bg="#252526", fg="white").pack(pady=15, padx=20)
         
-        self.tasks = [
-            (1, "Infinite Line"), (2, "Segment Bounds"), (3, "Circle Math"),
-            (4, "Arc Sector"), (5, "Line Normals"), (6, "Arc Normals"), (7, "Refraction")
-        ]
+        self.tasks = {
+            1: ("Infinite Line", "level_1_line", "Level1Line"),
+            2: ("Segment Bounds", "level_2_segment", "Level2Segment"),
+            3: ("Circle Math", "level_3_circle", "Level3Circle"),
+            4: ("Arc Sector", "level_4_arc", "Level4Arc"),
+            5: ("Line Normals", "level_5_segment_normal", "Level5SegmentNormal"),
+            6: ("Arc Normals", "level_6_arc_normal", "Level6ArcNormal"),
+            7: ("Refraction", "level_7_refraction", "Level7Refraction")
+        }
         
         self.status_indicators = {}
-        for num, name in self.tasks:
+        for num, (name, mod, cls) in self.tasks.items():
             frame = tk.Frame(self.sidebar, bg="#252526")
             frame.pack(fill="x", pady=4, padx=10)
             
@@ -49,17 +62,12 @@ class OpticsDebugger(tk.Tk):
             tk.Button(frame, text=f"L{num} {name}", width=20, font=("Arial", 9),
                        command=lambda n=num: self.switch_sandbox(n)).pack(side="left")
 
+        # Utility Buttons (Wired to the new aggressive reload)
         tk.Button(self.sidebar, text="🔄 Reload & Retest", bg="#3e3e42", fg="white",
-                  command=self.refresh_tests).pack(pady=(30, 10), padx=20, fill="x")
-        
-        tk.Button(self.sidebar, text="🚀 Run Main Simulation", bg="#007acc", fg="white", font=("Arial", 10, "bold"),
-                  command=self.run_main_script).pack(pady=10, padx=20, fill="x")
-
-    def run_main_script(self):
-        try:
-            subprocess.Popen([sys.executable, "optic_bench.py"])
-        except Exception as e:
-            messagebox.showerror("Execution Error", f"Could not launch optic_bench.py: {e}")
+                  command=self.reload_and_retest).pack(pady=(30, 10), padx=20, fill="x")
+                  
+        tk.Button(self.sidebar, text="🚀 Run Main Simulation", bg="#007acc", fg="white", 
+                  font=("Arial", 10, "bold"), command=self.run_main_simulation).pack(pady=(0, 20), padx=20, fill="x")
 
     def setup_main_area(self):
         self.main_container = tk.Frame(self, bg="#1e1e1e")
@@ -69,200 +77,87 @@ class OpticsDebugger(tk.Tk):
         self.ax = self.fig.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.main_container)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    def force_reload_core(self):
+        """Aggressively reloads the student's physics file, throwing a popup on syntax errors."""
+        try:
+            if 'implementation_tasks' in sys.modules:
+                importlib.reload(sys.modules['implementation_tasks'])
+            else:
+                import implementation_tasks
+            return True
+        except Exception as e:
+            # Show the actual Python error (SyntaxError, IndentationError, etc.)
+            messagebox.showerror("Compilation Error", f"Your implementation_tasks.py has an error:\n\n{e}")
+            return False
+
+    def reload_and_retest(self):
+        """Triggered by the Reload button."""
+        # 1. Stop and alert if the core tasks file is broken
+        if not self.force_reload_core():
+            return
+            
+        # 2. Force reload all level modules so tests update
+        for num, (name, mod_name, class_name) in self.tasks.items():
+            if mod_name in sys.modules:
+                importlib.reload(sys.modules[mod_name])
         
-        self.current_lvl = 1
-        self.handles = {
-            'ray_o': np.array([-30.0, 0.0]), 'ray_t': np.array([-10.0, 10.0]),
-            'p1': np.array([10.0, -20.0]), 'p2': np.array([10.0, 20.0]),
-            'center': np.array([15.0, 0.0]), 
-            'radius_h': np.array([30.0, 0.0]), # Unique to L3
-            'arc_p1': np.array([0.0, 15.0]),   # Unique to L4/L6
-            'arc_p2': np.array([0.0, -15.0])   # Unique to L4/L6
-        }
-        self.dragging = None
-        
-        self.canvas.mpl_connect('button_press_event', self.on_press)
-        self.canvas.mpl_connect('button_release_event', self.on_release)
-        self.canvas.mpl_connect('motion_notify_event', self.on_motion)
+        # 3. Re-instantiate the sandbox to trigger a clean draw and test run
+        if self.current_lvl_num:
+            self.switch_sandbox(self.current_lvl_num)
+
+    def switch_sandbox(self, level_num):
+        # Always try to grab the latest code when switching tabs
+        if not self.force_reload_core():
+            return
+
+        if self.current_handler is not None:
+            self.current_handler.disconnect_events()
+
+        try:
+            name, mod_name, class_name = self.tasks[level_num]
+            module = importlib.import_module(mod_name)
+            importlib.reload(module) 
+            
+            level_class = getattr(module, class_name)
+            
+            self.ax.clear()
+            self.current_handler = level_class(ax=self.ax)
+            self.current_handler.draw()
+            self.canvas.draw()
+            
+            self.current_lvl_num = level_num
+            self.refresh_tests() 
+            
+        except Exception as e:
+            messagebox.showerror("Module Error", f"Failed to load Level {level_num}:\n{e}")
 
     def refresh_tests(self):
-        importlib.reload(tasks)
-        importlib.reload(test_suite)
+        """Runs the tests. Assumes modules are already successfully reloaded."""
         loader = unittest.TestLoader()
-        suite = loader.loadTestsFromTestCase(test_suite.TestOpticsMath)
         
-        for num, _ in self.tasks:
-            level_suite = unittest.TestSuite([t for t in suite if f"test_l{num}" in t._testMethodName])
-            res = unittest.TextTestRunner(verbosity=0).run(level_suite)
-            canvas, light = self.status_indicators[num]
-            color = "#4ec9b0" if (res.wasSuccessful() and res.testsRun > 0) else "#f44747" if res.testsRun > 0 else "red"
-            canvas.itemconfig(light, fill=color)
-        self.update_plot()
-
-    def switch_sandbox(self, level):
-        self.current_lvl = level
-        self.update_plot()
-
-    def update_plot(self):
-        self.ax.clear()
-        self.ax.set_facecolor("#1e1e1e")
-        self.ax.set_xlim(-60, 60); self.ax.set_ylim(-50, 50); self.ax.set_aspect('equal')
-        self.ax.grid(True, color="#333333", linestyle='--')
-        
-        r_o, r_t = self.handles['ray_o'], self.handles['ray_t']
-        center = self.handles['center']
-        ray_dir = (r_t - r_o) / (np.linalg.norm(r_t - r_o) + 1e-9)
-        
-        GUIDE_COLOR, SURF_COLOR, RAY_COLOR, HANDLE_COLOR = "#ff0000", "#00ffff", "#ff8c00", "#ffff00"
-        t_raw, curve = None, None
-        
-        # --- 1. CALL STUDENT FUNCTIONS ---
-        if self.current_lvl in [1, 2, 5, 7]:
-            p1, p2 = self.handles['p1'], self.handles['p2']
-            slope = p2 - p1
-            self.ax.plot([p1[0]-100*slope[0], p1[0]+100*slope[0]], [p1[1]-100*slope[1], p1[1]+100*slope[1]], 
-                         color=GUIDE_COLOR, linestyle="--", alpha=0.5, lw=1)
-            self.ax.plot([p1[0], p2[0]], [p1[1], p2[1]], color=SURF_COLOR, lw=3, zorder=3)
-            
-            if self.current_lvl == 1:
-                t_raw = tasks.intersect_line_infinite(r_o, ray_dir, p1, p2)
-            else:
-                t_raw = tasks.intersect_segment(r_o, ray_dir, p1, p2)
-            curve = {'type': 'line', 'p1': p1, 'p2': p2}
-
-        elif self.current_lvl == 3:
-            radius = np.linalg.norm(self.handles['radius_h'] - center)
-            self.ax.add_patch(Circle(center, radius, color=SURF_COLOR, fill=False, lw=3, zorder=3))
-            t_raw = tasks.intersect_circle(r_o, ray_dir, center, radius)
-            curve = {'type': 'circle', 'center': center, 'radius': radius}
-
-        elif self.current_lvl in [4, 6]:
-            radius = np.linalg.norm(self.handles['arc_p1'] - center)
-            self.ax.add_patch(Circle(center, radius, color=GUIDE_COLOR, fill=False, lw=1, linestyle="--", alpha=0.3))
-            
-            mid = (self.handles['arc_p1'] + self.handles['arc_p2']) / 2.0
-            axis = (mid - center) / (np.linalg.norm(mid - center) + 1e-9)
-            vec_p1 = (self.handles['arc_p1'] - center) / (radius + 1e-9)
-            cos_half = np.dot(vec_p1, axis)
-
-            span = np.degrees(np.arccos(np.clip(cos_half, -1, 1))) * 2
-            self.ax.add_patch(Arc(center, radius*2, radius*2, angle=np.degrees(np.arctan2(axis[1], axis[0])), 
-                                  theta1=-span/2, theta2=span/2, color=SURF_COLOR, lw=4, zorder=3))
-            
-            t_raw = tasks.intersect_arc(r_o, ray_dir, center, radius, axis, cos_half)
-            curve = {'type': 'arc', 'center': center, 'radius': radius, 'axis': axis, 'cos_half_angle': cos_half}
-
-        # --- 2. NEW LOGIC: DRAW RAW STUDENT OUTPUT ---
-        # We collect whatever the student returns into a list of points
-        student_points = []
-        if isinstance(t_raw, np.ndarray):
-            if t_raw.ndim == 1: student_points.append(t_raw)
-            elif t_raw.ndim == 2: student_points.extend(t_raw)
-        elif isinstance(t_raw, (list, tuple)):
-            for p in t_raw:
-                if isinstance(p, np.ndarray): student_points.append(p)
-
-        # Draw the "Perfect" math ray as a dotted guide
-        max_reach = r_o + 150 * ray_dir
-        self.ax.plot([r_o[0], max_reach[0]], [r_o[1], max_reach[1]], 
-                     color=RAY_COLOR, lw=1, ls=':', alpha=0.4, zorder=1)
-
-        circled_nums = ["①", "②", "③", "④"]
-
-        for i, pt in enumerate(student_points):
-            is_ahead = np.dot(pt - r_o, ray_dir) > 1e-4
-            # Use Gold (#ffd700) for hits so it doesn't clash with Cyan or Orange
-            pt_color = "#ffd700" if is_ahead else "#ff4baf" 
-            
-            if self.current_lvl == 3:
-                # Use circled markers ONLY for Problem 3
-                marker_char = circled_nums[i] if i < len(circled_nums) else str(i)
-                self.ax.scatter(pt[0], pt[1], marker=f'${marker_char}$', s=250, 
-                                color=pt_color, zorder=10)
-                # Subtle glow to pop against the cyan surface
-                self.ax.scatter(pt[0], pt[1], marker='o', s=350, 
-                                facecolors='none', edgecolors='white', alpha=0.2, zorder=9)
-            else:
-                # Standard clean dot for all other levels
-                self.ax.scatter(pt[0], pt[1], color=pt_color, s=80, 
-                                edgecolors='white', zorder=10)
-            
-            # Debug coordinates
-            self.ax.text(pt[0]+3, pt[1]+1, f"({pt[0]:.1f}, {pt[1]:.1f})", 
-                         color="white", fontsize=8, alpha=0.6)
-
-            # Draw the solid ray segment ONLY to the first point
-            if i == 0 and is_ahead:
-                self.ax.plot([r_o[0], pt[0]], [r_o[1], pt[1]], color=RAY_COLOR, lw=2, zorder=2)
-
-        # --- 3. NORMALS AND REFRACTION (L5, L6, L7) ---
-        if self.current_lvl in [5, 6, 7] and len(student_points) > 0:
-            hit_pt = student_points[0] # Base physics on the student's return point
-            
-            # Determine which normal function to call
-            if self.current_lvl == 5 or (self.current_lvl == 7 and curve['type'] == 'line'):
-                norm = tasks.calculate_normal_segment(ray_dir, self.handles['p1'], self.handles['p2'])
-            else:
-                norm = tasks.calculate_normal_arc(hit_pt, ray_dir, center)
-
-            if norm is not None and np.linalg.norm(norm) > 1e-3:
-                self.ax.quiver(hit_pt[0], hit_pt[1], norm[0], norm[1], 
-                               color="#c586c0", scale=12, pivot='tail', zorder=11)
+        for num, (name, mod_name, class_name) in self.tasks.items():
+            try:
+                module = importlib.import_module(mod_name)
+                suite = loader.loadTestsFromModule(module)
                 
-                if self.current_lvl == 7:
-                    refr_dir = tasks.refract_vector(ray_dir, norm, 1.0, 1.5)
-                    if refr_dir is not None:
-                        refr_end = hit_pt + refr_dir * 40
-                        self.ax.plot([hit_pt[0], refr_end[0]], [hit_pt[1], refr_end[1]], 
-                                     color="#00ff00", lw=2, zorder=2)
+                with open(os.devnull, 'w') as f:
+                    result = unittest.TextTestRunner(stream=f, verbosity=0).run(suite)
+                
+                canvas, light = self.status_indicators[num]
+                color = "#4ec9b0" if (result.wasSuccessful() and result.testsRun > 0) else "#f44747"
+                canvas.itemconfig(light, fill=color)
+                
+            except Exception as e:
+                canvas, light = self.status_indicators[num]
+                canvas.itemconfig(light, fill="#f44747")
 
-        # --- 4. HANDLE VISIBILITY ---
-        vis = ['ray_o', 'ray_t']
-        if self.current_lvl in [1, 2, 5, 7]: vis += ['p1', 'p2']
-        if self.current_lvl == 3: vis += ['center', 'radius_h']
-        if self.current_lvl in [4, 6]: vis += ['center', 'arc_p1', 'arc_p2']
-        
-        for k in vis:
-            v = self.handles[k]
-            self.ax.scatter(v[0], v[1], c=HANDLE_COLOR, s=60, edgecolors='black', zorder=5)
-
-        self.canvas.draw()
-
-    def on_press(self, event):
-        if event.xdata is None: return
-        # Filter for visible handles only
-        vis = ['ray_o', 'ray_t']
-        if self.current_lvl in [1, 2, 5, 7]: vis += ['p1', 'p2']
-        if self.current_lvl == 3: vis += ['center', 'radius_h']
-        if self.current_lvl in [4, 6]: vis += ['center', 'arc_p1', 'arc_p2']
-        
-        for k in vis:
-            v = self.handles[k]
-            if np.hypot(event.xdata - v[0], event.ydata - v[1]) < 4: self.dragging = k; break
-
-    def on_motion(self, event):
-        if self.dragging and event.xdata is not None:
-            new = np.array([event.xdata, event.ydata])
-            if self.dragging == 'center':
-                # Sync all geometric handles to the center
-                d_rh = self.handles['radius_h'] - self.handles['center']
-                d1, d2 = self.handles['arc_p1'] - self.handles['center'], self.handles['arc_p2'] - self.handles['center']
-                self.handles['center'] = new
-                self.handles['radius_h'], self.handles['arc_p1'], self.handles['arc_p2'] = new + d_rh, new + d1, new + d2
-            elif self.dragging == 'arc_p1':
-                self.handles['arc_p1'] = new
-                r = np.linalg.norm(new - self.handles['center'])
-                v2 = self.handles['arc_p2'] - self.handles['center']
-                self.handles['arc_p2'] = self.handles['center'] + r * (v2 / (np.linalg.norm(v2) + 1e-9))
-            elif self.dragging == 'arc_p2':
-                r = np.linalg.norm(self.handles['arc_p1'] - self.handles['center'])
-                v2 = new - self.handles['center']
-                self.handles['arc_p2'] = self.handles['center'] + r * (v2 / (np.linalg.norm(v2) + 1e-9))
-            else:
-                self.handles[self.dragging] = new
-            self.update_plot()
-
-    def on_release(self, event): self.dragging = None
+    def run_main_simulation(self):
+        """Launches the main optic_bench.py script as an independent process."""
+        try:
+            subprocess.Popen([sys.executable, "optic_bench.py"])
+        except Exception as e:
+            messagebox.showerror("Execution Error", f"Failed to launch optic_bench.py:\n{e}")
 
 if __name__ == "__main__":
     app = OpticsDebugger()
