@@ -27,8 +27,8 @@
 }
 
 \title{Physics Lab: Ray Tracing and Geometrical Optics \\ \large Problem Set \& Implementation Guide}
-\author{Scientific Programming Course}
-\date{2026}
+\author{VB}
+\date{\today}
 
 \begin{document}
 
@@ -39,23 +39,22 @@
 Consider the files given.
 \begin{center}
 \renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{@{} >{\bfseries}l X @{}}
+\begin{tabularx}{\textwidth}{@{} >{\bfseries\raggedright\arraybackslash}p{5.5cm} X @{}}
 \toprule
 \textcolor{blue}{Filename} & \textcolor{blue}{Purpose} \\ \midrule
-implementation\_tasks.py & Contains the core physics and geometry logic (intersections, refraction, and normals) intended for student implementation. \textcolor{red}{Here you write your code}\\
-inspector.py & Handles the UI side-panel for inspecting specific lens properties in real-time. \\
-io\_manager.py & Manages the serialization of the optical bench state to JSON files and handles data type cleaning for NumPy objects. \\
-lab\_dashboard.py & A dedicated educational sandbox for debugging individual physics levels through an interactive UI. \textcolor{red}{This file you run}\\
-lens\_architect.py & Provides geometric helper functions to generate the vertex arrays and arc paths that define lens shapes. \\
-lens\_object.py & Defines the \texttt{Lens} class, representing physical lens properties like refractive index and surface geometry. \\
-optic\_bench.py & The main simulation engine; manages the global simulation state, workspace, and coordinate transformations. \textbf{After you solved problems $0$-$7$, you can run this file separately if you wish.} \\
-ray.py & Defines the \texttt{Ray} data structure, which stores the trajectory points and tracks the medium the light is traveling through. \\
-ray\_source.py & Implements different light emitters (Point Source, Parallel Source) that generate initial ray distributions. \\
-ray\_tracer.py & The engine that orchestrates the recursive tracing of rays through multiple optical elements and interfaces. \\
-test\_suite.py & A collection of unit tests designed to verify the mathematical accuracy of the student implementation levels. \\
+\multicolumn{2}{@{}l}{\textbf{Direct Interaction}} \\ \midrule
+\lstinline|implementation_tasks.py| & \textcolor{red}{Here you write your code.} Contains the core physics and geometry logic (intersections, refraction, and normals) intended for student implementation. \\
+\lstinline|lab_dashboard.py| & \textcolor{red}{This file you run.} A dedicated educational sandbox for debugging individual physics levels through an interactive UI. This is your main interaction point\,-- other scripts can be started from here.\\
+\lstinline|optic_bench.py| & \textbf{May be run standalone after you solve levels 1-7.} The main simulation engine; allows for the creation and management of simple optical systems, and uses the math you implement in \lstinline|implementation_tasks.py|. \\
+\lstinline|levels/level_*.py| & Unittests and graphical representation for each specific problem. \textbf{Can be run standalone.} You can use \lstinline|python levels/level_*.py| for the graphical debugger or \lstinline|python levels/level_*.py --no-graphics| for unittests only. \\ \midrule
+\multicolumn{2}{@{}l}{\textbf{Under the Hood}} \\ \midrule
+\lstinline|levels/base_level.py| & Base class for graphical debuggers.\\
+\mbox{\lstinline|ray_tracer.py|}, \mbox{\lstinline|lens_object.py|}, \mbox{\lstinline|ray.py|}, \mbox{\lstinline|ray_source.py|}, \mbox{\lstinline|lens_architect.py|}, \mbox{\lstinline|inspector.py|}, \mbox{\lstinline|io_manager.py|} & Needed for Optic Workbench. These manage the global state, perform recursive ray tracing, save/load optical system, and provide UI for the final simulation. \\
 \bottomrule
 \end{tabularx}
 \end{center}
+
+
 Run the file \lstinline|lab_dashboard.py|. You should see the window as follows
 \begin{center}
 \includegraphics[width=0.8\textwidth]{lab_dashboard_1}
@@ -153,7 +152,7 @@ Now proceed with the following problems. First solve the math part so you get th
 \section*{Problem 4: Angular Sector (The Arc)}
 
 \subsubsection*{Mathematical part}
-\textbf{Given:} A light ray starting at origin $\mathbf{O}$ with a unit direction vector $\vec{d}$, and an arc defined by center $\mathbf{C}$, radius $R$, central axis unit vector $\vec{a}$, and the cosine of the half-aperture angle $\cos(\phi)$. \\
+\textbf{Given:} A light ray starting at origin $\mathbf{O}$ with a unit direction vector $\vec{d}$, and an arc defined by center $\mathbf{C}$, radius $R$, central axis unit vector $\vec{a}$, and the cosine of the \textbf{half}-aperture angle $\cos(\phi)$. \\
 \textbf{Derive:} The condition that an intersection point $\mathbf{Q}$ lies within the angular sector of the arc (see image below). \textbf{Hint:} use the dot product between the normalized vector $(\mathbf{Q} - \mathbf{C})$ and the axis $\vec{a}$.
 
 \begin{center}
