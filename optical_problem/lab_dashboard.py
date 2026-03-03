@@ -30,7 +30,9 @@ class OpticsDebugger(tk.Tk):
         self.setup_main_area()
         
         # Start with Level 1
+        self.refresh_tests()
         self.switch_sandbox(1)
+        
 
     def setup_sidebar(self):
         self.sidebar = tk.Frame(self, bg="#252526", highlightbackground="#333333", highlightthickness=1)
@@ -79,7 +81,6 @@ class OpticsDebugger(tk.Tk):
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
     def force_reload_core(self):
-        """Aggressively reloads the student's physics file, throwing a popup on syntax errors."""
         try:
             if 'implementation_tasks' in sys.modules:
                 importlib.reload(sys.modules['implementation_tasks'])
@@ -87,12 +88,10 @@ class OpticsDebugger(tk.Tk):
                 import implementation_tasks
             return True
         except Exception as e:
-            # Show the actual Python error (SyntaxError, IndentationError, etc.)
             messagebox.showerror("Compilation Error", f"Your implementation_tasks.py has an error:\n\n{e}")
             return False
 
     def reload_and_retest(self):
-        """Triggered by the Reload button."""
         # 1. Stop and alert if the core tasks file is broken
         if not self.force_reload_core():
             return
@@ -105,9 +104,10 @@ class OpticsDebugger(tk.Tk):
         # 3. Re-instantiate the sandbox to trigger a clean draw and test run
         if self.current_lvl_num:
             self.switch_sandbox(self.current_lvl_num)
+        
+        self.refresh_tests()
 
     def switch_sandbox(self, level_num):
-        # Always try to grab the latest code when switching tabs
         if not self.force_reload_core():
             return
 
@@ -127,45 +127,40 @@ class OpticsDebugger(tk.Tk):
             self.canvas.draw()
             
             self.current_lvl_num = level_num
-            self.refresh_tests() 
+            self.refresh_tests([(level_num, self.tasks[level_num])]) 
             
         except Exception as e:
             messagebox.showerror("Module Error", f"Failed to load Level {level_num}:\n{e}")
 
-    def refresh_tests(self):
-        """Runs the tests. Assumes modules are already successfully reloaded."""
+    def refresh_tests(self, test_list=None):
+        if not test_list:
+            test_list = self.tasks.items()
         loader = unittest.TestLoader()
         
-        for num, (name, mod_name, class_name) in self.tasks.items():
+        print('===================================================')
+        print('                   RESTART TESTS')
+        print('===================================================')
+        
+        for num, (name, mod_name, class_name) in test_list:
             try:
                 module = importlib.import_module(mod_name)
                 suite = loader.loadTestsFromModule(module)
                 
-                for num, (name, mod_name, class_name) in self.tasks.items():
-                    try:
-                        module = importlib.import_module(mod_name)
-                        suite = loader.loadTestsFromModule(module)
-                        
-                        # --- CHANGED: Print directly to console with high detail ---
-                        print(f"\n--- Running Tests for L{num}: {name} ---")
-                        result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
-                        
-                        canvas, light = self.status_indicators[num]
-                        color = "#4ec9b0" if (result.wasSuccessful() and result.testsRun > 0) else "#f44747"
-                        canvas.itemconfig(light, fill=color)
-                        
-                    except Exception as e:
-                        # --- CHANGED: Print the exact import/compilation error to console ---
-                        print(f"\n--- FATAL ERROR loading L{num}: {name} ---")
-                        print(f"Error details: {e}")
-                        
-                        # Turn the light red because the file is completely broken
-                        canvas, light = self.status_indicators[num]
-                        canvas.itemconfig(light, fill="#f44747")
+                print(f"\n--- Running Tests for L{num}: {name} ---")
+                result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
+                
+                canvas, light = self.status_indicators[num]
+                color = "#4ec9b0" if (result.wasSuccessful() and result.testsRun > 0) else "#f44747"
+                canvas.itemconfig(light, fill=color)
                 
             except Exception as e:
+                print(f"\n--- FATAL ERROR loading L{num}: {name} ---")
+                print(f"Error details: {e}")
+                
+                # Turn the light red because the file is completely broken
                 canvas, light = self.status_indicators[num]
                 canvas.itemconfig(light, fill="#f44747")
+                
 
     def run_main_simulation(self):
         """Launches the main optic_bench.py script as an independent process."""
