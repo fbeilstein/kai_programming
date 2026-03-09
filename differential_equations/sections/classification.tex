@@ -1,0 +1,163 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section 2: Classification
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Ordinary vs Partial Differential Equations}
+\textbf{Ordinary Differential Equations (ODE)}
+
+Unknown function depends on \textbf{one} variable.
+
+Example:
+\[
+\frac{dy}{dx} = x^2
+\]
+
+\textbf{Partial Differential Equations (PDE)}
+
+Unknown function depends on \textbf{several} variables.
+
+Example:
+\[
+\frac{\partial u}{\partial t} = k \frac{\partial^2 u}{\partial x^2}
+\]
+\end{frame}
+
+\begin{frame}{Order of a Differential Equation}
+The \textbf{order} of a differential equation is the highest derivative appearing in it.
+
+First order:
+\[
+\frac{dy}{dx} = x
+\]
+
+Second order:
+\[
+\frac{d^2y}{dx^2} + y = 0
+\]
+
+Third order:
+\[
+\frac{d^3y}{dx^3} + y = 0
+\]
+\end{frame}
+
+\begin{frame}{Linear vs Nonlinear Equations}
+\textbf{Linear differential equation}
+\[
+a_n(x)y^{(n)} + a_{n-1}(x)y^{(n-1)} + \dots + a_1(x)y' + a_0(x)y = f(x)
+\]
+
+Example:
+\[
+y'' + 3y' + 2y = 0
+\]
+
+\textbf{Nonlinear examples}
+\[
+y' = y^2 \qquad\qquad y'' + y^3 = 0
+\]
+
+\vspace{0.3cm}
+\textbf{Why does linearity matter?}
+\begin{itemize}
+    \item \textbf{Superposition}: If $y_1$ and $y_2$ solve a linear homogeneous equation, so does $c_1 y_1 + c_2 y_2$. You can build complex solutions from simple pieces.
+    \item \textbf{Structure}: Linear equations have predictable solution spaces (vector spaces of dimension $n$ for an $n$th-order equation).
+    \item \textbf{No chaos}: First-order autonomous linear ODEs cannot exhibit chaotic behaviour --- nonlinearity is \emph{required} for chaos.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Homogeneous vs Nonhomogeneous}
+\textbf{Linear Homogeneous}
+\[
+y'' + y = 0
+\]
+
+\textbf{Linear Nonhomogeneous}
+\[
+y'' + y = \sin x
+\]
+
+\textbf{Why this matters:}
+
+\begin{itemize}
+    \item A homogeneous equation describes a \textbf{free system} (no external driving force).
+    \item A nonhomogeneous equation describes a \textbf{driven system} (with an external input $f(x)$).
+    \item \textbf{Superposition principle}: the general solution of $Ly = f$ is
+    \[
+    y = y_h + y_p
+    \]
+    where $y_h$ solves the homogeneous part and $y_p$ is any particular solution.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Autonomous vs Nonautonomous}
+\textbf{Autonomous (no explicit $t$)}
+\[
+\frac{dx}{dt} = f(x)
+\]
+
+Example:
+\[
+\frac{dx}{dt} = x(1-x)
+\]
+
+\textbf{Non-autonomous}
+\[
+\frac{dx}{dt} = f(x,t)
+\]
+
+Example:
+\[
+\frac{dx}{dt} = x + \sin t
+\]
+
+\vspace{0.3cm}
+\textit{Autonomous systems are time-translation invariant: if $x(t)$ is a solution, so is $x(t - t_0)$ for any shift $t_0$.}
+\end{frame}
+
+\begin{frame}{Systems of Differential Equations}
+Example system:
+
+\[
+\begin{cases}
+\dot{x} = y \\
+\dot{y} = -x
+\end{cases}
+\]
+
+Vector form:
+\[
+\frac{d}{dt}
+\begin{pmatrix}
+ x \\
+ y
+\end{pmatrix}
+=
+\begin{pmatrix}
+ y \\
+ -x
+\end{pmatrix}
+\]
+
+\vspace{0.3cm}
+\textit{Any single higher-order ODE can be rewritten as a system of first-order ODEs. For example, $y'' + y = 0$ becomes $\dot{y}_1 = y_2,\; \dot{y}_2 = -y_1$.}
+\end{frame}
+
+
+\begin{frame}{Initial vs Boundary Value Problems}
+\textbf{Initial Value Problem (IVP)}
+\begin{itemize}
+    \item \textbf{The Math:} $y' = y, \quad y(0) = 1$
+    \item \textbf{The Physics:} Evolution over time. You know the starting state at $t=0$, and the equation drives it forward. (e.g., radioactive decay, launching a rocket).
+    \item \textbf{Solvability:} \textit{Unambiguous.} As long as the system is well-behaved, theorems guarantee exactly one unique path forward into the future.
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Boundary Value Problem (BVP)}
+\begin{itemize}
+    \item \textbf{The Math:} $y'' + y = 0, \quad y(0)=0, \quad y(\pi)=0$
+    \item \textbf{The Physics:} Spatial constraints. You know the conditions at the physical edges of a domain. (e.g., a guitar string pinned at both ends, or the temperature at two ends of a metal rod).
+    \item \textbf{Solvability:} \textit{Tricky!} BVPs can have one unique solution, no solution at all, or infinitely many. (The example above has infinitely many: $y = c \sin(x)$).
+\end{itemize}
+\end{frame}

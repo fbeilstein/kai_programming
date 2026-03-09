@@ -1,0 +1,91 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section 3: Existence & Uniqueness
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Theorems About Guessing}
+How do we know a differential equation even \emph{has} a solution? And if it does, is it the only one?
+
+\vspace{0.4cm}
+
+The strategy behind the main theorems is remarkably simple:
+
+\begin{enumerate}
+    \item \textbf{Guess} a starting approximation (even a terrible one).
+    \item \textbf{Iterate}: plug the guess back into the equation to get a better approximation.
+    \item \textbf{Prove convergence}: show that this process is guaranteed to settle on the true answer.
+\end{enumerate}
+
+\vspace{0.4cm}
+
+\textbf{Key insight:} Whether this ``guess-and-iterate'' procedure works depends entirely on how well-behaved the function $f(t, y)$ is.
+
+\begin{itemize}
+    \item If $f$ is \textbf{Lipschitz continuous} in $y$ $\Rightarrow$ existence \emph{and} uniqueness (Picard--Lindelöf).
+    \item If $f$ is merely \textbf{continuous} $\Rightarrow$ existence, but \emph{not} necessarily uniqueness (Peano).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Existence \& Uniqueness: The Picard Operator}
+Consider the Initial Value Problem (IVP):
+\[
+\frac{dy}{dt} = f(t, y) \quad \text{with} \quad y(t_0) = y_0
+\]
+
+\textbf{Step 1: Integrate both sides.} \\
+If we integrate from $t_0$ to $t$, the Fundamental Theorem of Calculus gives us:
+\[
+y(t) = y_0 + \int_{t_0}^t f(s, y(s)) \, ds
+\]
+\textit{Notice: $y$ is on both sides. This is an integral equation!}
+
+\textbf{Step 2: Define the Picard Operator ($T$).} \\
+Let $T$ be a ``machine'' that takes a function $\phi(t)$ and produces a new function:
+\[
+(T\phi)(t) = y_0 + \int_{t_0}^t f(s, \phi(s)) \, ds
+\]
+\textbf{The Goal:} We are looking for a function $y$ such that $Ty = y$. This is a \textbf{fixed point}!
+\end{frame}
+
+\begin{frame}{Sketch of Proof: Banach Fixed-Point Theorem}
+How do we find the fixed point $Ty = y$? We guess and iterate!
+
+\textbf{The Picard Iteration:}
+\begin{enumerate}
+    \item Start with a naive guess: $\phi_0(t) = y_0$ (a flat line).
+    \item Plug it into the operator: $\phi_1 = T\phi_0$.
+    \item Repeat indefinitely: $\phi_{n+1} = T\phi_n$.
+\end{enumerate}
+
+\textbf{Why does this work?} \\
+If $f(t, y)$ is ``well-behaved'' (Lipschitz continuous in $y$), then $T$ is a \textbf{contraction mapping}. This means every time you apply $T$, the distance between any two functions shrinks.
+
+By the \textbf{Banach Fixed-Point Theorem}, if you keep applying a contraction mapping in a complete metric space, you are guaranteed to converge to one single unique fixed point.
+
+\[
+\lim_{n \to \infty} \phi_n(t) = y(t) \quad \text{(The unique solution!)}
+\]
+\end{frame}
+
+
+\begin{frame}{When Uniqueness Fails: Peano's Theorem}
+\textbf{Peano's Existence Theorem:} If $f(t, y)$ is merely continuous (not necessarily Lipschitz), then a solution still \emph{exists} --- but it may not be unique.
+
+\vspace{0.4cm}
+
+\textbf{Classic counterexample:}
+\[
+y' = 3y^{2/3}, \quad y(0) = 0
+\]
+
+This has the obvious solution $y(t) = 0$. But it \emph{also} has:
+\[
+y(t) = (t - c)^3 \quad \text{for any } c \geq 0
+\]
+
+\vspace{0.3cm}
+\textbf{Why?} The function $f(y) = 3y^{2/3}$ is continuous everywhere, but its derivative $f'(y) = 2y^{-1/3}$ blows up at $y=0$, so the Lipschitz condition fails precisely at the initial point.
+
+\vspace{0.3cm}
+\textit{Moral: Existence is ``cheap'' (continuity suffices), but uniqueness is ``expensive'' (it requires Lipschitz regularity).}
+\end{frame}

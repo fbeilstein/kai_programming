@@ -1,0 +1,113 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section 1: Definition & Motivation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Why Differential Equations?}
+Many laws of nature are \textbf{easier to state in terms of change} than in terms of the quantities themselves.
+
+\vspace{0.4cm}
+
+\begin{itemize}
+    \item We rarely know the exact temperature at every moment --- but we \emph{do} know that the rate of cooling is proportional to the temperature difference.
+    \item We rarely know the exact position of a planet --- but Newton's law tells us how \emph{acceleration} relates to gravitational force.
+    \item We rarely know the exact concentration of a chemical --- but the reaction rate tells us how it changes.
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{The pattern:} Nature hands us a rule about \emph{derivatives}, and we must reconstruct the original function.
+
+\vspace{0.3cm}
+
+\begin{quote}
+``It is easier to describe how the world \emph{changes} than to describe how the world \emph{is}.''
+\end{quote}
+\end{frame}
+
+
+\begin{frame}{What is a Differential Equation?}
+A \textbf{differential equation} is an equation that relates an unknown function to its derivatives. Goal: find a function that satisfies the equation.
+
+Examples:
+
+% 1. Exponential Growth/Decay
+\[
+\frac{dy}{dx} = y
+\]
+The rate of change is equal to the current amount. (e.g., population growth, continuous interest)
+
+% 2. Simple Harmonic Motion
+\[
+\frac{d^2x}{dt^2} + \omega^2 x = 0
+\]
+Acceleration is opposite and proportional to displacement. (e.g., a swinging pendulum or a vibrating spring)
+
+% 3. The Heat Equation (Diffusion)
+\[
+\frac{\partial u}{\partial t} = k \frac{\partial^2 u}{\partial x^2}
+\]
+How temperature or particle concentration smooths out over time. (e.g., heat spreading through a metal rod)
+\end{frame}
+
+
+\begin{frame}{Newton's Law of Cooling}
+How fast does a hot cup of coffee cool down? The rate of cooling is proportional to the temperature difference between the object and its environment.
+
+\vspace{0.5cm}
+\textbf{The Equation:}
+\[
+\frac{dT}{dt} = -k(T - T_{\text{env}})
+\]
+
+\begin{itemize}
+    \item $T$: Temperature of the object
+    \item $T_{\text{env}}$: Ambient temperature (constant)
+    \item $k > 0$: Cooling constant (depends on material and surface area)
+\end{itemize}
+
+\vspace{0.5cm}
+\textbf{How it was derived/measured:} \\
+Empirically observed by Isaac Newton in 1701 using a red-hot block of iron. In a modern lab, if you measure $T$ over time and plot $\ln(T - T_{\text{env}})$ against $t$, you get a straight line with slope $-k$.
+\end{frame}
+
+
+\begin{frame}{The Simple Pendulum}
+What dictates the swing of a grandfather clock? The restoring force pulling the pendulum back to the center depends on gravity and the angle of the swing.
+
+\vspace{0.5cm}
+\textbf{The Equation:}
+\[
+\frac{d^2\theta}{dt^2} + \frac{g}{L}\sin(\theta) = 0
+\]
+
+\begin{itemize}
+    \item $\theta$: Angle of displacement
+    \item $g$: Acceleration due to gravity
+    \item $L$: Length of the pendulum
+\end{itemize}
+
+\vspace{0.5cm}
+\textbf{How it was derived/measured:} \\
+Derived directly from Newton's Second Law for rotation ($\tau = I\alpha$). Because $\sin(\theta)$ makes the math nonlinear, physicists often measure very small swings where $\sin(\theta) \approx \theta$, turning it into a simple harmonic oscillator.
+\end{frame}
+
+\begin{frame}{The RC Circuit \& The Biological Neuron}
+How does a cell membrane charge up before firing an action potential? It acts exactly like a resistor and capacitor in parallel.
+
+\vspace{0.5cm}
+\textbf{The Equation:}
+\[
+C_m \frac{dV}{dt} + \frac{V - V_{\text{rest}}}{R_m} = I_{\text{ext}}(t)
+\]
+
+\begin{itemize}
+    \item $V$: Membrane voltage
+    \item $C_m$: Membrane capacitance (lipid bilayer)
+    \item $R_m$: Membrane resistance (ion channels)
+    \item $I_{\text{ext}}$: External stimulus current
+\end{itemize}
+
+\vspace{0.5cm}
+\textbf{How it was derived/measured:} \\
+Derived theoretically from Kirchhoff's Current Law (conservation of charge). It was famously measured and proven in the 1950s by Hodgkin and Huxley by inserting microscopic electrodes into the giant axons of squids.
+\end{frame}

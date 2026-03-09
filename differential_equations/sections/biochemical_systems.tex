@@ -1,0 +1,171 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section 6: Biochemical Systems Theory
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Biochemical Systems Theory (BST)}
+Cells are complex networks of reactions. How do we model them without getting lost in the math?
+
+\textbf{The Power-Law Approximation:} \\
+Instead of using massive rational functions, BST approximates the rate ($V$) of any reaction as a product of all influencing variables ($X$), raised to a power.
+
+\vspace{0.4cm}
+
+\textbf{The General Rate Equation:}
+\[
+V = \gamma \prod_{j=1}^{n} X_j^{f_j} = \gamma\, X_1^{f_1} X_2^{f_2} \cdots X_n^{f_n}
+\]
+
+\begin{itemize}
+    \item $\gamma$: Rate constant (how inherently fast the reaction is).
+    \item $X_j$: Concentration of metabolite, enzyme, or signal molecule.
+    \item $f_j$: \textbf{Kinetic order} (how strongly $X_j$ affects the rate).
+        \begin{itemize}
+            \item $f_j > 0$: activator / substrate
+            \item $f_j < 0$: inhibitor
+            \item $f_j = 0$: no influence
+        \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Writing Equations: Mass Action \& Activation}
+Model: Substrate ($X_1$) is converted to Product ($X_2$), catalysed by Enzyme ($X_3$).
+
+\vspace{0.3cm}
+
+\textbf{1. The Rate of the Reaction ($V$):}
+\[
+V = \gamma\, X_1^{f_1} X_3^{f_3}
+\]
+\textit{Notice: $X_2$ (the product) is not in the rate equation because it does not drive the forward reaction.}
+
+\textbf{2. The Differential Equations:}
+
+The rate dictates how the concentrations change over time:
+\[
+\frac{dX_1}{dt} = - \gamma\, X_1^{f_1} X_3^{f_3} \quad \text{(Substrate is consumed)}
+\]
+\[
+\frac{dX_2}{dt} = + \gamma\, X_1^{f_1} X_3^{f_3} \quad \text{(Product is formed)}
+\]
+
+\textbf{The Trick:} If $X_3$ is an activator, its kinetic order is positive ($f_3 > 0$). More enzyme $\Rightarrow$ faster rate.
+\end{frame}
+
+\begin{frame}{Writing Equations: Feedback Inhibition}
+What happens if a pathway regulates itself? Suppose the final product ($X_3$) acts as an inhibitor on the very first step (converting $X_1$ to $X_2$).
+
+\vspace{0.3cm}
+\textbf{The Rate of the First Step:}
+\[
+V = \gamma\, X_1^{f_1}\, X_3^{f_3}
+\]
+
+\textbf{How do we show inhibition?} \\
+In BST, we use a \textbf{negative exponent}:
+
+\begin{itemize}
+    \item If $f_3 < 0$, then as $X_3$ increases, the rate $V$ decreases.
+    \item Example: If $f_3 = -1$, it is mathematically equivalent to dividing by $X_3$.
+\end{itemize}
+
+\vspace{0.3cm}
+\textit{Takeaway: By simply changing the sign of the exponent, the same mathematical structure represents mass action, activation, or inhibition.}
+\end{frame}
+
+
+\begin{frame}{Michaelis--Menten Kinetics}
+The most important model in enzymology:
+
+\[
+E + S \underset{k_{-1}}{\overset{k_1}{\rightleftharpoons}} ES \overset{k_2}{\longrightarrow} E + P
+\]
+
+\textbf{Full ODE system:}
+\[
+\frac{d[S]}{dt} = -k_1[E][S] + k_{-1}[ES]
+\]
+\[
+\frac{d[ES]}{dt} = k_1[E][S] - (k_{-1} + k_2)[ES]
+\]
+
+\textbf{Quasi-steady-state approximation} ($\frac{d[ES]}{dt} \approx 0$) gives:
+\[
+V = \frac{V_{\max}[S]}{K_m + [S]} \qquad \text{where } K_m = \frac{k_{-1} + k_2}{k_1},\; V_{\max} = k_2 [E]_{\text{total}}
+\]
+
+\begin{itemize}
+    \item At low $[S]$: rate $\approx \frac{V_{\max}}{K_m}[S]$ (linear --- first order)
+    \item At high $[S]$: rate $\approx V_{\max}$ (saturated --- zero order)
+    \item $K_m$ = substrate concentration at half-maximal rate
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Protein Activation/Deactivation Cycles}
+A kinase activates a protein; a phosphatase deactivates it:
+
+\[
+X_{\text{inactive}} \overset{\text{kinase}}{\underset{V_1}{\longrightarrow}} X_{\text{active}} \overset{\text{phosphatase}}{\underset{V_2}{\longrightarrow}} X_{\text{inactive}}
+\]
+
+If $X^* = [X_{\text{active}}]$ and $X_T = [X_{\text{total}}]$ (conserved):
+\[
+\frac{dX^*}{dt} = V_1(X_T - X^*) - V_2(X^*)
+\]
+
+With Michaelis--Menten rates for both enzymes:
+\[
+\frac{dX^*}{dt} = \frac{V_{\max,1}(X_T - X^*)}{K_{m,1} + (X_T - X^*)} - \frac{V_{\max,2}\, X^*}{K_{m,2} + X^*}
+\]
+
+\vspace{0.2cm}
+\textbf{Goldbeter--Koshland ultrasensitivity:} \\
+When both enzymes are near saturation ($K_m \ll X_T$), the steady-state response becomes \textbf{switch-like} --- a small change in kinase activity flips the protein from mostly off to mostly on. This creates a biological \textbf{digital switch}.
+\end{frame}
+
+
+\begin{frame}{Gene Regulatory Networks}
+How does a gene decide whether to be ``on'' or ``off''?
+
+\vspace{0.3cm}
+\textbf{A simple repressor model} using a Hill function:
+\[
+\frac{d[\text{Protein}]}{dt} = \frac{\alpha}{1 + \left(\frac{[\text{Repressor}]}{K}\right)^n} - \delta\,[\text{Protein}]
+\]
+
+\begin{itemize}
+    \item $\alpha$: maximal production rate
+    \item $K$: repressor concentration for half-maximal repression
+    \item $n$: \textbf{Hill coefficient} (cooperativity; higher $n$ = sharper switch)
+    \item $\delta$: degradation rate
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{The Toggle Switch} (Gardner et al., 2000): \\
+Two genes mutually repress each other. The resulting 2D ODE system is \textbf{bistable} --- the cell can exist in one of two stable states, and a transient signal can permanently flip it. This is the mathematical basis of \textbf{cell fate decisions} (e.g., stem cell differentiation).
+\end{frame}
+
+
+\begin{frame}{Biochemical DEs: The Big Picture}
+From simple rate laws to systems biology:
+
+\vspace{0.3cm}
+\begin{itemize}
+    \item \textbf{Mass action} $\to$ polynomial ODEs (simplest reactions)
+    \item \textbf{Michaelis--Menten} $\to$ rational ODEs (enzyme saturation)
+    \item \textbf{Hill functions} $\to$ sigmoidal switches (cooperative binding)
+    \item \textbf{BST power laws} $\to$ unified approximation framework
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Emergent behaviours from simple DEs:}
+\begin{itemize}
+    \item \textbf{Bistability}: toggle switches, cell fate decisions
+    \item \textbf{Oscillations}: circadian clocks, cell cycle (limit cycles)
+    \item \textbf{Ultrasensitivity}: kinase/phosphatase cascades
+    \item \textbf{Adaptation}: perfect reset after stimulus (integral feedback)
+\end{itemize}
+
+\vspace{0.3cm}
+\textit{Differential equations are the native language of molecular biology --- they translate the wiring diagram of a cell into testable predictions.}
+\end{frame}

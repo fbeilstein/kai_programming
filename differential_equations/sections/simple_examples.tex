@@ -1,0 +1,89 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section 4: Simple Examples & Mnemonic Rules
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Exact vs Numerical Solutions}
+\textbf{Analytical solution}
+
+Closed-form expression.
+
+Example:
+\[
+y' = y \implies y = Ce^x
+\]
+
+\textbf{Numerical methods}
+
+When closed forms are impossible, compute solutions point-by-point:
+\begin{itemize}
+\item \textbf{Euler method} --- simplest: step forward using the slope
+\item \textbf{Runge--Kutta} --- evaluate slope at multiple sub-steps for accuracy
+\item \textbf{Finite difference methods} --- replace derivatives with discrete differences (PDEs)
+\item \textbf{Finite element methods} --- approximate solutions on a mesh (complex geometries)
+\end{itemize}
+
+\vspace{0.3cm}
+\textit{Most real-world differential equations have no closed-form solution. Numerical methods are not a fallback --- they are the primary tool.}
+\end{frame}
+
+
+\begin{frame}{Solving the IVP: Unambiguous Future}
+\textbf{Problem:} $y' = y$, with the initial state $y(0) = 1$.
+
+\textbf{Step 1: Find the General Solution} \\
+This is a separable equation. We separate variables:
+$$\frac{dy}{y} = dx$$
+
+Integrate both sides:
+$$\ln|y| = x + C \implies y(x) = Ae^x$$
+\textit{(This represents a family of infinitely many curves.)}
+
+\textbf{Step 2: Apply the Initial Condition} \\
+Pin down the exact curve by plugging in our starting point $(0, 1)$:
+$$1 = Ae^0 \implies A = 1$$
+
+\textbf{Final Unique Solution:}
+$y(x) = e^x$
+\end{frame}
+
+\begin{frame}{Solving the BVP: The Uniqueness Trap}
+\textbf{Problem:} $y'' + y = 0,$ bounded at $x=0$ and $x=\pi.$
+
+\textbf{Step 1: Find the General Solution} \\
+The characteristic equation $r^2 + 1 = 0$ gives roots $r = \pm i$, yielding:
+$$y(x) = c_1 \cos(x) + c_2 \sin(x)$$
+
+\textbf{Step 2: Apply the First Boundary ($y(0) = 0$)}
+$$0 = c_1 \cos(0) + c_2 \sin(0) \implies c_1 = 0$$
+Our solution reduces to $y(x) = c_2 \sin(x)$.
+
+\textbf{Step 3: The Second Boundary Dictates Solvability}
+\begin{itemize}
+    \item \textbf{If} $y(\pi) = 0$: $0 = c_2 \sin(\pi) \implies 0 = 0$. $c_2$ can be anything! \\ \textit{Result: Infinitely many solutions (e.g., any standing wave on a string).}
+    \item \textbf{If} $y(\pi) = 1$: $1 = c_2 \sin(\pi) \implies 1 = 0$. Contradiction! \\ \textit{Result: Absolutely zero solutions.}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Mnemonic Tricks \& Solution Recipes}
+\textbf{1. Separation of variables} --- ``gather and integrate'' \\
+If $y' = g(x)h(y)$, then $\displaystyle\int \frac{dy}{h(y)} = \int g(x)\,dx$.
+
+\vspace{0.3cm}
+\textbf{2. Integrating factor} --- for $y' + p(x)y = q(x)$ \\
+Multiply both sides by $\mu(x) = e^{\int p(x)\,dx}$. The left side becomes $\frac{d}{dx}[\mu y]$.
+
+\vspace{0.3cm}
+\textbf{3. Characteristic equation} --- for constant-coefficient linear ODEs \\
+Replace $y^{(k)}$ with $r^k$. Solve the polynomial: \\
+\quad real roots $\to$ exponentials, \quad complex roots $\to$ sines/cosines, \quad repeated roots $\to$ multiply by $x$.
+
+\vspace{0.3cm}
+\textbf{4. The Ansatz philosophy} --- ``guess and check'' \\
+If the driving term is $e^{ax}$, guess $y_p = Ae^{ax}$. \\
+If the driving term is $\sin(\omega x)$, guess $y_p = A\sin(\omega x) + B\cos(\omega x)$. \\
+Plug in, match coefficients, done.
+
+\vspace{0.3cm}
+\textit{Key insight: these are not separate tricks --- they are all consequences of linearity and the structure of the exponential function.}
+\end{frame}
