@@ -73,31 +73,117 @@ In BST, we use a \textbf{negative exponent}:
 \end{frame}
 
 
-\begin{frame}{Michaelis--Menten Kinetics}
-The most important model in enzymology:
+\begin{frame}{Michaelis--Menten: The Full ODE System}
+\begin{columns}[T]
+\begin{column}{0.72\textwidth}
+The most important kinetic model in enzymology:
 
 \[
-E + S \underset{k_{-1}}{\overset{k_1}{\rightleftharpoons}} ES \overset{k_2}{\longrightarrow} E + P
+\ce{E + S <=[k_1][k_{-1}] ES ->[k_2] E + P}
 \]
 
-\textbf{Full ODE system:}
+At early times ($k_{-2}[E][P] \approx 0$), mass action gives \textbf{four coupled ODEs}:
+
+{\small
+\[
+\frac{d[E]}{dt} = -k_1[E][S] + k_{-1}[ES] + k_2[ES]
+\]
 \[
 \frac{d[S]}{dt} = -k_1[E][S] + k_{-1}[ES]
 \]
 \[
-\frac{d[ES]}{dt} = k_1[E][S] - (k_{-1} + k_2)[ES]
+\frac{d[ES]}{dt} = k_1[E][S] - k_{-1}[ES] - k_2[ES]
 \]
-
-\textbf{Quasi-steady-state approximation} ($\frac{d[ES]}{dt} \approx 0$) gives:
 \[
-V = \frac{V_{\max}[S]}{K_m + [S]} \qquad \text{where } K_m = \frac{k_{-1} + k_2}{k_1},\; V_{\max} = k_2 [E]_{\text{total}}
+\frac{d[P]}{dt} = k_2[ES]
+\]
+}
+\end{column}
+\begin{column}{0.25\textwidth}
+\centering
+\includegraphics[width=\textwidth]{enzyme_substrate}
+\vspace{0.3cm}
+
+{\small Each term corresponds to one arrow in the reaction scheme.}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{Michaelis--Menten: Deriving the Rate Law}
+\begin{columns}[T]
+\begin{column}{0.62\textwidth}
+\textbf{Assumption 1} (conservation): $[E]_{\text{tot}} = [E] + [ES]$.
+
+\textbf{Assumption 2} (Briggs--Haldane QSSA):
+\[
+0 = \frac{d[ES]}{dt} = k_1[E][S] - (k_{-1} + k_2)[ES]
 \]
 
+Substituting $[E] = [E]_{\text{tot}} - [ES]$:
+\[
+[ES] = \frac{[E]_{\text{tot}}[S]}{K_M + [S]}, \quad K_M = \frac{k_{-1} + k_2}{k_1}
+\]
+
+\[
+\boxed{V_0 = k_2[ES] = \frac{V_{\max}[S]}{K_M + [S]}}
+\]
+
+{\small
 \begin{itemize}
-    \item At low $[S]$: rate $\approx \frac{V_{\max}}{K_m}[S]$ (linear --- first order)
-    \item At high $[S]$: rate $\approx V_{\max}$ (saturated --- zero order)
-    \item $K_m$ = substrate concentration at half-maximal rate
+    \item Low $[S]$: $V_0 \approx \frac{V_{\max}}{K_M}[S]$ (first order)
+    \item High $[S]$: $V_0 \approx V_{\max}$ (saturated)
+    \item $[S] = K_M \Rightarrow V_0 = V_{\max}/2$
 \end{itemize}
+}
+\end{column}
+\begin{column}{0.35\textwidth}
+\centering
+\includegraphics[width=\textwidth]{mm_curve}
+
+\vspace{0.3cm}
+\includegraphics[width=0.85\textwidth]{lineweaver_burk}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{Enzyme Inhibition: Three Types}
+\begin{columns}[T]
+\begin{column}{0.32\textwidth}
+\centering
+
+\includegraphics[width=0.45\textwidth]{competitive_cartoon}
+
+{\scriptsize Binds \emph{active site}.\\
+$\uparrow$ apparent $K_M$,\\ $V_{\max}$ unchanged.}
+
+\vspace{0.15cm}
+\includegraphics[width=0.85\textwidth]{competitive_lb}
+\end{column}
+\begin{column}{0.32\textwidth}
+\centering
+
+\includegraphics[width=0.65\textwidth]{uncompetitive_cartoon}
+
+{\scriptsize Binds \emph{ES complex only}.\\
+$\downarrow$ both $V_{\max}$ and $K_M$.}
+
+\vspace{0.15cm}
+\includegraphics[width=0.85\textwidth]{uncompetitive_lb}
+\end{column}
+\begin{column}{0.32\textwidth}
+\centering
+
+\includegraphics[width=0.65\textwidth]{noncompetitive_cartoon}
+
+{\scriptsize Binds \emph{E and ES}.\\
+$\downarrow V_{\max}$, $K_M$ unchanged.}
+
+\vspace{0.15cm}
+\includegraphics[width=0.85\textwidth]{noncompetitive_lb}
+\end{column}
+\end{columns}
 \end{frame}
 
 
@@ -146,6 +232,237 @@ Two genes mutually repress each other. The resulting 2D ODE system is \textbf{bi
 \end{frame}
 
 
+\begin{frame}{Reaction Orders from Mass Action}
+The \textbf{law of mass action} states: the rate of an elementary reaction is proportional to the product of the concentrations of the reactants.
+
+\vspace{0.3cm}
+\textbf{Zeroth order} (e.g., saturated enzyme):
+\[
+\frac{d[P]}{dt} = k \qquad \Rightarrow \qquad [P](t) = kt
+\]
+
+\textbf{First order} (e.g., radioactive decay, S$_N$1 reactions):
+\[
+\frac{d[A]}{dt} = -k[A] \qquad \Rightarrow \qquad [A](t) = [A]_0\, e^{-kt}
+\]
+
+\textbf{Second order} (e.g., bimolecular reactions, S$_N$2):
+\[
+\frac{d[A]}{dt} = -k[A][B]
+\]
+If $[A]_0 = [B]_0$: \;$\displaystyle \frac{1}{[A](t)} = \frac{1}{[A]_0} + kt$
+
+\vspace{0.2cm}
+\textit{Mass action with different molecularities directly produces the polynomial ODEs we study --- this is the bridge from chemistry to differential equations.}
+\end{frame}
+
+
+%% ===== EXAMPLE 1: GLYCOLYTIC OSCILLATIONS =====
+
+\begin{frame}[shrink=5]{Deriving the Glycolysis Model: Step by Step}
+\begin{columns}[T]
+\begin{column}{0.62\textwidth}
+We model two species: intracellular \textbf{glucose} $[G]$ and \textbf{ATP}.
+
+\vspace{0.2cm}
+\textbf{Step 1: List all processes that change each concentration.}
+
+{\small
+\textbf{Glucose $[G]$:}
+\begin{enumerate}
+    \item[\textcolor{green!60!black}{$+$}] Constant inflow at rate $V_{\text{in}}$.
+    \item[\textcolor{red}{$-$}] Consumed by PFK: $k_1[G][ATP]$.
+\end{enumerate}
+
+\textbf{ATP:}
+\begin{enumerate}
+    \item[\textcolor{green!60!black}{$+$}] Produced: $2\,k_1[G][ATP]$.
+    \item[\textcolor{red}{$-$}] Consumed (saturating): $k_p\frac{[ATP]}{[ATP]+K_m}$.
+\end{enumerate}
+}
+\end{column}
+\begin{column}{0.35\textwidth}
+\centering
+\includegraphics[width=\textwidth]{glycolysis_stage1}
+
+{\tiny Stage~1: Glucose $\to$ G3P\\(ATP investment phase)}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{Deriving the Glycolysis Model: The Equations}
+
+\textbf{Step 2: Write ``rate of change = gains $-$ losses'':}
+
+\[
+\boxed{\frac{d[G]}{dt} = \underbrace{V_{\text{in}}}_{\text{inflow}} - \underbrace{k_1 [G][ATP]}_{\text{PFK reaction}}}
+\]
+
+\[
+\boxed{\frac{d[ATP]}{dt} = \underbrace{2\,k_1 [G][ATP]}_{\text{2 ATP per glucose}} - \underbrace{k_p \frac{[ATP]}{[ATP] + K_m}}_{\text{ATP consumption (saturating)}}}
+\]
+
+\vspace{0.3cm}
+\textbf{Why the factor of 2?} Each glucose molecule that enters glycolysis produces a net of 2 ATP molecules.
+
+\vspace{0.2cm}
+\textbf{Why Michaelis--Menten for consumption?} ATP is consumed by \textbf{enzyme-catalysed reactions} (e.g., by ATPases). Enzyme-catalysed reactions follow Michaelis--Menten kinetics: they saturate when all enzyme active sites are occupied, causing the rate to plateau at $k_p$.
+
+\vspace{0.2cm}
+\textit{(Bier, Bakker \& Westerhoff, 2000)}
+\end{frame}
+
+
+\begin{frame}{Glycolytic Oscillations: Behaviour}
+
+The parameter $K_m$ (half-saturation of ATP consumption) controls the dynamics:
+
+\vspace{0.3cm}
+\begin{itemize}
+    \item \textbf{Low $K_m$ (${\approx}\,12$):} ATP consumption is efficient at low concentrations. The system reaches a \textbf{stable fixed point} --- constant glucose and ATP levels.
+
+    \item \textbf{High $K_m$ (${\approx}\,20$):} ATP consumption becomes sluggish. The system enters \textbf{sustained oscillations} (a limit cycle): glucose and ATP concentrations periodically rise and fall.
+
+    \item The transition between these regimes is a \textbf{Hopf bifurcation} --- the fixed point loses stability and a periodic orbit is born.
+\end{itemize}
+
+\vspace{0.3cm}
+\textit{These oscillations are experimentally observed in yeast cell extracts and synchronised yeast populations.}
+\end{frame}
+
+
+%% ===== EXAMPLE 2: BIO-SWITCH WITH CO-ACTIVATION =====
+
+\begin{frame}{Deriving the Bio-Switch: Step by Step}
+We model a \textbf{response molecule} $R$ and an \textbf{enzyme} $E$ that interact with positive feedback.
+
+\vspace{0.2cm}
+\textbf{Step 1: List all processes.}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Response $[R]$:}
+\begin{enumerate}
+    \item[\textcolor{green!60!black}{$+$}] Basal production, proportional to the \emph{inactive} form of $E$: $k_{R0}([E]_{\text{tot}} - [E])$.
+    \item[\textcolor{green!60!black}{$+$}] External signal: $S(t)$.
+    \item[\textcolor{red}{$-$}] Linear degradation: $k_{R1}[R]$.
+\end{enumerate}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Enzyme $[E]$ (active form):}
+\begin{enumerate}
+    \item[\textcolor{green!60!black}{$+$}] Spontaneous activation (Michaelis--Menten).
+    \item[\textcolor{red}{$-$}] Inactivation by $R$ (Michaelis--Menten with $[R]$ as effective enzyme).
+\end{enumerate}
+\end{column}
+\end{columns}
+
+\vspace{0.3cm}
+\textbf{The positive feedback loop:} \\
+More $R$ $\to$ more inactivation of $E$ $\to$ less $E$ $\to$ even more $R$ produced.
+\end{frame}
+
+
+\begin{frame}{Deriving the Bio-Switch: The Equations}
+
+\textbf{Step 2: Write ``rate of change = gains $-$ losses'':}
+
+\[
+\boxed{\frac{d[R]}{dt} = \underbrace{k_{R0}\bigl([E]_{\text{tot}} - [E]\bigr)}_{\text{production (}\propto\text{ inactive } E\text{)}} + \underbrace{S(t)}_{\text{signal}} - \underbrace{k_{R1}[R]}_{\text{degradation}}}
+\]
+
+\[
+\boxed{\frac{d[E]}{dt} = \underbrace{k_{E0}\frac{[E]_{\text{tot}} - [E]}{[E]_{\text{tot}} - [E] + K_0}}_{\text{spontaneous activation (MM)}}
+    - \underbrace{k_{E1}\frac{[R]\,[E]}{[E] + K_1}}_{\text{inactivation by } R \text{ (MM)}}}
+\]
+
+\vspace{0.3cm}
+\textbf{Why Michaelis--Menten in both terms?} \\
+The activation and inactivation reactions are enzyme-catalysed --- they saturate when the substrate ($[E]_{\text{tot}} - [E]$ or $[E]$) is high relative to $K_m$.
+
+\vspace{0.2cm}
+\textit{(Tyson, Chen \& Novak, 2003)}
+\end{frame}
+
+
+\begin{frame}{Bio-Switch: Behaviour}
+
+\textbf{Emergent dynamics from positive feedback:}
+
+\vspace{0.3cm}
+\begin{itemize}
+    \item \textbf{Weak signal} $\to$ small perturbation, system stays near the \textbf{low stable state} (low $[R]$, active $[E]$).
+
+    \item \textbf{Signal above a critical threshold} $\to$ positive feedback amplifies $[R]$ until the system \textbf{snaps} to a \textbf{high stable state} (high $[R]$, inactive $[E]$).
+
+    \item \textbf{Irreversibility:} Once flipped to the high state, removing the signal does \emph{not} bring the system back. This is \textbf{bistability} (two co-existing attractors).
+\end{itemize}
+
+\vspace{0.3cm}
+This is the mathematical basis of \textbf{irreversible cellular decisions}: differentiation, apoptosis, cell cycle commitment.
+
+\vspace{0.2cm}
+\textit{The critical signal strength can be found from a \textbf{bifurcation diagram}: plot steady-state $[R]$ vs.\ signal strength $S$.}
+\end{frame}
+
+
+%% ===== EXAMPLE 3: G-PROTEIN TURN-OFF =====
+
+\begin{frame}[shrink=5]{G-Protein GTPase Cycle: Biology $\to$ ODE}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\textbf{The biology:} G$_\alpha{\cdot}$GTP is the \emph{active} signalling molecule. It is deactivated by GTP hydrolysis:
+\begin{itemize}
+    \item \textbf{Intrinsically} (slow, rate $k_{\text{int}}$), or
+    \item \textbf{Accelerated by GAP} proteins.
+\end{itemize}
+\end{column}
+\begin{column}{0.42\textwidth}
+\centering
+\includegraphics[width=\textwidth]{gprotein_cycle}
+\end{column}
+\end{columns}
+
+\vspace{0.2cm}
+\textbf{Step 1: Write the ODE system from mass action.}
+\[
+\frac{d[\text{G}_\alpha{\cdot}\text{GTP}]}{dt} = -k_{\text{int}}[\text{G}_{\alpha}{\cdot}\text{GTP}] - k_{\text{on}}[\text{GAP}][\text{G}_{\alpha}{\cdot}\text{GTP}] + k_{\text{off}}[\text{GAP}{\cdot}\text{G}_{\alpha}{\cdot}\text{GTP}]
+\]
+
+\textbf{Step 2: Briggs--Haldane QSSA} on the GAP$\cdot$G$_\alpha$$\cdot$GTP complex ($d[\text{complex}]/dt \approx 0$):
+\[
+[\text{GAP}{\cdot}\text{G}_{\alpha}{\cdot}\text{GTP}] = \frac{[\text{GAP}][\text{G}_{\alpha}{\cdot}\text{GTP}]}{K_M}, \qquad K_M = \frac{k_{\text{off}} + k_{\text{cat}}}{k_{\text{on}}}
+\]
+
+\textbf{Step 3: Substitute back} $\to$ single ODE:
+\[
+\boxed{\frac{d[\text{G}_{\alpha}{\cdot}\text{GTP}]}{dt} = [\text{G}_{\alpha}{\cdot}\text{GTP}]\!\left(-k_{\text{int}} - \frac{k_{\text{cat}}[\text{GAP}]_{\text{tot}}}{K_M + [\text{G}_{\alpha}{\cdot}\text{GTP}]}\right)}
+\]
+
+When $[\text{G}_\alpha{\cdot}\text{GTP}] \ll K_M$: exponential decay $[\text{G}_\alpha{\cdot}\text{GTP}](t) = [\text{G}_\alpha{\cdot}\text{GTP}]_0\, e^{-(k_{\text{int}} + k_{\text{cat}}[\text{GAP}]_{\text{tot}}/K_M)\,t}$.
+
+\vspace{0.1cm}
+\textit{The rate of GTP hydrolysis acts as a biological timer --- it controls how long the signal lasts.}
+\end{frame}
+
+
+\begin{frame}{From Equations to Simulations}
+\textbf{The recipe, in all examples:}
+
+\vspace{0.3cm}
+\begin{enumerate}
+    \item \textbf{Identify the species} (what concentrations change over time?).
+    \item \textbf{List all processes}: what produces each species? What consumes it?
+    \item \textbf{Choose rate laws}: mass action for elementary steps, Michaelis--Menten for enzyme-catalysed reactions.
+    \item \textbf{Write the ODE}: rate of change = sum of production $-$ sum of consumption.
+    \item \textbf{Translate each term into Python} --- the code mirrors the math.
+    \item \textbf{Solve with \texttt{odeint}} and explore parameter space.
+\end{enumerate}
+
+\end{frame}
+
+
 \begin{frame}{Biochemical DEs: The Big Picture}
 From simple rate laws to systems biology:
 
@@ -169,3 +486,4 @@ From simple rate laws to systems biology:
 \vspace{0.3cm}
 \textit{Differential equations are the native language of molecular biology --- they translate the wiring diagram of a cell into testable predictions.}
 \end{frame}
+

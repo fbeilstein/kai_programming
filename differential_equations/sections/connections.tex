@@ -131,6 +131,28 @@ Hence they are naturally formulated using:
 \end{frame}
 
 
+\begin{frame}{Vectors in Differential Geometry}
+\textbf{Two equivalent definitions} of a tangent vector $v \in T_pM$:
+
+\vspace{0.2cm}
+\textbf{1. As an equivalence class of curves:} \\
+Two curves $\gamma_1, \gamma_2$ through $p$ are equivalent if they have the same velocity in every chart. Then $v = [\gamma]$ and
+\[
+v(f) = \frac{d}{dt}f(\gamma(t))\Big|_{t=0}
+\]
+
+\textbf{2. As a derivation on functions:} \\
+$v : C^\infty(M) \to \mathbb{R}$ is a linear map satisfying the \textbf{Leibniz rule}:
+\[
+v(fg) = v(f)\,g(p) + f(p)\,v(g)
+\]
+
+\vspace{0.2cm}
+\textbf{Connection to DEs:} A vector field $X$ assigns a derivation to each point.
+An integral curve $\gamma$ of $X$ satisfies $\dot{\gamma}(t) = X(\gamma(t))$ --- i.e., the vector field \emph{is} the ODE, and integral curves \emph{are} the solutions.
+\end{frame}
+
+
 \begin{frame}{One Equation in Many Mathematical Languages}
 Consider the differential equation
 \[
@@ -215,6 +237,58 @@ b_n'(t) = -k\left(\frac{n\pi}{L}\right)^2 b_n(t) \implies b_n(t) = b_n(0)\, e^{-
     \item Sines and cosines are \textbf{eigenfunctions} of $\frac{d^2}{dx^2}$.
     \item Fourier analysis turns a PDE into infinitely many decoupled ODEs.
     \item High-frequency modes decay fastest --- this is why heat ``smooths out.''
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{The Fourier Transform}
+\textbf{Key idea:} Differentiation becomes multiplication --- DEs become algebra.
+
+\vspace{0.2cm}
+\textbf{Definition:}
+\[
+\hat{f}(\xi) = \int_{-\infty}^{\infty} f(x)\, e^{-2\pi i \xi x}\, dx
+\]
+
+\textbf{The magic property:}
+\[
+\widehat{f'}(\xi) = 2\pi i \xi\, \hat{f}(\xi), \qquad \widehat{f^{(n)}}(\xi) = (2\pi i \xi)^n\, \hat{f}(\xi)
+\]
+
+\vspace{0.2cm}
+\textbf{Example:} Solve $y'' + \omega_0^2 y = g(t)$. Fourier transform both sides:
+\[
+-(2\pi\xi)^2 \hat{y} + \omega_0^2 \hat{y} = \hat{g} \quad \Longrightarrow \quad \hat{y} = \frac{\hat{g}}{\omega_0^2 - 4\pi^2\xi^2}
+\]
+
+The ODE becomes \emph{division} in frequency space. Inverse-transform to get $y(t)$.
+
+\vspace{0.2cm}
+\textit{Every linear constant-coefficient PDE can be solved this way --- including heat, wave, and Schr\"odinger equations.}
+\end{frame}
+
+
+\begin{frame}{The Laplace Transform \& Linear Systems}
+\textbf{Key idea:} Encode initial conditions automatically; analyse stability from algebra.
+
+\vspace{0.15cm}
+\textbf{Definition:}
+$\displaystyle F(s) = \mathcal{L}\{f\}(s) = \int_0^{\infty} f(t)\, e^{-st}\, dt$
+
+\vspace{0.15cm}
+\textbf{Differentiation rule:}
+$\displaystyle \mathcal{L}\{f'\} = sF(s) - f(0), \quad \mathcal{L}\{f''\} = s^2F(s) - sf(0) - f'(0)$
+
+\vspace{0.15cm}
+\textbf{The Transfer Function:} For $a y'' + b y' + c y = u(t)$ with zero ICs:
+\[
+H(s) = \frac{Y(s)}{U(s)} = \frac{1}{as^2 + bs + c}
+\]
+
+\begin{itemize}
+    \item \textbf{Poles} of $H(s)$: natural frequencies of the system.
+    \item \textbf{Stability} $\Longleftrightarrow$ all poles have $\operatorname{Re}(s) < 0$ \quad (left half-plane).
+    \item This is the foundation of \textbf{control theory} (Bode plots, Nyquist criterion, PID controllers).
 \end{itemize}
 \end{frame}
 
@@ -342,6 +416,123 @@ y'' + p(x)y' + q(x)y = 0
 \end{frame}
 
 
+\begin{frame}{Differential Forms: A Precise Language}
+A \textbf{$k$-form} is a fully antisymmetric multilinear object. The hierarchy:
+
+\vspace{0.2cm}
+{\small
+\begin{tabular}{lll}
+$k$ & Name & Example on $\mathbb{R}^3$ \\
+\hline
+$0$ & function (scalar field) & $f(x,y,z)$ \\
+$1$ & 1-form (covector field) & $P\,dx + Q\,dy + R\,dz$ \\
+$2$ & 2-form (flux) & $A\,dy{\wedge}dz + B\,dz{\wedge}dx + C\,dx{\wedge}dy$ \\
+$3$ & 3-form (volume) & $\rho\,dx{\wedge}dy{\wedge}dz$ \\
+\end{tabular}
+}
+
+\vspace{0.2cm}
+The \textbf{exterior derivative} $d$ maps $k$-forms to $(k{+}1)$-forms:
+\[
+df = \sum_i \frac{\partial f}{\partial x_i}\,dx_i, \qquad d\omega = \sum_{i<j}\left(\frac{\partial f_j}{\partial x_i} - \frac{\partial f_i}{\partial x_j}\right) dx_i{\wedge}dx_j
+\]
+
+\textbf{Fundamental property:} $d \circ d = 0$ \quad (every exact form is closed).
+
+\vspace{0.2cm}
+\textbf{Connection to ODEs:} $M\,dx + N\,dy = 0$ is \textbf{exact} iff $d\omega = 0$,
+i.e.\ $\frac{\partial M}{\partial y} = \frac{\partial N}{\partial x}$. Then $\exists\, F$ with $dF = \omega$ and solutions are $F(x,y) = C$.
+\end{frame}
+
+
+\begin{frame}{Differential Forms \& Integrability}
+In 2D, every equation $\omega = 0$ is integrable (one can always find an integrating factor).
+
+\vspace{0.3cm}
+In 3D and higher, integrability is \textbf{not automatic}. A \textbf{Pfaffian equation}
+\[
+\omega = P\,dx + Q\,dy + R\,dz = 0
+\]
+defines a plane field. When is it integrable (tangent to a family of surfaces)?
+
+\vspace{0.3cm}
+\textbf{Frobenius Theorem:} $\omega = 0$ is integrable if and only if
+\[
+\omega \wedge d\omega = 0
+\]
+
+\begin{itemize}
+    \item If satisfied: solutions foliate space into surfaces.
+    \item If violated: the plane field is \textbf{non-integrable} --- it ``twists'' and can reach any point from any other (this is the geometry behind sub-Riemannian manifolds and control theory).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{de Rham Cohomology}
+Since $d \circ d = 0$, every \textbf{exact} form ($\omega = d\alpha$) is automatically \textbf{closed} ($d\omega = 0$).
+But the converse can fail --- and the \emph{obstruction} is topological.
+
+\vspace{0.2cm}
+\textbf{Definition:} The $k$-th de Rham cohomology group:
+\[
+H^k_{\text{dR}}(M) = \frac{\{\text{closed } k\text{-forms}\}}{\{\text{exact } k\text{-forms}\}} = \frac{\ker(d : \Omega^k \to \Omega^{k+1})}{\operatorname{im}(d : \Omega^{k-1} \to \Omega^k)}
+\]
+
+\begin{itemize}
+    \item $H^0_{\text{dR}}(M)$: counts \textbf{connected components}
+    \item $H^1_{\text{dR}}(M)$: counts independent \textbf{loops} (1-cycles) --- non-trivial $H^1$ means $\oint \omega \neq 0$ around some loop
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Poincar\'e Lemma:} On \textbf{contractible} domains (e.g.\ $\mathbb{R}^n$, any open ball), $H^k_{\text{dR}} = 0$ for $k \geq 1$. Every closed form is exact.
+
+\vspace{0.1cm}
+\textbf{For DEs:} The equation $M\,dx + N\,dy = 0$ has a global potential $F$ iff $[\omega] = 0$ in $H^1(M)$. On $\mathbb{R}^2$ this is automatic, but on $\mathbb{R}^2 \setminus \{0\}$ it can fail (e.g.\ $\frac{-y\,dx + x\,dy}{x^2+y^2}$ is closed but \emph{not} exact).
+\end{frame}
+
+
+\begin{frame}{Contact Geometry \& Jet Spaces}
+A first-order ODE $y' = f(x,y)$ lives naturally in the \textbf{jet space} $J^1(\mathbb{R},\mathbb{R})$ with coordinates $(x, y, p)$, where $p$ represents $y'$.
+
+\vspace{0.3cm}
+The \textbf{contact form} on jet space is:
+\[
+\omega = dy - p\,dx
+\]
+
+\begin{itemize}
+    \item A curve $(x, y(x), y'(x))$ is a \textbf{solution} iff $\omega$ vanishes on it (i.e., $y' = p$).
+    \item The ODE $y' = f(x,y)$ cuts out a surface $p = f(x,y)$ in $J^1$.
+    \item Solutions are \textbf{Legendrian curves} --- curves tangent to the contact distribution.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Darboux's Theorem:} All contact structures are locally equivalent. There is only one local model --- all the complexity lies in the global topology.
+\end{frame}
+
+
+\begin{frame}{Hamiltonian Systems \& Symplectic Geometry}
+A system with energy $H(q,p)$ evolves via \textbf{Hamilton's equations}:
+\[
+\dot{q} = \frac{\partial H}{\partial p}, \qquad \dot{p} = -\frac{\partial H}{\partial q}
+\]
+
+These preserve the \textbf{symplectic form} $\omega = dp \wedge dq$.
+
+\vspace{0.3cm}
+\textbf{Liouville's Theorem:} Hamiltonian flows preserve phase space volume.
+
+\vspace{0.2cm}
+\textbf{Consequences:}
+\begin{itemize}
+    \item Attractors are \textbf{impossible} in Hamiltonian systems (volume can't shrink).
+    \item Energy surfaces are invariant manifolds.
+    \item For \textbf{integrable} systems ($n$ degrees of freedom, $n$ conserved quantities), motion is confined to $n$-dimensional tori.
+    \item When integrability is broken: KAM theorem and chaos (see next section).
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}{Connections: The Big Picture}
 The symbol $\frac{dy}{dx}$ sits at the intersection of:
 
@@ -354,7 +545,9 @@ The symbol $\frac{dy}{dx}$ sits at the intersection of:
     \item Differential geometry
     \item Topology
     \item Dynamical systems
-    \item Fourier analysis
+    \item Fourier \& Laplace transforms
+    \item Differential forms
+    \item de Rham cohomology
 \end{itemize}
 \end{column}
 \begin{column}{0.45\textwidth}
@@ -363,6 +556,8 @@ The symbol $\frac{dy}{dx}$ sits at the intersection of:
     \item Lie groups \& symmetry
     \item Complex analysis
     \item Calculus of variations
+    \item Symplectic \& contact geometry
+    \item Control \& systems theory
     \item Numerical analysis
     \item Physics \& engineering
 \end{itemize}
@@ -391,6 +586,10 @@ can simultaneously be seen as
 \item a \textbf{differential form relation} (exterior calculus)
 \item a \textbf{generator of a flow} (dynamical systems)
 \item an \textbf{Euler--Lagrange condition} (calculus of variations)
+\item a \textbf{Hamiltonian flow} (symplectic geometry)
+\item a \textbf{Legendrian curve} in jet space (contact geometry)
+\item a \textbf{multiplication} in frequency space (Fourier/Laplace)
+\item a \textbf{cohomology class} obstruction (de Rham)
 \end{itemize}
 
 \vspace{0.3cm}
