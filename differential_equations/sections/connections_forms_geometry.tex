@@ -1,0 +1,118 @@
+%%% Connections: Differential Forms & Advanced Geometry
+%%% (k-forms, de Rham cohomology, contact geometry, symplectic geometry)
+
+\begin{frame}{Differential Forms: A Precise Language}
+A \textbf{$k$-form} is a fully antisymmetric multilinear object. The hierarchy:
+
+\vspace{0.2cm}
+{\small
+\begin{tabular}{lll}
+$k$ & Name & Example on $\mathbb{R}^3$ \\
+\hline
+$0$ & function (scalar field) & $f(x,y,z)$ \\
+$1$ & 1-form (covector field) & $P\,dx + Q\,dy + R\,dz$ \\
+$2$ & 2-form (flux) & $A\,dy{\wedge}dz + B\,dz{\wedge}dx + C\,dx{\wedge}dy$ \\
+$3$ & 3-form (volume) & $\rho\,dx{\wedge}dy{\wedge}dz$ \\
+\end{tabular}
+}
+
+\vspace{0.2cm}
+The \textbf{exterior derivative} $d$ maps $k$-forms to $(k{+}1)$-forms:
+\[
+df = \sum_i \frac{\partial f}{\partial x_i}\,dx_i, \qquad d\omega = \sum_{i<j}\left(\frac{\partial f_j}{\partial x_i} - \frac{\partial f_i}{\partial x_j}\right) dx_i{\wedge}dx_j
+\]
+
+\textbf{Fundamental property:} $d \circ d = 0$ \quad (every exact form is closed).
+
+\vspace{0.2cm}
+\textbf{Connection to ODEs:} $M\,dx + N\,dy = 0$ is \textbf{exact} iff $d\omega = 0$,
+i.e.\ $\frac{\partial M}{\partial y} = \frac{\partial N}{\partial x}$. Then $\exists\, F$ with $dF = \omega$ and solutions are $F(x,y) = C$.
+\end{frame}
+
+
+\begin{frame}{Differential Forms \& Integrability}
+In 2D, every equation $\omega = 0$ is integrable (one can always find an integrating factor).
+
+\vspace{0.3cm}
+In 3D and higher, integrability is \textbf{not automatic}. A \textbf{Pfaffian equation}
+\[
+\omega = P\,dx + Q\,dy + R\,dz = 0
+\]
+defines a plane field. When is it integrable (tangent to a family of surfaces)?
+
+\vspace{0.3cm}
+\textbf{Frobenius Theorem:} $\omega = 0$ is integrable if and only if
+\[
+\omega \wedge d\omega = 0
+\]
+
+\begin{itemize}
+    \item If satisfied: solutions foliate space into surfaces.
+    \item If violated: the plane field is \textbf{non-integrable} --- it ``twists'' and can reach any point from any other (this is the geometry behind sub-Riemannian manifolds and control theory).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{de Rham Cohomology}
+Since $d \circ d = 0$, every \textbf{exact} form ($\omega = d\alpha$) is automatically \textbf{closed} ($d\omega = 0$).
+But the converse can fail --- and the \emph{obstruction} is topological.
+
+\vspace{0.2cm}
+\textbf{Definition:} The $k$-th de Rham cohomology group:
+\[
+H^k_{\text{dR}}(M) = \frac{\{\text{closed } k\text{-forms}\}}{\{\text{exact } k\text{-forms}\}} = \frac{\ker(d : \Omega^k \to \Omega^{k+1})}{\operatorname{im}(d : \Omega^{k-1} \to \Omega^k)}
+\]
+
+\begin{itemize}
+    \item $H^0_{\text{dR}}(M)$: counts \textbf{connected components}
+    \item $H^1_{\text{dR}}(M)$: counts independent \textbf{loops} (1-cycles) --- non-trivial $H^1$ means $\oint \omega \neq 0$ around some loop
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Poincar\'e Lemma:} On \textbf{contractible} domains (e.g.\ $\mathbb{R}^n$, any open ball), $H^k_{\text{dR}} = 0$ for $k \geq 1$. Every closed form is exact.
+
+\vspace{0.1cm}
+\textbf{For DEs:} The equation $M\,dx + N\,dy = 0$ has a global potential $F$ iff $[\omega] = 0$ in $H^1(M)$. On $\mathbb{R}^2$ this is automatic, but on $\mathbb{R}^2 \setminus \{0\}$ it can fail (e.g.\ $\frac{-y\,dx + x\,dy}{x^2+y^2}$ is closed but \emph{not} exact).
+\end{frame}
+
+
+\begin{frame}{Contact Geometry \& Jet Spaces}
+A first-order ODE $y' = f(x,y)$ lives naturally in the \textbf{jet space} $J^1(\mathbb{R},\mathbb{R})$ with coordinates $(x, y, p)$, where $p$ represents $y'$.
+
+\vspace{0.3cm}
+The \textbf{contact form} on jet space is:
+\[
+\omega = dy - p\,dx
+\]
+
+\begin{itemize}
+    \item A curve $(x, y(x), y'(x))$ is a \textbf{solution} iff $\omega$ vanishes on it (i.e., $y' = p$).
+    \item The ODE $y' = f(x,y)$ cuts out a surface $p = f(x,y)$ in $J^1$.
+    \item Solutions are \textbf{Legendrian curves} --- curves tangent to the contact distribution.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Darboux's Theorem:} All contact structures are locally equivalent. There is only one local model --- all the complexity lies in the global topology.
+\end{frame}
+
+
+\begin{frame}{Hamiltonian Systems \& Symplectic Geometry}
+A system with energy $H(q,p)$ evolves via \textbf{Hamilton's equations}:
+\[
+\dot{q} = \frac{\partial H}{\partial p}, \qquad \dot{p} = -\frac{\partial H}{\partial q}
+\]
+
+These preserve the \textbf{symplectic form} $\omega = dp \wedge dq$.
+
+\vspace{0.3cm}
+\textbf{Liouville's Theorem:} Hamiltonian flows preserve phase space volume.
+
+\vspace{0.2cm}
+\textbf{Consequences:}
+\begin{itemize}
+    \item Attractors are \textbf{impossible} in Hamiltonian systems (volume can't shrink).
+    \item Energy surfaces are invariant manifolds.
+    \item For \textbf{integrable} systems ($n$ degrees of freedom, $n$ conserved quantities), motion is confined to $n$-dimensional tori.
+    \item When integrability is broken: KAM theorem and chaos (see next section).
+\end{itemize}
+\end{frame}

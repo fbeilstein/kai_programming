@@ -1,0 +1,77 @@
+%%% Connections: Transforms
+%%% (Fourier analysis, Fourier transform, Laplace transform & linear systems)
+
+\begin{frame}{Fourier Analysis \& Spectral Methods}
+\textbf{Key idea:} Decompose solutions into frequencies --- DEs become algebra.
+
+\vspace{0.3cm}
+The heat equation on a rod of length $L$:
+\[
+\frac{\partial u}{\partial t} = k \frac{\partial^2 u}{\partial x^2}
+\]
+
+Write $u(x,t) = \sum_{n=1}^{\infty} b_n(t) \sin\!\left(\frac{n\pi x}{L}\right)$. Each mode satisfies:
+\[
+b_n'(t) = -k\left(\frac{n\pi}{L}\right)^2 b_n(t) \implies b_n(t) = b_n(0)\, e^{-k(n\pi/L)^2 t}
+\]
+
+\vspace{0.2cm}
+\textbf{Why it works:}
+\begin{itemize}
+    \item Sines and cosines are \textbf{eigenfunctions} of $\frac{d^2}{dx^2}$.
+    \item Fourier analysis turns a PDE into infinitely many decoupled ODEs.
+    \item High-frequency modes decay fastest --- this is why heat ``smooths out.''
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{The Fourier Transform}
+\textbf{Key idea:} Differentiation becomes multiplication --- DEs become algebra.
+
+\vspace{0.2cm}
+\textbf{Definition:}
+\[
+\hat{f}(\xi) = \int_{-\infty}^{\infty} f(x)\, e^{-2\pi i \xi x}\, dx
+\]
+
+\textbf{The magic property:}
+\[
+\widehat{f'}(\xi) = 2\pi i \xi\, \hat{f}(\xi), \qquad \widehat{f^{(n)}}(\xi) = (2\pi i \xi)^n\, \hat{f}(\xi)
+\]
+
+\vspace{0.2cm}
+\textbf{Example:} Solve $y'' + \omega_0^2 y = g(t)$. Fourier transform both sides:
+\[
+-(2\pi\xi)^2 \hat{y} + \omega_0^2 \hat{y} = \hat{g} \quad \Longrightarrow \quad \hat{y} = \frac{\hat{g}}{\omega_0^2 - 4\pi^2\xi^2}
+\]
+
+The ODE becomes \emph{division} in frequency space. Inverse-transform to get $y(t)$.
+
+\vspace{0.2cm}
+\textit{Every linear constant-coefficient PDE can be solved this way --- including heat, wave, and Schr\"odinger equations.}
+\end{frame}
+
+
+\begin{frame}{The Laplace Transform \& Linear Systems}
+\textbf{Key idea:} Encode initial conditions automatically; analyse stability from algebra.
+
+\vspace{0.15cm}
+\textbf{Definition:}
+$\displaystyle F(s) = \mathcal{L}\{f\}(s) = \int_0^{\infty} f(t)\, e^{-st}\, dt$
+
+\vspace{0.15cm}
+\textbf{Differentiation rule:}
+$\displaystyle \mathcal{L}\{f'\} = sF(s) - f(0), \quad \mathcal{L}\{f''\} = s^2F(s) - sf(0) - f'(0)$
+
+\vspace{0.15cm}
+\textbf{The Transfer Function:} For $a y'' + b y' + c y = u(t)$ with zero ICs:
+\[
+H(s) = \frac{Y(s)}{U(s)} = \frac{1}{as^2 + bs + c}
+\]
+
+\begin{itemize}
+    \item \textbf{Poles} of $H(s)$: natural frequencies of the system.
+    \item \textbf{Stability} $\Longleftrightarrow$ all poles have $\operatorname{Re}(s) < 0$ \quad (left half-plane).
+    \item This is the foundation of \textbf{control theory} (Bode plots, Nyquist criterion, PID controllers).
+\end{itemize}
+\end{frame}

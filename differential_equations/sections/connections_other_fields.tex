@@ -1,0 +1,124 @@
+%%% Connections: Other Mathematical Fields
+%%% (SDEs, Lie groups, topology, calculus of variations, complex analysis)
+
+\begin{frame}{Probability \& Stochastic DEs}
+\textbf{Key idea:} Add randomness to a differential equation.
+
+\vspace{0.3cm}
+A \textbf{stochastic differential equation} (SDE):
+\[
+dX_t = \mu(X_t)\,dt + \sigma(X_t)\,dW_t
+\]
+
+where $W_t$ is a Wiener process (Brownian motion).
+
+\vspace{0.3cm}
+\textbf{The bridge to probability:} \\
+The probability density $p(x,t)$ of $X_t$ satisfies the \textbf{Fokker--Planck equation}:
+\[
+\frac{\partial p}{\partial t} = -\frac{\partial}{\partial x}[\mu(x)\, p] + \frac{1}{2}\frac{\partial^2}{\partial x^2}[\sigma^2(x)\, p]
+\]
+
+\vspace{0.2cm}
+\begin{itemize}
+    \item Used in physics (particle diffusion), finance (Black--Scholes), and biology (gene expression noise).
+    \item Deterministic DEs are the special case $\sigma = 0$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Algebra \& Symmetry: Lie Groups}
+\textbf{Key idea:} Symmetries of a DE reduce its complexity.
+
+\vspace{0.3cm}
+If a differential equation is invariant under a transformation group (a \textbf{Lie group}), we can exploit this to:
+
+\begin{itemize}
+    \item \textbf{Reduce order}: a symmetry of a 2nd-order ODE can reduce it to 1st order.
+    \item \textbf{Find explicit solutions}: the symmetry maps known solutions to new ones.
+    \item \textbf{Classify equations}: equations with the same symmetry group are structurally equivalent.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Noether's Theorem} (1918): \\
+Every continuous symmetry of a physical system's equations corresponds to a \textbf{conserved quantity}.
+
+\begin{itemize}
+    \item Time-translation symmetry $\Rightarrow$ conservation of energy
+    \item Spatial-translation symmetry $\Rightarrow$ conservation of momentum
+    \item Rotational symmetry $\Rightarrow$ conservation of angular momentum
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Topology \& Qualitative Theory}
+\textbf{Key idea:} Topology constrains what solutions can look like --- without solving anything.
+
+\vspace{0.3cm}
+\textbf{Poincar\'e--Bendixson Theorem} (for 2D autonomous systems): \\
+A trajectory that stays bounded for all future time must either:
+\begin{enumerate}
+    \item approach an \textbf{equilibrium point}, or
+    \item approach a \textbf{limit cycle} (periodic orbit).
+\end{enumerate}
+
+\textit{Consequence: Chaos is impossible in two dimensions!} \\
+(You need at least 3D for chaos --- hence the Lorenz system is 3D.)
+
+\vspace{0.3cm}
+\textbf{Index Theory:} \\
+The \textbf{index} of a vector field around a closed curve counts how many times the field rotates. Isolated equilibria have index $\pm 1$. On a sphere: the sum of all indices must be $2$ (Euler characteristic) --- so every smooth vector field on a sphere must have a zero.
+
+\vspace{0.2cm}
+\textit{``You can't comb a hairy ball without creating a cowlick.''}
+\end{frame}
+
+
+\begin{frame}{Optimization \& Calculus of Variations}
+\textbf{Key idea:} Every optimization problem over functions leads to a differential equation.
+
+\vspace{0.3cm}
+Find the function $y(x)$ that minimizes a functional:
+\[
+J[y] = \int_a^b L(x, y, y')\, dx
+\]
+
+The minimizer satisfies the \textbf{Euler--Lagrange equation}:
+\[
+\frac{\partial L}{\partial y} - \frac{d}{dx}\frac{\partial L}{\partial y'} = 0
+\]
+
+\vspace{0.3cm}
+\textbf{Examples:}
+\begin{itemize}
+    \item Shortest path on a surface $\Rightarrow$ geodesic equation
+    \item Least action in mechanics $\Rightarrow$ Newton's equations of motion
+    \item Shape of a hanging chain $\Rightarrow$ catenary curve equation
+    \item Minimal soap film surface $\Rightarrow$ mean curvature = 0
+\end{itemize}
+
+\textit{Classical mechanics is entirely reformulated this way (Lagrangian mechanics).}
+\end{frame}
+
+
+\begin{frame}{Complex Analysis \& DEs}
+\textbf{Key idea:} Extending to $\mathbb{C}$ reveals hidden structure.
+
+\vspace{0.3cm}
+Consider an ODE near a point $x_0$:
+\[
+y'' + p(x)y' + q(x)y = 0
+\]
+
+\begin{itemize}
+    \item If $p$ and $q$ are analytic at $x_0$: \textbf{ordinary point}. Solutions are convergent power series.
+    \item If $p$ or $q$ have poles at $x_0$: \textbf{singular point}. Solutions may involve logarithms and fractional powers (\textbf{Frobenius method}).
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{The payoff:}
+\begin{itemize}
+    \item Many special functions are defined this way: Bessel functions, Legendre polynomials, hypergeometric functions.
+    \item \textbf{Monodromy}: transport a solution around a singularity in $\mathbb{C}$ and see how it transforms --- this connects DEs to representation theory and algebraic geometry.
+\end{itemize}
+\end{frame}

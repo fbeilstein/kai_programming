@@ -1,0 +1,123 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section 6: Stability & Catastrophe Theory
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Structural Stability}
+\textbf{Question:} When does a small perturbation of a dynamical system leave its qualitative behaviour unchanged?
+
+\vspace{0.3cm}
+A system $\dot{x} = f(x)$ is \textbf{structurally stable} if every nearby system $\dot{x} = g(x)$ (with $g$ close to $f$ in $C^1$) has a topologically equivalent phase portrait.
+
+\vspace{0.3cm}
+\textbf{Andronov--Pontryagin Theorem} (1937, for 2D): \\
+A planar system is structurally stable if and only if:
+\begin{enumerate}
+    \item All equilibria are \textbf{hyperbolic} (eigenvalues with nonzero real parts).
+    \item All limit cycles are \textbf{hyperbolic} (Floquet multipliers $\neq 1$).
+    \item There are no \textbf{saddle connections} (heteroclinic orbits between saddle points).
+\end{enumerate}
+
+\vspace{0.2cm}
+\textit{``Generic'' systems are structurally stable --- non-generic ones lie on the boundary between qualitatively different behaviours.}
+\end{frame}
+
+
+\begin{frame}{Bifurcation Theory}
+\textbf{Key idea:} When a parameter crosses a critical value, the qualitative behaviour of a system can suddenly change. These transitions are called \textbf{bifurcations}.
+
+\vspace{0.3cm}
+\textbf{The zoo of local bifurcations} (normal forms):
+\begin{itemize}
+    \item \textbf{Saddle-node} (fold): $\dot{x} = \mu + x^2$.
+        Two equilibria collide and annihilate as $\mu$ crosses $0$.
+    \item \textbf{Transcritical}: $\dot{x} = \mu x - x^2$.
+        Two equilibria exchange stability.
+    \item \textbf{Pitchfork}: $\dot{x} = \mu x - x^3$.
+        A symmetric equilibrium splits into three (symmetry breaking).
+    \item \textbf{Hopf}: An equilibrium's eigenvalues cross the imaginary axis $\Rightarrow$ a limit cycle is born.
+\end{itemize}
+
+\vspace{0.2cm}
+\textit{Each normal form is the simplest ODE exhibiting that particular transition --- all other systems with the same bifurcation are locally equivalent to it.}
+\end{frame}
+
+
+\begin{frame}{Catastrophe Theory: Whitney \& Thom}
+\textbf{Whitney's Classification} (1955): \\
+Generic singularities of smooth maps $\mathbb{R}^2 \to \mathbb{R}^2$ come in only two types:
+\begin{itemize}
+    \item \textbf{Fold}: $f(x,y) = (x,\, y^2)$ --- a curve of singular points.
+    \item \textbf{Cusp}: $f(x,y) = (x,\, xy + y^3)$ --- two fold curves meet at a point.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Thom's Classification} (1960s): \\
+For gradient dynamical systems $\dot{x} = -\nabla V(x;\, \mu)$ depending on $\leq 4$ control parameters $\mu$, the equilibria can only appear, disappear, or merge in \textbf{7 elementary ways}:
+
+\vspace{0.2cm}
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\begin{enumerate}
+    \item Fold ($A_2$)
+    \item Cusp ($A_3$)
+    \item Swallowtail ($A_4$)
+    \item Butterfly ($A_5$)
+\end{enumerate}
+\end{column}
+\begin{column}{0.45\textwidth}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Hyperbolic umbilic ($D_4^+$)
+    \item Elliptic umbilic ($D_4^-$)
+    \item Parabolic umbilic ($D_5$)
+\end{enumerate}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{The KAM Theorem}
+\textbf{Kolmogorov--Arnold--Moser} (1954--1963)
+
+\vspace{0.2cm}
+Consider a nearly-integrable Hamiltonian system:
+\[
+H(q,p) = H_0(p) + \varepsilon\, H_1(q,p)
+\]
+
+For $\varepsilon = 0$, all motion is on invariant \textbf{tori} with frequencies $\omega = \frac{\partial H_0}{\partial p}$.
+
+\vspace{0.3cm}
+\textbf{KAM Theorem:} For $\varepsilon$ small enough, \emph{most} invariant tori survive, provided their frequency vector $\omega$ satisfies a \textbf{Diophantine condition}:
+\[
+|k \cdot \omega| \geq \frac{\gamma}{|k|^\tau} \quad \text{for all } k \in \mathbb{Z}^n \setminus \{0\}
+\]
+
+(i.e., frequencies are ``sufficiently irrational'').
+
+\vspace{0.3cm}
+\textbf{Significance:} This is the mathematical basis for the \textbf{long-term stability of the solar system} --- planetary orbits are ``mostly'' quasi-periodic despite mutual gravitational perturbations.
+\end{frame}
+
+
+\begin{frame}{Arnold Diffusion \& Beyond}
+In $\leq 2$ degrees of freedom, the surviving KAM tori \textbf{partition} phase space --- orbits are forever trapped between neighbouring tori.
+
+\vspace{0.3cm}
+In $\geq 3$ degrees of freedom, tori have codimension $> 1$ and \textbf{no longer separate} the energy surface. Small gaps between tori form connected paths.
+
+\vspace{0.3cm}
+\textbf{Arnold Diffusion} (Arnold, 1964): \\
+Orbits can slowly ``drift'' through these gaps, visiting regions far from the original torus. The motion is extremely slow but \textbf{topologically unconstrained}.
+
+\vspace{0.3cm}
+\textbf{Implications:}
+\begin{itemize}
+    \item Long-term instability in many-body celestial mechanics.
+    \item Mixing in Hamiltonian systems (relevant for statistical mechanics).
+    \item Proving diffusion in specific systems remains a \textbf{major open problem}.
+\end{itemize}
+
+\vspace{0.2cm}
+\textit{The interplay between order (KAM tori) and chaos (Arnold diffusion) is one of the deepest themes in modern dynamics.}
+\end{frame}
