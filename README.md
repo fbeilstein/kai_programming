@@ -17,6 +17,9 @@ Monday 13:30 (next week Wednesday 12:30)
 ### Lecture 5. Problem Set: Electrostatics
 - [Download the Problemset (Electrostatics, System of Charges)](https://github.com/fbeilstein/kai_programming/releases/download/problem_2/problem_2.zip)
 
+### Lecture 6. Differential Equations Overview
+
+
 ## Draft for Syllabus
 
  1. Python Recap
