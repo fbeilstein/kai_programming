@@ -28,7 +28,8 @@
     showstringspaces=false
 }
 
-\title{Programming Lab: Non-Linear Dynamics and Catastrophe Theory}
+\title{Programming Lab: Non-Linear Dynamics}
+\author{VB}
 \date{\today}
 
 \begin{document}
@@ -48,22 +49,16 @@ Consider the general coupled linear system:
     \dot{y} = cx + dy.
     \end{cases}
 \end{equation}
-The system is governed by $4$ parameters $a,b,c,d$. But it turns out, that only $2$ parameters are enough.
-
-
-First, we will show its equivalence to second-order equation, than to a "companion system" that we will solve numerically.
-
-
-Your first goal is to transform this system into a single second-order differential equation for $x(t)$.
+The system is governed by $4$ parameters $a,b,c,d$. However, it turns out that only two parameters are sufficient. First, we will show its equivalence to a second-order equation, then to a "companion system" that we will solve numerically. Your first goal is to transform this system into a single second-order differential equation for $x(t)$.
 \begin{itemize}
     \item Step 1: Differentiate the first equation with respect to time to get an expression for $\ddot{x}$.
     \item Step 2: Substitute the expression for $\dot{y}$ from the second equation into your result from Step 1.
     \item Step 3: Eliminate the variable $y$ entirely by using the first equation to express $y$ in terms of $\dot{x}$ and $x$.
-    \item Step 4: Assume $\tau = a+d$ (Trace) and $\Delta = ad - bc$ (Determinant) and examine your equation. Show that these are the only parameters needed and rewrite eqation trough them.
+    \item Step 4: Assume $\tau = a+d$ (Trace) and $\Delta = ad - bc$ (Determinant) and examine your equation. Show that these are the only parameters needed and rewrite the equation in terms of them.
 \end{itemize}
 
 
-Your next goal is returning to the system of two first-order equations. We need this to be able to call the \lstinline|solve_ivp| function from \lstinline|scipy.integrate| module. To do this define a new variable $z = \dot{x}$ and rewrite your second-order equation as a system
+Your next goal is to return to the system of two first-order equations. We need this to be able to call the \lstinline|solve_ivp| function from \lstinline|scipy.integrate| module. To do this define a new variable $z = \dot{x}$ and rewrite your second-order equation as a system
 \begin{equation*}
 \begin{aligned}
  \dot{x} &= z,\\
@@ -73,14 +68,14 @@ Your next goal is returning to the system of two first-order equations. We need 
 
 \subsection*{Implementation part}
 
-Implement the function \lstinline|get_derivatives(x, y, tr, det)|. You should return a \lstinline|numpy.array| that contains two numbers: values of $\dot{x}$ and value of $\dot{z}$.
+Implement the function \lstinline|get_derivatives(x, z, tr, det)|. You should return a \lstinline|numpy.array| that contains two numbers: the values of $\dot{x}$ and $\dot{z}$.
 
 \begin{center}
 \renewcommand{\arraystretch}{2.0}
 \begin{tabular}{r | c | c | c | c | c}
 \toprule
-\textbf{Math Symbol} & $\tau$ & $\Delta$ & $x$ & $y$ & $(\dot{x},\dot{z})^T$ \\ \midrule
-\textbf{Argument} & \lstinline|tr| & \lstinline|det| & \lstinline|x| & \lstinline|y| & \lstinline|return| \\ \midrule
+\textbf{Math Symbol} & $\tau$ & $\Delta$ & $x$ & $z$ & $(\dot{x},\dot{z})^T$ \\ \midrule
+\textbf{Argument} & \lstinline|tr| & \lstinline|det| & \lstinline|x| & \lstinline|z| & \lstinline|return| \\ \midrule
 \textbf{Type} & \lstinline|float| & \lstinline|float| & \lstinline|float| & \lstinline|float| & \lstinline|np.array| of $2$ elements \\
 \bottomrule
 \end{tabular}
@@ -91,7 +86,7 @@ Implement the function \lstinline|get_derivatives(x, y, tr, det)|. You should re
 
 \subsection*{Mathematical part}
 
-Use the \textbf{second-order} equation you have derived in the previous section. Substitute $x(t)$ in form $x(t) = e^{\lambda t}$ and observe how differential equation transforms into an algebraic one. Solve the algebraic equation and write down $\lambda_1$ and $\lambda_2$. Observe that the full solution is $x(t) = C_1 e^{\lambda_1 t} + C_2 e^{\lambda_2 t}$. Note that lambdas may have real and imaginary parts.
+Use the \textbf{second-order} equation you have derived in the previous section. Substitute $x(t)$ in the form $x(t) = e^{\lambda t}$ and observe how the differential equation transforms into an algebraic one. Solve the algebraic equation and write down $\lambda_1$ and $\lambda_2$. Note that the general solution is $x(t) = C_1 e^{\lambda_1 t} + C_2 e^{\lambda_2 t}$. Note that lambdas may have real and imaginary parts.
 
 \subsection*{Implementation part}
 
@@ -110,11 +105,11 @@ Implement the function \lstinline|get_lambdas(tr, det)|. Based on your character
 
 
 
-\section*{Classess of special points}
+\section*{Classes of stationary points}
 
 \subsection*{Observation part}
 
-Run the interactive Python script. The GUI will now display the real and imaginary parts of $\lambda_1$ and $\lambda_2$ as you drag the red parameter point across the $\tau$-$\Delta$ plane.
+Run the interactive Python script. The GUI displays the real and imaginary parts of $\lambda_1$ and $\lambda_2$ as you drag the red parameter point across the $\tau$-$\Delta$ plane.
 
 
 Your task is to "hunt" for the specific geometric behaviors listed in the table below. Once you find a coordinate that produces the described motion, look at the eigenvalues on your screen. Record the signs of their real parts (e.g., "both negative", "one positive/one negative") and state whether their imaginary parts are zero or non-zero.
@@ -140,24 +135,7 @@ Curves form perfect closed loops, spinning forever (\textbf{Center}) & & \\
 
 \subsection*{Implementation part}
 
-Now that you have mapped the analytical eigenvalues to the geometric behaviors, formalize your observations by implementing the \lstinline|classify_system(tr, det)| function.
-
-Your function must return a tuple containing a descriptive string and a hexadecimal color code: \lstinline|("Label", "#color")|. Use your discriminant ($\Delta$) and trace ($\tau$) logic to route the parameters to the correct classification.
-
-You can use colors recommended by AI for nice visuals.
-\begin{center}
-\renewcommand{\arraystretch}{1.5}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{r | c | c | c | c | c | c}
-\toprule
-\textbf{Label} & \lstinline|"Saddle"| & \lstinline|"Stable Node"| & \lstinline|"Unstable Node"| & \lstinline|"Stable Spiral"| & \lstinline|"Unstable Spiral"| & \lstinline|"Center"| \\ \midrule
-\textbf{Color} & \textcolor[HTML]{E74C3C}{\texttt{"\#e74c3c"}} & \textcolor[HTML]{2ECC71}{\texttt{"\#2ecc71"}} & \textcolor[HTML]{D35400}{\texttt{"\#d35400"}} & \textcolor[HTML]{3498DB}{\texttt{"\#3498db"}} & \textcolor[HTML]{F39C12}{\texttt{"\#f39c12"}} & \textcolor[HTML]{9B59B6}{\texttt{"\#9b59b6"}} \\
-\bottomrule
-\end{tabular}%
-}
-\end{center}
-Your function should return list or tuple of exactly two strings: label of the class and color in this exact order.
-
+Having mapped the analytical eigenvalues to the geometric behaviors, formalize your observations by implementing the \lstinline|classify_system(tr, det)| function. Your function must return a tuple containing a descriptive string and a hexadecimal color code: \lstinline|("Label", "#color")|. Use your discriminant ($\Delta$) and trace ($\tau$) logic to route the parameters to the correct classification. Your function should return list or tuple of exactly two strings: label of the class and color in this exact order.
 \begin{center}
 \renewcommand{\arraystretch}{2.0}
 \begin{tabular}{r | c | c | c}
@@ -167,6 +145,19 @@ Your function should return list or tuple of exactly two strings: label of the c
 \textbf{Type} & \lstinline|float| & \lstinline|float| & \lstinline|(string, string)|\\
 \bottomrule
 \end{tabular}
+\end{center}
+
+You can use colors recommended by AI for nice visuals.
+\begin{center}
+\renewcommand{\arraystretch}{1.5}\vspace{-5mm}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{r | c | c | c | c | c | c}
+\toprule
+\textbf{Label} & \lstinline|"Saddle"| & \lstinline|"Stable Node"| & \lstinline|"Unstable Node"| & \lstinline|"Stable Spiral"| & \lstinline|"Unstable Spiral"| & \lstinline|"Center"| \\ \midrule
+\textbf{Color} & \textcolor[HTML]{E74C3C}{\texttt{"\#e74c3c"}} & \textcolor[HTML]{2ECC71}{\texttt{"\#2ecc71"}} & \textcolor[HTML]{D35400}{\texttt{"\#d35400"}} & \textcolor[HTML]{3498DB}{\texttt{"\#3498db"}} & \textcolor[HTML]{F39C12}{\texttt{"\#f39c12"}} & \textcolor[HTML]{9B59B6}{\texttt{"\#9b59b6"}} \\
+\bottomrule
+\end{tabular}%
+}
 \end{center}
 
 
