@@ -6,8 +6,8 @@ from scipy.integrate import solve_ivp
 # STUDENT SECTION
 # =============================================================================
 
-def get_derivatives(x, y, tr, det):
-    return y, -det*x + tr*y
+def get_derivatives(x, z, tr, det):
+    return z, -det*x + tr*z
 
 def get_lambdas(tr, det):
     #return None
