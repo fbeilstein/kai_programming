@@ -19,6 +19,8 @@ Monday 13:30 (next week Wednesday 12:30)
 
 ### Lecture 6. Differential Equations Overview
 
+### Lecture 7. Problem Set: Stationary Points Classification
+- [Download the Problemset (Stationary Points Classification)](https://github.com/fbeilstein/kai_programming/releases/download/problem_3/problem_3.zip)
 
 ## Draft for Syllabus
 
@@ -27,9 +29,9 @@ Monday 13:30 (next week Wednesday 12:30)
  3. Practice (Ray Tracing)
  4. Debrief (show how to solve)
  5. Practice (Electrostatics)
- 6.
- 7. Vectorization and Package `Cupy`
- 8.
+ 6. Differential Equations (theory)
+ 7. Practice (ODE, stationary points)
+ 8. Vectorization and Package `Cupy`
  9.
 10.
 11.
