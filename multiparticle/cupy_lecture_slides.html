@@ -1,0 +1,3081 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPU Computing with CuPy & Multiparticle Modelling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #21262d;
+            --accent: #58a6ff;
+            --accent2: #79c0ff;
+            --green: #3fb950;
+            --orange: #ffa657;
+            --purple: #d2a8ff;
+            --red: #ff7b72;
+            --yellow: #e3b341;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --border: #30363d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Slide container */
+        #slideshow {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 48px 64px;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        #nav {
+            position: fixed;
+            bottom: 24px;
+            right: 32px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        #nav button {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        #nav button:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+
+        #counter {
+            position: fixed;
+            bottom: 24px;
+            left: 32px;
+            color: var(--muted);
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            z-index: 100;
+        }
+
+        #progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            transition: width 0.3s;
+            z-index: 200;
+        }
+
+        /* Typography */
+        .slide-title {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 0.4em;
+        }
+
+        .slide-subtitle {
+            font-size: 1.35rem;
+            color: var(--muted);
+            font-weight: 300;
+            margin-bottom: 1.5em;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.6em;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent2);
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            line-height: 1.7;
+            color: #c9d1d9;
+            font-size: 1.05rem;
+            margin-bottom: 0.8em;
+        }
+
+        ul,
+        ol {
+            padding-left: 1.4em;
+        }
+
+        li {
+            line-height: 1.75;
+            color: #c9d1d9;
+            font-size: 1.05rem;
+            margin-bottom: 0.3em;
+        }
+
+        strong {
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        em {
+            color: var(--yellow);
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        /* Section headers */
+        .section-label {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 1em;
+        }
+
+        .label-intro {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }
+
+        .label-numpy {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .label-cupy {
+            background: rgba(210, 168, 255, 0.15);
+            color: var(--purple);
+            border: 1px solid rgba(210, 168, 255, 0.3);
+        }
+
+        .label-sim {
+            background: rgba(255, 166, 87, 0.15);
+            color: var(--orange);
+            border: 1px solid rgba(255, 166, 87, 0.3);
+        }
+
+        .label-adv {
+            background: rgba(255, 123, 114, 0.15);
+            color: var(--red);
+            border: 1px solid rgba(255, 123, 114, 0.3);
+        }
+
+        /* Code blocks */
+        pre {
+            background: #010409;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            line-height: 1.65;
+            overflow-x: auto;
+            margin: 0.5em 0;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--orange);
+            background: rgba(255, 166, 87, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        pre code {
+            color: #e6edf3;
+            background: none;
+            padding: 0;
+        }
+
+        .kw {
+            color: #ff7b72;
+        }
+
+        /* keyword */
+        .fn {
+            color: #d2a8ff;
+        }
+
+        /* function */
+        .st {
+            color: #a5d6ff;
+        }
+
+        /* string */
+        .cm {
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        /* comment */
+        .nm {
+            color: #79c0ff;
+        }
+
+        /* number/name */
+        .op {
+            color: #ff7b72;
+        }
+
+        /* operator */
+
+        /* Layout helpers */
+        .cols {
+            display: grid;
+            gap: 32px;
+        }
+
+        .cols-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .cols-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .cols-60-40 {
+            grid-template-columns: 60fr 40fr;
+        }
+
+        .cols-40-60 {
+            grid-template-columns: 40fr 60fr;
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mt {
+            margin-top: 1em;
+        }
+
+        .mt2 {
+            margin-top: 2em;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card-accent {
+            border-color: var(--accent);
+            background: rgba(88, 166, 255, 0.06);
+        }
+
+        .card-green {
+            border-color: var(--green);
+            background: rgba(63, 185, 80, 0.06);
+        }
+
+        .card-orange {
+            border-color: var(--orange);
+            background: rgba(255, 166, 87, 0.06);
+        }
+
+        .card-purple {
+            border-color: var(--purple);
+            background: rgba(210, 168, 255, 0.06);
+        }
+
+        .card-red {
+            border-color: var(--red);
+            background: rgba(255, 123, 114, 0.06);
+        }
+
+        /* Performance bars */
+        .perf-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        .perf-label {
+            min-width: 160px;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--muted);
+        }
+
+        .perf-bar-bg {
+            flex: 1;
+            background: var(--surface2);
+            border-radius: 4px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .perf-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .perf-val {
+            font-size: 0.85rem;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* Big number stat */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 1em 0;
+        }
+
+        .stat-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 2.6rem;
+            font-weight: 900;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .tl-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .tl-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .tl-time {
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 2px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: var(--surface2);
+            padding: 10px 14px;
+            text-align: left;
+            color: var(--accent);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--border);
+            color: #c9d1d9;
+        }
+
+        tr:hover td {
+            background: rgba(88, 166, 255, 0.04);
+        }
+
+        /* Accent divider */
+        .divider {
+            width: 60px;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            margin: 0.6em 0 1.2em;
+        }
+
+        /* Hero slide */
+        .hero-slide {
+            background: radial-gradient(ellipse at 20% 50%, rgba(88, 166, 255, 0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(210, 168, 255, 0.1) 0%, transparent 50%), var(--bg);
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            max-width: 800px;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 0.4em;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.4rem;
+            color: var(--muted);
+            font-weight: 300;
+            margin-bottom: 2em;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 32px;
+        }
+
+        .hero-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hero-meta-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
+
+        .hero-meta-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Section divider slide */
+        .section-slide {
+            background: radial-gradient(ellipse at center, rgba(88, 166, 255, 0.08) 0%, transparent 70%), var(--surface);
+            text-align: center;
+        }
+
+        .slide.section-slide.active {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-num {
+            font-size: 8rem;
+            font-weight: 900;
+            line-height: 1;
+            color: rgba(88, 166, 255, 0.12);
+            position: absolute;
+        }
+
+        .section-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-slide .slide-title {
+            font-size: 3.5rem;
+        }
+
+        /* Callout box */
+        .callout {
+            background: rgba(88, 166, 255, 0.08);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 18px;
+            margin: 0.5em 0;
+            font-size: 0.95rem;
+            color: #c9d1d9;
+        }
+
+        .callout.warn {
+            background: rgba(255, 166, 87, 0.08);
+            border-color: var(--orange);
+        }
+
+        .callout.success {
+            background: rgba(63, 185, 80, 0.08);
+            border-color: var(--green);
+        }
+
+        /* Arrow */
+        .arrow {
+            color: var(--accent);
+            font-size: 1.4rem;
+            text-align: center;
+            margin: 6px 0;
+        }
+
+        /* Overlay grid (decorative) */
+        .hero-grid {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 45%;
+            height: 100%;
+            opacity: 0.04;
+            background-image: linear-gradient(var(--accent) 1px, transparent 1px), linear-gradient(90deg, var(--accent) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        kbd {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="progress"></div>
+    <div id="slideshow">
+
+        <!-- ═══════════════════════════════════════════════════════════════ SLIDE 1: HERO -->
+        <div class="slide hero-slide active">
+            <div class="hero-grid"></div>
+            <div class="hero-content">
+                <div class="section-label label-intro" style="margin-bottom:1.4em">Lecture</div>
+                <div class="hero-title">GPU Computing<br>with CuPy &amp;<br>Multiparticle<br>Modelling</div>
+                <div class="hero-sub">From vectorized NumPy to massively parallel GPU simulations</div>
+            </div>
+        </div>
+
+        <!-- ═════════════════════════════ SLIDE 2: AGENDA -->
+        <div class="slide">
+            <div class="section-label label-intro">Agenda</div>
+            <h2>Lecture Roadmap</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <div class="card card-accent">
+                        <h3>Part 1 — Foundations</h3>
+                        <ul>
+                            <li>Why vectorization? The real cost of Python loops</li>
+                            <li>NumPy array anatomy: memory, strides, views</li>
+                            <li>Code vectorization patterns</li>
+                            <li>Uniform, temporal, spatial vectorization</li>
+                        </ul>
+                    </div>
+                    <div class="card card-green" style="margin-top:16px">
+                        <h3>Part 2 — Problem Vectorization</h3>
+                        <ul>
+                            <li>Rethinking algorithms for arrays</li>
+                            <li>Path finding with Bellman-Ford on NumPy</li>
+                            <li>Fluid dynamics simulations</li>
+                            <li>Multiparticle &amp; Boids systems</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="card card-purple">
+                        <h3>Part 3 — CuPy &amp; GPU</h3>
+                        <ul>
+                            <li>GPU architecture &amp; CUDA fundamentals</li>
+                            <li>CuPy: NumPy on the GPU</li>
+                            <li>Custom CUDA kernels</li>
+                            <li>Van der Waals gas simulation on GPU</li>
+                            <li>Performance benchmarks &amp; best practices</li>
+                        </ul>
+                    </div>
+                    <div class="card card-orange" style="margin-top:16px">
+                        <h3>Part 4 — Advanced Topics</h3>
+                        <ul>
+                            <li>Numba JIT, Cython, PyCUDA</li>
+                            <li>Memory management strategies</li>
+                            <li>Profiling GPU code</li>
+                            <li>Real-world case studies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ SECTION DIVIDER: PART 1 -->
+        <div class="slide section-slide">
+            <div class="section-num">1</div>
+            <div class="section-content">
+                <div class="section-label label-numpy" style="margin: 0 auto 1em">Part 1</div>
+                <div class="slide-title">Foundations of<br>Vectorization</div>
+                <div class="slide-subtitle">Why loops are slow and arrays are fast</div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ SLIDE 4: WHY VECTORIZE -->
+        <div class="slide">
+            <div class="section-label label-numpy">Motivation</div>
+            <h2>The Python Performance Problem</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>Python is a high-level, dynamically-typed language. Every operation pays an overhead:</p>
+                    <ul>
+                        <li>Type checking at runtime</li>
+                        <li>Memory allocation for temporary objects</li>
+                        <li>GIL (Global Interpreter Lock) prevents parallelism</li>
+                        <li>No direct SIMD / vectorized CPU instructions</li>
+                    </ul>
+                    <div class="callout mt">
+                        <strong>Core idea:</strong> Move computation from Python loops into compiled, vectorized C/CUDA
+                        code — via NumPy or CuPy.
+                    </div>
+                    <div class="callout warn mt">
+                        <strong>10–1000×</strong> speedup is typical. For GPU (CuPy), gains can reach
+                        <strong>100,000×</strong> on the right workloads.
+                    </div>
+                </div>
+                <div>
+                    <h3>Typical speedup ladder</h3>
+                    <div style="margin-top:12px">
+                        <div class="perf-row">
+                            <div class="perf-label">Pure Python loop</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:5%; background:#ff7b72">1×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">itertools</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:15%; background:#ffa657">5×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">NumPy vectorized</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:55%; background:#3fb950">500×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">Numba JIT</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:65%; background:#58a6ff">600×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">CuPy (GPU)</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:100%; background:#d2a8ff">10,000×+</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt" style="font-size:0.85rem; color: var(--muted)">Values are illustrative; actual gains
+                        are workload-dependent.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════ SLIDE 5: RANDOM WALK EXAMPLE -->
+        <div class="slide">
+            <div class="section-label label-numpy">Introduction Example</div>
+            <h2>Random Walk: Three Approaches</h2>
+            <div class="divider"></div>
+            <div class="cols cols-3">
+                <div class="card">
+                    <h3 style="color:var(--red)">① Object-Oriented</h3>
+                    <pre><code><span class="kw">class</span> <span class="fn">RandomWalker</span>:
+  <span class="kw">def</span> <span class="fn">__init__</span>(self):
+    self.position = 0
+  <span class="kw">def</span> <span class="fn">walk</span>(self, n):
+    self.position = 0
+    <span class="kw">for</span> i <span class="kw">in</span> range(n):
+      <span class="kw">yield</span> self.position
+      self.position += (
+        2*random.randint(0,1)-1)
+
+walker = RandomWalker()
+walk = [p <span class="kw">for</span> p <span class="kw">in</span>
+        walker.walk(10000)]</code></pre>
+                    <div class="callout warn" style="margin-top:10px; font-size:0.9rem"><strong>⏱ 15.7 ms</strong> per
+                        loop</div>
+                </div>
+                <div class="card">
+                    <h3 style="color:var(--orange)">② Procedural</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">random_walk</span>(n):
+  position = 0
+  walk = [position]
+  <span class="kw">for</span> i <span class="kw">in</span> range(n):
+    position += (
+      2*random.randint(0,1)-1)
+    walk.append(position)
+  <span class="kw">return</span> walk
+
+walk = random_walk(10000)</code></pre>
+                    <div class="callout warn" style="margin-top:10px; font-size:0.9rem"><strong>⏱ 15.6 ms</strong> per
+                        loop</div>
+                </div>
+                <div class="card card-green">
+                    <h3 style="color:var(--green)">③ Vectorized (NumPy)</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">random_walk_fast</span>(n=1000):
+  steps = np.random.choice(
+    [-1,+1], n)
+  steps = np.cumsum(steps)
+  <span class="kw">return</span> [0] + steps.tolist()
+
+walk = random_walk_fast(10000)</code></pre>
+                    <div class="callout success" style="margin-top:10px; font-size:0.9rem"><strong>⏱ 14 µs</strong> →
+                        <strong>1000× faster!</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="callout mt">
+                The key insight: <strong>generate all steps at once</strong>, then use <code>np.cumsum</code> — a single
+                vectorized C call replaces 10,000 Python iterations.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════ SLIDE 6: READABILITY WARNING -->
+        <div class="slide">
+            <div class="section-label label-numpy">Important Caveat</div>
+            <h2>Readability vs. Speed</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Readable — 10× slower</h3>
+                    <pre><code><span class="cm"># Find all occurrences of sub in seq</span>
+<span class="kw">def</span> <span class="fn">function_1</span>(seq, sub):
+  <span class="kw">return</span> [i <span class="kw">for</span> i <span class="kw">in</span>
+    range(len(seq)-len(sub)+1)
+    <span class="kw">if</span> seq[i:i+len(sub)] == sub]</code></pre>
+                    <p class="mt" style="color: var(--green)">✓ Anyone can read this. Immediate understanding. Easy to
+                        debug.</p>
+                </div>
+                <div>
+                    <h3 style="color:var(--purple)">Fast — hard to read</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">function_2</span>(seq, sub):
+  target = np.dot(sub, sub)
+  candidates = np.where(
+    np.correlate(seq, sub,
+      mode=<span class="st">'valid'</span>) == target)[0]
+  check = (candidates[:,np.newaxis]
+    + np.arange(len(sub)))
+  mask = np.all(
+    (np.take(seq,check)==sub),
+    axis=-1)
+  <span class="kw">return</span> candidates[mask]</code></pre>
+                    <p class="mt" style="color: var(--orange)">⚠ Same result. 10× faster. Near-impossible to understand
+                        without deep NumPy knowledge.</p>
+                </div>
+            </div>
+            <div class="callout warn mt">
+                <strong>Rule of thumb:</strong> Comment vectorized code immediately. Write a readable reference
+                implementation first. Profile before optimizing — don't pay the readability cost unless you need the
+                speed.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════ SLIDE 7: ARRAY ANATOMY -->
+        <div class="slide">
+            <div class="section-label label-numpy">Array Anatomy</div>
+            <h2>NumPy ndarray: What's Inside</h2>
+            <div class="divider"></div>
+            <div class="cols cols-60-40">
+                <div>
+                    <p>An <strong>ndarray</strong> is fundamentally a contiguous block of memory with metadata
+                        describing how to interpret it:</p>
+                    <div class="cols cols-2" style="gap:12px; margin-top:12px">
+                        <div class="card card-accent"><strong>shape</strong><br><span
+                                style="color:var(--muted);font-size:0.9rem">Dimensions of the array, e.g.
+                                <code>(3, 3)</code></span></div>
+                        <div class="card card-green"><strong>dtype</strong><br><span
+                                style="color:var(--muted);font-size:0.9rem">Element type: <code>float32</code>,
+                                <code>int64</code>, etc.</span></div>
+                        <div class="card card-orange"><strong>strides</strong><br><span
+                                style="color:var(--muted);font-size:0.9rem">Bytes to step along each dimension</span>
+                        </div>
+                        <div class="card card-purple"><strong>itemsize</strong><br><span
+                                style="color:var(--muted);font-size:0.9rem">Bytes per single element</span></div>
+                    </div>
+                    <div class="mt">
+                        <pre><code>Z = np.arange(9).reshape(3,3).astype(np.int16)
+
+Z.itemsize   <span class="cm"># 2 (bytes)</span>
+Z.shape      <span class="cm"># (3, 3)</span>
+Z.ndim       <span class="cm"># 2</span>
+Z.strides    <span class="cm"># (6, 2)  ← bytes to next row/col</span>
+Z.nbytes     <span class="cm"># 18</span></code></pre>
+                    </div>
+                </div>
+                <div>
+                    <div class="card"
+                        style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; line-height:1.8">
+                        <div style="color:var(--accent); margin-bottom:8px">Item layout (3×3 array)</div>
+                        <div style="color:#8b949e">
+                            ┌───┬───┬───┐<br>
+                            │ 0 │ 1 │ 2 │<br>
+                            ├───┼───┼───┤<br>
+                            │ 3 │ 4 │ 5 │<br>
+                            ├───┼───┼───┤<br>
+                            │ 6 │ 7 │ 8 │<br>
+                            └───┴───┴───┘
+                        </div>
+                        <div style="color:var(--green); margin: 14px 0 8px">Flattened in memory</div>
+                        <div style="color:#8b949e">┌─┬─┬─┬─┬─┬─┬─┬─┬─┐<br>│0│1│2│3│4│5│6│7│8│<br>└─┴─┴─┴─┴─┴─┴─┴─┴─┘
+                        </div>
+                        <div style="color:var(--orange); margin:14px 0 4px">stride[0]=6 bytes (→ next row)</div>
+                        <div style="color:var(--orange)">stride[1]=2 bytes (→ next col)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════ SLIDE 8: VIEWS vs COPIES -->
+        <div class="slide">
+            <div class="section-label label-numpy">Array Anatomy</div>
+            <h2>Views vs. Copies — A Critical Distinction</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Views (direct indexing) — shared memory</h3>
+                    <pre><code>Z = np.zeros(9)
+Z_view = Z[:3]      <span class="cm"># basic slice → view</span>
+Z_view[...] = 1
+
+Z  <span class="cm"># array([1., 1., 1., 0., 0., ...])</span>
+<span class="cm"># ↑ Original Z was modified!</span>
+
+Z_view.base <span class="kw">is</span> Z   <span class="cm"># True</span></code></pre>
+                    <div class="callout success">Views share the underlying data buffer — zero extra memory allocation.
+                        Modifying a view modifies the base.</div>
+                </div>
+                <div>
+                    <h3 style="color:var(--orange)">Copies (fancy indexing) — independent</h3>
+                    <pre><code>Z = np.zeros(9)
+Z_copy = Z[[0,1,2]]  <span class="cm"># fancy → copy</span>
+Z_copy[...] = 1
+
+Z  <span class="cm"># array([0., 0., 0., ...])</span>
+<span class="cm"># ↑ Original Z unchanged!</span>
+
+Z_copy.base <span class="kw">is</span> None  <span class="cm"># True</span></code></pre>
+                    <div class="callout warn">Fancy indexing returns a <strong>copy</strong>. Safe for reading. Cannot
+                        be used to write back to the original.</div>
+                </div>
+            </div>
+            <div class="cols cols-2 mt">
+                <div class="card">
+                    <strong>Always returns view:</strong> <code>ravel()</code>, slicing<br>
+                    <strong>Always returns copy:</strong> <code>flatten()</code>, fancy indexing
+                </div>
+                <div class="card card-accent">
+                    <strong>Check with:</strong> <code>Z.base is original</code><br>
+                    If <code>base is None</code> → it is a copy; otherwise → it is a view
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════ SLIDE 9: TEMPORARY COPIES -->
+        <div class="slide">
+            <div class="section-label label-numpy">Array Anatomy</div>
+            <h2>The Hidden Cost of Temporary Arrays</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Implicit copies in arithmetic</h3>
+                    <pre><code>X = np.ones(10, dtype=int)
+Y = np.ones(10, dtype=int)
+A = 2*X + 2*Y
+<span class="cm"># Creates 3 intermediate arrays:
+# temp1 = 2*X
+# temp2 = 2*Y
+# A = temp1 + temp2</span></code></pre>
+                    <h3 class="mt">Out-of-place — better!</h3>
+                    <pre><code>np.multiply(X, 2, out=X)  <span class="cm"># in-place</span>
+np.multiply(Y, 2, out=Y)  <span class="cm"># in-place</span>
+np.add(X, Y, out=X)       <span class="cm"># in-place</span>
+<span class="cm"># Zero temporary arrays allocated</span></code></pre>
+                </div>
+                <div>
+                    <h3>Benchmarks (100M element arrays)</h3>
+                    <div style="margin-top:12px">
+                        <div class="perf-row">
+                            <div class="perf-label">X = X + 2.0*Y</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:100%; background:var(--red)">3.61 ms</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">X = X + 2*Y</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:96%; background:var(--orange)">3.47 ms</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">X += 2*Y</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:77%; background:var(--yellow)">2.79 ms</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">np.add out=X (×2)</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:43%; background:var(--green)">1.57 ms</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout success mt">
+                        Using <code>out=</code> argument avoids all temporary allocation → <strong>2.3× faster</strong>
+                        on large arrays.
+                    </div>
+                    <div class="callout mt">
+                        For CuPy on GPU, this matters even more because <strong>GPU memory bandwidth</strong> is the
+                        primary bottleneck.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════ SLIDE 10: DTYPE TRICKS -->
+        <div class="slide">
+            <div class="section-label label-numpy">Array Anatomy</div>
+            <h2>dtype Casting: Surprising Speedups</h2>
+            <div class="divider"></div>
+            <p>Consider zeroing a <code>np.float32</code> array of 4 million elements. Which dtype for the view is
+                fastest?</p>
+            <div class="cols cols-2">
+                <div>
+                    <pre><code>Z = np.ones(4*1000000, np.float32)
+
+timeit("Z.view(np.float16)[...] = 0")
+<span class="cm"># 100 loops: 2.72 msec</span>
+
+timeit("Z.view(np.float32)[...] = 0")
+<span class="cm"># 100 loops: 1.33 msec</span>
+
+timeit("Z.view(np.float64)[...] = 0")
+<span class="cm"># 100 loops: 865 µsec</span>
+
+timeit("Z.view(np.int8)[...] = 0")
+<span class="cm"># 100 loops: 630 µsec  ← FASTEST!</span></code></pre>
+                </div>
+                <div>
+                    <div class="card card-accent">
+                        <h3>Why?</h3>
+                        <p>Viewing as <code>int8</code> lets NumPy process the raw bytes with minimal conversion
+                            overhead. The compiler can apply optimal SIMD instructions (SSE/AVX).</p>
+                        <p class="mt">Larger itemsize → <strong>fewer iterations</strong> → better cache usage.</p>
+                        <p class="mt">Going from <code>float16</code> to <code>int8</code> view gives a <strong>4.3×
+                                speedup</strong> on the same data!</p>
+                    </div>
+                    <div class="callout warn mt">
+                        This works because the array is treated as a flat byte buffer. Valid only when you don't care
+                        about the intermediate values — e.g., zeroing or memset-style operations.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════ SLIDE 11: STRIDES DEEP DIVE -->
+        <div class="slide">
+            <div class="section-label label-numpy">Array Anatomy</div>
+            <h2>Strides: The Secret Behind Views</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>When you slice with a step: <code>Z2 = Z1[1:-1:2]</code>, NumPy doesn't copy data — it just
+                        changes the stride:</p>
+                    <pre><code>Z1 = np.arange(10)
+Z2 = Z1[1:-1:2]
+<span class="cm"># Z1: [0,1,2,3,4,5,6,7,8,9]
+# Z2: [1,3,5,7]</span>
+
+Z2.base <span class="kw">is</span> Z1     <span class="cm"># True</span>
+
+step = Z2.strides[0] // Z1.strides[0]
+<span class="cm"># step = 2</span>
+
+<span class="cm"># Find start/stop via byte offsets:</span>
+start = offset_start // Z1.itemsize
+stop = Z1.size + offset_stop // Z1.itemsize
+<span class="cm"># → (1, 8, 2)</span></code></pre>
+                </div>
+                <div>
+                    <div class="card" style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; line-height:2">
+                        <div style="color:var(--accent)">Z1 (stride=8 bytes, int64):</div>
+                        <div style="color:#8b949e; white-space:nowrap">╌╌╌┬─0─┬─1─┬─2─┬─3─┬─4─┬─5─┬─6─┬─7─┬─8─┬─9─┬╌╌╌
+                        </div>
+                        <div style="color:var(--green); margin-top:12px">Z2 (stride=16 bytes):</div>
+                        <div style="color:#8b949e; white-space: nowrap">╌╌╌╌╌╌╌┬─1─┬╌╌╌┬─3─┬╌╌╌┬─5─┬╌╌╌┬─7─┬╌╌╌╌╌</div>
+                    </div>
+                    <div class="callout mt">
+                        <strong>Key insight:</strong> Views adjust stride, not data. This makes slicing O(1) — constant
+                        time regardless of array size. This is fundamental to NumPy's performance model.
+                    </div>
+                    <div class="callout mt">
+                        <strong>For CuPy:</strong> Same memory model applies on the GPU. Views into GPU arrays are just
+                        as cheap — no data movement.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ═══ SLIDE 12: UNIFORM VECTORIZATION INTRO -->
+        <div class="slide">
+            <div class="section-label label-numpy">Code Vectorization</div>
+            <h2>Types of Vectorization</h2>
+            <div class="divider"></div>
+            <div class="cols cols-3">
+                <div class="card card-accent">
+                    <h3>① Uniform</h3>
+                    <p>All elements share the <strong>same computation</strong> at every time step. No special cases.
+                    </p>
+                    <p class="mt"><em>Example:</em> Game of Life, reaction-diffusion systems</p>
+                    <div style="text-align:center; font-size:2rem; margin-top:12px">⚡</div>
+                </div>
+                <div class="card card-green">
+                    <h3>② Temporal</h3>
+                    <p>Elements share the same computation but have <strong>different stopping conditions</strong>. Must
+                        track which elements are still active.</p>
+                    <p class="mt"><em>Example:</em> Mandelbrot set escape-time algorithm</p>
+                    <div style="text-align:center; font-size:2rem; margin-top:12px">⏱</div>
+                </div>
+                <div class="card card-orange">
+                    <h3>③ Spatial</h3>
+                    <p>Elements interact only with a <strong>dynamic local neighborhood</strong> that changes each step.
+                    </p>
+                    <p class="mt"><em>Example:</em> Boids (flocking), particle systems, N-body</p>
+                    <div style="text-align:center; font-size:2rem; margin-top:12px">🌐</div>
+                </div>
+            </div>
+            <div class="callout mt">
+                Understanding which type you're dealing with is critical — each requires a different vectorization
+                strategy. Multiparticle simulations are typically <strong>spatial</strong> or <strong>temporal</strong>.
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 13: GAME OF LIFE RULES -->
+        <div class="slide">
+            <div class="section-label label-numpy">Uniform Vectorization</div>
+            <h2>Game of Life — Cellular Automaton</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>Conway's Game of Life (1970) is the canonical example of uniform vectorization. A 2D grid of
+                        live/dead cells evolves by four rules:</p>
+                    <div class="card card-accent" style="margin-top:14px">
+                        <ol style="line-height:2.1">
+                            <li>Live cell with <strong>&lt; 2</strong> neighbours → <span
+                                    style="color:var(--red)">dies</span> (underpopulation)</li>
+                            <li>Live cell with <strong>&gt; 3</strong> neighbours → <span
+                                    style="color:var(--red)">dies</span> (overcrowding)</li>
+                            <li>Live cell with <strong>2 or 3</strong> neighbours → <span
+                                    style="color:var(--green)">survives</span></li>
+                            <li>Dead cell with exactly <strong>3</strong> neighbours → <span
+                                    style="color:var(--green)">becomes live</span></li>
+                        </ol>
+                    </div>
+                    <div class="callout mt">
+                        <strong>Why it's great for teaching:</strong> The rules are simple, the Python version is slow
+                        (nested loops), and the NumPy version is dramatically faster using array slicing.
+                    </div>
+                </div>
+                <div>
+                    <h3>Pure Python approach</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">iterate</span>(Z):
+  N = compute_neighbours(Z)
+  shape = len(Z), len(Z[0])
+  <span class="kw">for</span> x <span class="kw">in</span> range(1, shape[0]-1):
+    <span class="kw">for</span> y <span class="kw">in</span> range(1, shape[1]-1):
+      <span class="kw">if</span> Z[x][y]==1 <span class="kw">and</span> (
+          N[x][y]&lt;2 <span class="kw">or</span> N[x][y]&gt;3):
+        Z[x][y] = 0
+      <span class="kw">elif</span> Z[x][y]==0 <span class="kw">and</span> N[x][y]==3:
+        Z[x][y] = 1
+  <span class="kw">return</span> Z</code></pre>
+                    <div class="callout warn" style="margin-top:10px">Two nested loops — scales as O(rows × cols).
+                        Painfully slow for large grids.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 14: GAME OF LIFE NUMPY -->
+        <div class="slide">
+            <div class="section-label label-numpy">Uniform Vectorization</div>
+            <h2>Game of Life — NumPy Implementation</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Counting neighbours via slicing</h3>
+                    <pre><code><span class="cm"># Count all 8 neighbours at once</span>
+N = np.zeros(Z.shape, dtype=int)
+N[1:-1,1:-1] += (
+  Z[ :-2, :-2] + Z[ :-2,1:-1] + Z[ :-2,2:] +
+  Z[1:-1, :-2]                + Z[1:-1,2:] +
+  Z[2:  , :-2] + Z[2:  ,1:-1] + Z[2:  ,2:])
+<span class="cm"># No Python loop — pure array arithmetic!</span></code></pre>
+                    <h3 class="mt">Applying rules with boolean masks</h3>
+                    <pre><code>birth   = (N==3)[1:-1,1:-1] &amp; (Z[1:-1,1:-1]==0)
+survive = ((N==2)|(N==3))[1:-1,1:-1] \
+          &amp; (Z[1:-1,1:-1]==1)
+Z[...] = 0
+Z[1:-1,1:-1][birth | survive] = 1</code></pre>
+                </div>
+                <div>
+                    <div class="card card-green">
+                        <h3>The trick: partial views as neighbours</h3>
+                        <pre style="font-size:0.78rem"><code>          ┏━━━┳━━━┳━━━┓──┬──┐
+ Z[:-2]   ┃ 0 ┃ 1 ┃ 1 ┃  │  │ ← left neighbours
+          ┗━━━┻━━━┻━━━┛──┴──┘
+                ↓
+      ┌──┏━━━┳━━━┳━━━┓──┐
+Z[1:-1]│  ┃ 1 ┃ 1 ┃ 1 ┃  │ ← actual cells
+      └──┗━━━┻━━━┻━━━┛──┘
+                ↑
+  ┌──┬──┏━━━┳━━━┳━━━┓
+Z[2:]   │  ┃ 1 ┃ 1 ┃ 0 ┃ ← right neighbours</code></pre>
+                    </div>
+                    <div class="callout success mt">
+                        The NumPy version replaces two nested loops with <strong>8 array additions</strong> and 2
+                        boolean mask operations — all in C, all vectorized.
+                    </div>
+                    <div class="callout mt">
+                        <strong>On CuPy:</strong> Replace <code>np</code> with <code>cp</code> — runs identically on GPU
+                        with thousands of threads in parallel.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 15: MANDELBROT TEMPORAL -->
+        <div class="slide">
+            <div class="section-label label-numpy">Temporal Vectorization</div>
+            <h2>Mandelbrot Set — Temporal Vectorization</h2>
+            <div class="divider"></div>
+            <div class="cols cols-60-40">
+                <div>
+                    <p>The Mandelbrot set: iterate <em>f(z) = z² + c</em> from z=0. A point belongs to the set if it
+                        never diverges. The challenge: each point diverges at a <strong>different iteration</strong>.
+                    </p>
+                    <h3 class="mt">NumPy vectorized</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">mandelbrot_numpy</span>(xmin, xmax, ymin, ymax,
+                       xn, yn, maxiter):
+  X = np.linspace(xmin, xmax, xn, dtype=np.float32)
+  Y = np.linspace(ymin, ymax, yn, dtype=np.float32)
+  C = X + Y[:,None]*1j          <span class="cm"># complex grid</span>
+  N = np.zeros(C.shape, dtype=int)
+  Z = np.zeros(C.shape, np.complex64)
+  <span class="kw">for</span> n <span class="kw">in</span> range(maxiter):
+    I = np.less(abs(Z), 2.0)    <span class="cm"># not yet diverged</span>
+    N[I] = n
+    Z[I] = Z[I]**2 + C[I]      <span class="cm"># update only active</span>
+  N[N == maxiter-1] = 0
+  <span class="kw">return</span> Z, N</code></pre>
+                    <div class="cols cols-2" style="gap:10px; margin-top:10px">
+                        <div class="callout warn">Python: <strong>6.1 sec</strong></div>
+                        <div class="callout success">NumPy v1: <strong>1.15 sec</strong></div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Dynamic array optimisation</h3>
+                    <pre style="font-size:0.8rem"><code><span class="kw">for</span> i <span class="kw">in</span> range(itermax):
+  <span class="kw">if not</span> len(Z): <span class="kw">break</span>
+  np.multiply(Z, Z, Z)   <span class="cm"># in-place</span>
+  np.add(Z, C, Z)        <span class="cm"># in-place</span>
+  I = abs(Z) &gt; 2.0
+  N_[Xi[I], Yi[I]] = i+1
+  <span class="cm"># Shrink arrays to non-diverged</span>
+  I = ~I
+  Z = Z[I]
+  Xi, Yi = Xi[I], Yi[I]
+  C = C[I]</code></pre>
+                    <div class="callout success" style="margin-top:10px">Dynamic v2: <strong>510 ms</strong><br><em>10×
+                            faster than Python</em></div>
+                    <div class="callout mt" style="font-size:0.9rem">
+                        <strong>On GPU (CuPy):</strong> All points processed by thousands of CUDA threads simultaneously
+                        → another 10–100× speedup.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 16: BOIDS SPATIAL -->
+        <div class="slide">
+            <div class="section-label label-numpy">Spatial Vectorization</div>
+            <h2>Boids — Spatial Vectorization &amp; Flocking</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>Craig Reynolds' Boids (1986): emergent flocking from 3 simple local rules:</p>
+                    <ul style="margin:10px 0 14px 0">
+                        <li><strong>Separation:</strong> avoid crowding neighbours</li>
+                        <li><strong>Alignment:</strong> steer toward average heading</li>
+                        <li><strong>Cohesion:</strong> move toward group centre of mass</li>
+                    </ul>
+                    <h3>The problem: dynamic neighbourhoods</h3>
+                    <p>Each boid must find its local neighbours at every step. Python: 50 boids max before lag. NumPy:
+                        500+ boids smooth.</p>
+                    <pre style="font-size:0.82rem"><code><span class="cm"># NumPy: compute ALL pairwise distances at once</span>
+n = 500
+position = np.zeros((n, 2), dtype=np.float32)
+velocity = np.zeros((n, 2), dtype=np.float32)
+
+dx = np.subtract.outer(position[:,0], position[:,0])
+dy = np.subtract.outer(position[:,1], position[:,1])
+distance = np.hypot(dx, dy)  <span class="cm"># shape: (n, n)</span></code></pre>
+                </div>
+                <div>
+                    <h3>Masking neighbourhoods</h3>
+                    <pre style="font-size:0.82rem"><code><span class="cm"># Compute all neighbourhood masks together</span>
+mask_0 = (distance &gt; 0)        <span class="cm"># no self-interaction</span>
+mask_1 = (distance &lt; 25)       <span class="cm"># separation radius</span>
+mask_2 = (distance &lt; 50)       <span class="cm"># alignment/cohesion</span>
+mask_1 *= mask_0
+mask_2 *= mask_0
+
+<span class="cm"># Count neighbours (at least 1 to avoid /0)</span>
+count_1 = np.maximum(mask_1.sum(axis=1), 1)
+count_2 = np.maximum(mask_2.sum(axis=1), 1)</code></pre>
+                    <div class="callout success mt">
+                        Python naively computes 3n² distances. NumPy computes n²/2 once, reusing for all 3 rules.
+                        <strong>6× reduction</strong> in distance computations.
+                    </div>
+                    <div class="callout mt">
+                        <strong>Key for multiparticle:</strong> This exact pattern — pairwise distance matrix + mask
+                        operations — is the foundation of molecular dynamics and N-body simulations on GPU.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 17: GRAY SCOTT REACTION DIFFUSION -->
+        <div class="slide">
+            <div class="section-label label-numpy">Uniform Vectorization: Exercise</div>
+            <h2>Gray-Scott Reaction-Diffusion System</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>Two chemical species U and V react and diffuse on a 2D grid:</p>
+                    <div class="card" style="font-size:0.95rem; margin:12px 0">
+                        <div>U + 2V → 3V</div>
+                        <div class="mt" style="color: var(--accent)">∂u/∂t = Du∇²u − uv² + f(1−u)</div>
+                        <div style="color: var(--purple)">∂v/∂t = Dv∇²v + uv² − (f+k)v</div>
+                    </div>
+                    <table style="margin-top:12px; font-size:0.85rem">
+                        <tr>
+                            <th>Pattern</th>
+                            <th>Du</th>
+                            <th>Dv</th>
+                            <th>f</th>
+                            <th>k</th>
+                        </tr>
+                        <tr>
+                            <td>Bacteria</td>
+                            <td>0.16</td>
+                            <td>0.08</td>
+                            <td>0.035</td>
+                            <td>0.065</td>
+                        </tr>
+                        <tr>
+                            <td>Coral</td>
+                            <td>0.16</td>
+                            <td>0.08</td>
+                            <td>0.060</td>
+                            <td>0.062</td>
+                        </tr>
+                        <tr>
+                            <td>Spirals</td>
+                            <td>0.10</td>
+                            <td>0.10</td>
+                            <td>0.018</td>
+                            <td>0.050</td>
+                        </tr>
+                        <tr>
+                            <td>Zebrafish</td>
+                            <td>0.16</td>
+                            <td>0.08</td>
+                            <td>0.035</td>
+                            <td>0.060</td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <h3>NumPy implementation sketch</h3>
+                    <pre style="font-size:0.82rem"><code>U = np.ones((N, N))
+V = np.zeros((N, N))
+<span class="cm"># Seed some V in the middle</span>
+V[N//2-10:N//2+10, N//2-10:N//2+10] = 0.25
+
+<span class="kw">def</span> <span class="fn">laplacian</span>(Z):
+  <span class="cm"># 5-point stencil</span>
+  <span class="kw">return</span> (Z[:-2,1:-1] + Z[2:,1:-1] +
+          Z[1:-1,:-2] + Z[1:-1,2:] -
+          4*Z[1:-1,1:-1])
+
+<span class="kw">for</span> _ <span class="kw">in</span> range(steps):
+  uvv = U*V*V
+  dU = Du*laplacian(U) - uvv + f*(1-U)
+  dV = Dv*laplacian(V) + uvv - (f+k)*V
+  U += dt*dU
+  V += dt*dV</code></pre>
+                    <div class="callout success mt">
+                        Produces stunning patterns — Turing instability. <strong>Direct CuPy port</strong>: replace
+                        <code>np</code> with <code>cp</code>. GPU runs 200-step simulation in &lt;1 sec vs 30 sec on
+                        CPU.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION DIVIDER: PART 2 -->
+        <div class="slide section-slide">
+            <div class="section-num">2</div>
+            <div class="section-content">
+                <div class="section-label label-sim" style="margin: 0 auto 1em">Part 2</div>
+                <div class="slide-title">Problem<br>Vectorization</div>
+                <div class="slide-subtitle">Rethinking algorithms for arrays and GPU</div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 19: PROBLEM VECT INTRO -->
+        <div class="slide">
+            <div class="section-label label-sim">Problem Vectorization</div>
+            <h2>Beyond Code: Rethinking the Algorithm</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p><strong>Code vectorization</strong>: the algorithm is inherently vectorizable — just replace
+                        loops with NumPy calls.</p>
+                    <p class="mt"><strong>Problem vectorization</strong>: the naive algorithm cannot be vectorized. You
+                        must <em>invent a different algorithm</em> that is vectorizable from the start.</p>
+                    <div class="callout warn mt">
+                        This is much harder — it requires mathematical insight, not just NumPy knowledge.
+                    </div>
+                    <h3 class="mt">Classic example: sum of products</h3>
+                    <pre><code><span class="cm"># Compute sum of X[i]*Y[j] for all i,j</span>
+<span class="cm"># Naïve: O(n²) with double loop</span>
+<span class="kw">def</span> <span class="fn">naive</span>(X, Y):  <span class="cm"># 0.274 sec</span>
+  result = 0
+  <span class="kw">for</span> i <span class="kw">in</span> range(len(X)):
+    <span class="kw">for</span> j <span class="kw">in</span> range(len(Y)):
+      result += X[i] * Y[j]
+  <span class="kw">return</span> result</code></pre>
+                </div>
+                <div>
+                    <h3>Recognise the math identity</h3>
+                    <div class="card card-accent" style="text-align:center; padding:20px">
+                        <div style="font-size:1.1rem; color:var(--muted)">∑ᵢⱼ Xᵢ·Yⱼ = (∑ᵢ Xᵢ) × (∑ⱼ Yⱼ)</div>
+                    </div>
+                    <pre style="margin-top:14px"><code><span class="cm"># Code vect: replace loop with NumPy</span>
+<span class="kw">def</span> <span class="fn">vectorized</span>(X, Y): <span class="cm"># 0.00158 sec</span>
+  Z = X.reshape(-1,1) * Y.reshape(1,-1)
+  <span class="kw">return</span> Z.sum()          <span class="cm"># 150× faster</span>
+
+<span class="cm"># Problem vect: different math!</span>
+<span class="kw">def</span> <span class="fn">reformulated</span>(X, Y): <span class="cm"># 3.97 µsec</span>
+  <span class="kw">return</span> np.sum(X) * np.sum(Y)
+  <span class="cm"># 70,000× faster than naive!</span></code></pre>
+                    <div class="callout success mt">
+                        Code vectorization: <strong>150×</strong> speedup<br>
+                        Problem vectorization: <strong>70,000×</strong> speedup<br>
+                        <em>by writing the maths differently</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 20: PATH FINDING -->
+        <div class="slide">
+            <div class="section-label label-sim">Problem Vectorization</div>
+            <h2>Path Finding with Bellman-Ford on Arrays</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>Finding the shortest path in a maze — the Bellman-Ford diffusion method turns path-finding into a
+                        <strong>repeated array operation</strong>:
+                    </p>
+                    <pre style="font-size:0.82rem"><code><span class="cm"># G: value gradient array (0=walls, 1=exit)</span>
+G = np.zeros(Z.shape)
+G[start] = 1           <span class="cm"># seed at entrance</span>
+gamma = 0.99           <span class="cm"># discount factor</span>
+
+G_gamma = np.empty_like(G)
+<span class="kw">while</span> G[goal] == 0.0:
+  np.multiply(G, gamma, out=G_gamma)
+  N = G_gamma[0:-2,1:-1]  <span class="cm"># North</span>
+  W = G_gamma[1:-1,0:-2]  <span class="cm"># West</span>
+  C = G[1:-1,1:-1]         <span class="cm"># Center</span>
+  E = G_gamma[1:-1,2:]     <span class="cm"># East</span>
+  S = G_gamma[2:,1:-1]     <span class="cm"># South</span>
+  G[1:-1,1:-1] = Z[1:-1,1:-1] * \
+    np.maximum(N, np.maximum(W,
+      np.maximum(C, np.maximum(E, S))))</code></pre>
+                </div>
+                <div>
+                    <div class="card card-purple">
+                        <h3>Why this is problem vectorization</h3>
+                        <p>A traditional BFS uses a queue — fundamentally sequential. Bellman-Ford diffusion replaces it
+                            with a <strong>wave propagation</strong> that can be computed on the entire grid at once
+                            using array slices.</p>
+                    </div>
+                    <div class="card card-green" style="margin-top:14px">
+                        <h3>Connection to physics simulations</h3>
+                        <p>This same diffusion pattern appears in:</p>
+                        <ul>
+                            <li>Heat equation solvers</li>
+                            <li>Electrostatic potential maps</li>
+                            <li>Diffusion-limited aggregation</li>
+                            <li><strong>Particle force fields in multiparticle sims</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 21: FLUID DYNAMICS -->
+        <div class="slide">
+            <div class="section-label label-sim">Problem Vectorization</div>
+            <h2>Fluid Dynamics: Lagrangian vs Eulerian</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div class="card card-accent">
+                    <h3>Lagrangian Method</h3>
+                    <p>Follow individual fluid parcels through space and time.</p>
+                    <ul class="mt">
+                        <li>Natural for particle-based physics</li>
+                        <li>Each particle tracks its own position &amp; velocity</li>
+                        <li>Finding neighbours at each step is expensive: O(n²)</li>
+                        <li>Great for sparse systems, free surfaces</li>
+                    </ul>
+                    <div class="callout warn mt"><strong>On GPU:</strong> Requires careful spatial hashing or tree
+                        structures (e.g., k-d tree). Non-trivial to vectorize naively.</div>
+                </div>
+                <div class="card card-orange">
+                    <h3>Eulerian Method</h3>
+                    <p>Fixed grid in space; fluid properties (velocity, density) stored at each cell.</p>
+                    <ul class="mt">
+                        <li>Natural for NumPy/CuPy arrays</li>
+                        <li>Grid operations = array slicing</li>
+                        <li>Only local neighbour access (stencil)</li>
+                        <li>Jos Stam's stable fluids (1999)</li>
+                    </ul>
+                    <div class="callout success mt"><strong>On GPU:</strong> Each grid cell = one CUDA thread. Perfect
+                        for massive parallelism. 512×512 grid → 262,144 threads!</div>
+                </div>
+            </div>
+            <div class="callout mt">
+                <strong>Hybrid approaches</strong> (particle-in-cell, SPH) combine both. For this lecture we focus on
+                the Eulerian approach as it maps most cleanly to CuPy array operations.
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 22: BLUE NOISE / SAMPLING -->
+        <div class="slide">
+            <div class="section-label label-sim">Problem Vectorization</div>
+            <h2>Blue Noise Sampling: When to Change the Algorithm</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>DART method — hard to vectorize</h3>
+                    <pre style="font-size:0.82rem"><code><span class="kw">def</span> <span class="fn">DART_sampling</span>(r=0.025, k=100):
+  points = []
+  <span class="kw">while True</span>:
+    x = random.uniform(0, 1)
+    y = random.uniform(0, 1)
+    accept = <span class="kw">True</span>
+    <span class="kw">for</span> p <span class="kw">in</span> points:   <span class="cm"># sequential!</span>
+      <span class="kw">if</span> distance(p,(x,y)) &lt; r:
+        accept = <span class="kw">False</span>; <span class="kw">break</span>
+    <span class="kw">if</span> accept:
+      points.append((x,y))
+      <span class="kw">if</span> i-last_success &gt; k: <span class="kw">break</span></code></pre>
+                    <div class="callout warn mt">Sequential dependency: each new point depends on all previous accepted
+                        points. Hard to parallelize!</div>
+                </div>
+                <div>
+                    <h3>Bridson method — vectorizable!</h3>
+                    <div class="card card-green">
+                        <p><strong>Key insight:</strong> Use a background grid of size r/√n. Each cell holds at most one
+                            sample. Checking a new candidate only requires looking at nearby grid cells — O(1) per
+                            candidate instead of O(n).</p>
+                        <ul class="mt">
+                            <li>Initialize grid + active list</li>
+                            <li>For each active point: generate k candidates in annulus [r, 2r]</li>
+                            <li>Check only neighboring cells (constant time)</li>
+                            <li>Accept or remove from active list</li>
+                        </ul>
+                    </div>
+                    <div class="callout success mt">Better quality, faster, and batches of candidates can be evaluated
+                        in parallel on GPU.</div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ═══════════════════════ SECTION DIVIDER: PART 3 -->
+        <div class="slide section-slide">
+            <div class="section-num">3</div>
+            <div class="section-content">
+                <div class="section-label label-cupy" style="margin: 0 auto 1em">Part 3</div>
+                <div class="slide-title">CuPy &amp; GPU<br>Computing</div>
+                <div class="slide-subtitle">NumPy, but on the GPU — with thousands of cores</div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 24: GPU ARCHITECTURE -->
+        <div class="slide">
+            <div class="section-label label-cupy">GPU Architecture</div>
+            <h2>CPU vs GPU: A Tale of Two Architectures</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div class="card card-accent">
+                    <h3>CPU — few fast cores</h3>
+                    <ul>
+                        <li>4–64 cores, very complex</li>
+                        <li>Deep branch prediction, large caches</li>
+                        <li>Optimized for <strong>serial, latency-sensitive</strong> work</li>
+                        <li>Fast single-thread performance</li>
+                        <li>Clock: 3–5 GHz</li>
+                    </ul>
+                    <div style="text-align:center; margin-top:14px; font-size:0.85rem; color:var(--muted)">Best for: OS,
+                        databases, logic-heavy tasks</div>
+                </div>
+                <div class="card card-purple">
+                    <h3>GPU — thousands of simple cores</h3>
+                    <ul>
+                        <li>1,000–18,000+ CUDA cores</li>
+                        <li>Simple ALUs, large register files</li>
+                        <li>Optimized for <strong>throughput, data parallelism</strong></li>
+                        <li>High memory bandwidth (1–3 TB/s)</li>
+                        <li>Runs thousands of threads simultaneously</li>
+                    </ul>
+                    <div style="text-align:center; margin-top:14px; font-size:0.85rem; color:var(--muted)">Best for:
+                        arrays, simulations, ML, signal processing</div>
+                </div>
+            </div>
+            <div class="stat-grid mt">
+                <div class="stat-box">
+                    <div class="stat-num" style="color:var(--accent)">10,496</div>
+                    <div class="stat-label">CUDA cores (RTX 3090)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" style="color:var(--green)">936 GB/s</div>
+                    <div class="stat-label">Memory bandwidth</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" style="color:var(--purple)">35.6 TFLOPS</div>
+                    <div class="stat-label">FP32 compute (RTX 3090)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 25: CUDA CONCEPTS -->
+        <div class="slide">
+            <div class="section-label label-cupy">GPU Architecture</div>
+            <h2>CUDA Execution Model</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Thread hierarchy</h3>
+                    <div class="card"
+                        style="font-family:'JetBrains Mono',monospace; font-size:0.88rem; line-height:2.2">
+                        <div style="color:var(--accent)">Grid (entire kernel launch)</div>
+                        <div style="color:var(--green); padding-left:1.5em">└── Block (cooperative thread group)</div>
+                        <div style="color:var(--orange); padding-left:3em">└── Thread (one computation unit)</div>
+                    </div>
+                    <ul class="mt">
+                        <li>A <strong>kernel</strong> is a function that runs on the GPU</li>
+                        <li>Launched with <code>N</code> threads in <code>B</code> blocks</li>
+                        <li>Each thread computes its index and processes one (or a few) array elements</li>
+                        <li>Threads in the same block share <strong>fast shared memory</strong></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Memory hierarchy</h3>
+                    <div class="timeline">
+                        <div class="tl-item">
+                            <div class="tl-time">Fastest (~1 cycle)</div>
+                            <strong>Registers</strong> — per thread, very limited
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Fast (~5 cycles)</div>
+                            <strong>Shared memory</strong> — per block, ~48 KB
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Medium (~100 cycles)</div>
+                            <strong>L2 cache</strong> — shared across all SM
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Slow (~500 cycles)</div>
+                            <strong>Global memory (VRAM)</strong> — 8–80 GB, the main GPU RAM
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Very slow (PCIe)</div>
+                            <strong>Host memory (RAM)</strong> — requires explicit transfer
+                        </div>
+                    </div>
+                    <div class="callout warn mt">Data transfer between CPU RAM and GPU VRAM is often the <strong>biggest
+                            bottleneck</strong>. Minimize it!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 26: WHAT IS CUPY -->
+        <div class="slide">
+            <div class="section-label label-cupy">CuPy</div>
+            <h2>CuPy: NumPy for NVIDIA GPUs</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>CuPy provides a NumPy-compatible API that executes on NVIDIA GPUs via CUDA. Almost every
+                        <code>np.*</code> call has a <code>cp.*</code> equivalent.
+                    </p>
+                    <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+<span class="cm"># NumPy on CPU</span>
+x_cpu = np.random.randn(1_000_000)
+y_cpu = np.sin(x_cpu) + np.cos(x_cpu)
+
+<span class="cm"># CuPy on GPU — identical syntax!</span>
+x_gpu = cp.random.randn(1_000_000)
+y_gpu = cp.sin(x_gpu) + cp.cos(x_gpu)
+
+<span class="cm"># Move data between CPU ↔ GPU</span>
+x_gpu = cp.asarray(x_cpu)      <span class="cm"># CPU → GPU</span>
+result = cp.asnumpy(y_gpu)     <span class="cm"># GPU → CPU</span></code></pre>
+                </div>
+                <div>
+                    <h3>Key features</h3>
+                    <div class="card card-green" style="margin-bottom:12px">
+                        <strong>✓ Drop-in NumPy replacement</strong><br>
+                        <span style="color:var(--muted)">Replace <code>import numpy as np</code> with
+                            <code>import cupy as cp</code></span>
+                    </div>
+                    <div class="card" style="margin-bottom:12px">
+                        <strong>✓ Custom CUDA kernels</strong><br>
+                        <span style="color:var(--muted)">Write raw CUDA C++ from Python via
+                            <code>cp.RawKernel</code></span>
+                    </div>
+                    <div class="card" style="margin-bottom:12px">
+                        <strong>✓ JIT-compiled elementwise ops</strong><br>
+                        <span style="color:var(--muted)"><code>cp.ElementwiseKernel</code> for fused operations</span>
+                    </div>
+                    <div class="card">
+                        <strong>✓ cuBLAS, cuFFT, cuSPARSE</strong><br>
+                        <span style="color:var(--muted)">Wraps NVIDIA's own optimized libraries</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 27: CUPY ARRAYS -->
+        <div class="slide">
+            <div class="section-label label-cupy">CuPy</div>
+            <h2>CuPy Arrays: Creation &amp; Transfer</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Creating GPU arrays</h3>
+                    <pre><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+<span class="cm"># Direct creation on GPU (no CPU round-trip)</span>
+a = cp.zeros((1000, 1000), dtype=cp.float32)
+b = cp.ones(1000000)
+c = cp.arange(100)
+d = cp.random.randn(500, 500)
+e = cp.linspace(0, 2*cp.pi, 1000)
+
+<span class="cm"># From NumPy array (CPU → GPU transfer)</span>
+np_arr = np.array([1.0, 2.0, 3.0])
+gpu_arr = cp.asarray(np_arr)
+
+<span class="cm"># Back to NumPy (GPU → CPU transfer)</span>
+result = cp.asnumpy(gpu_arr)
+result = gpu_arr.get()   <span class="cm"># equivalent</span></code></pre>
+                </div>
+                <div>
+                    <h3>Array operations</h3>
+                    <pre><code><span class="cm"># All NumPy operations work on GPU</span>
+x = cp.random.randn(1000000, dtype=cp.float32)
+y = cp.random.randn(1000000, dtype=cp.float32)
+
+<span class="cm"># Arithmetic</span>
+z = 2*x + 3*y              <span class="cm"># vectorized</span>
+w = cp.sqrt(cp.abs(x))
+
+<span class="cm"># Reductions</span>
+s = cp.sum(x)
+m = cp.mean(y)
+mx = cp.max(x)
+
+<span class="cm"># Reshaping &amp; indexing</span>
+M = x.reshape(1000, 1000)
+sub = M[100:200, 100:200]   <span class="cm"># view!</span>
+M[M &lt; 0] = 0               <span class="cm"># boolean mask</span></code></pre>
+                    <div class="callout success mt">All operations launch CUDA kernels automatically. No explicit thread
+                        management needed.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 28: PORTING NUMPY TO CUPY -->
+        <div class="slide">
+            <div class="section-label label-cupy">CuPy</div>
+            <h2>Porting NumPy Code to CuPy — It's Really That Simple</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Before: NumPy (CPU)</h3>
+                    <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">mandelbrot_cpu</span>(xmin, xmax, ymin, ymax,
+                    xn, yn, maxiter):
+  X = np.linspace(xmin, xmax, xn,
+                  dtype=np.float32)
+  Y = np.linspace(ymin, ymax, yn,
+                  dtype=np.float32)
+  C = X + Y[:,None]*1j
+  N = np.zeros(C.shape, dtype=int)
+  Z = np.zeros(C.shape, np.complex64)
+  <span class="kw">for</span> n <span class="kw">in</span> range(maxiter):
+    I = np.less(abs(Z), 2.0)
+    N[I] = n
+    Z[I] = Z[I]**2 + C[I]
+  <span class="kw">return</span> N</code></pre>
+                </div>
+                <div>
+                    <h3>After: CuPy (GPU)</h3>
+                    <pre><code><span class="kw">import</span> cupy <span class="kw">as</span> cp   <span class="cm"># ← only change!</span>
+
+<span class="kw">def</span> <span class="fn">mandelbrot_gpu</span>(xmin, xmax, ymin, ymax,
+                    xn, yn, maxiter):
+  X = cp.linspace(xmin, xmax, xn,
+                  dtype=cp.float32)
+  Y = cp.linspace(ymin, ymax, yn,
+                  dtype=cp.float32)
+  C = X + Y[:,None]*1j
+  N = cp.zeros(C.shape, dtype=int)
+  Z = cp.zeros(C.shape, cp.complex64)
+  <span class="kw">for</span> n <span class="kw">in</span> range(maxiter):
+    I = cp.less(abs(Z), 2.0)
+    N[I] = n
+    Z[I] = Z[I]**2 + C[I]
+  <span class="kw">return</span> cp.asnumpy(N)</code></pre>
+                    <div class="callout success mt">
+                        <strong>Only change:</strong> <code>import numpy as np</code> →
+                        <code>import cupy as cp</code><br>
+                        Typical speedup: <strong>10–100×</strong> depending on GPU and array size.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 29: CUPY PERFORMANCE -->
+        <div class="slide">
+            <div class="section-label label-cupy">CuPy Performance</div>
+            <h2>When Does CuPy Win? (and When It Doesn't)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>CuPy wins when…</h3>
+                    <div class="card card-green">
+                        <ul>
+                            <li><strong>Large arrays</strong> — enough data to saturate thousands of GPU threads</li>
+                            <li><strong>Compute-bound operations</strong> — matrix multiply, FFT, convolution</li>
+                            <li><strong>Repeated operations on same GPU data</strong> — amortize transfer cost</li>
+                            <li><strong>Embarrassingly parallel</strong> — no data dependencies between elements</li>
+                        </ul>
+                    </div>
+                    <h3 class="mt">CuPy may NOT win when…</h3>
+                    <div class="card card-red">
+                        <ul>
+                            <li>Small arrays (&lt; ~10K elements) — GPU overhead dominates</li>
+                            <li>Sequential algorithms with data dependencies</li>
+                            <li>Memory-bound ops with constant CPU↔GPU transfers</li>
+                            <li>Scalar/control-flow dominated code</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <h3>Benchmarks — array addition (N elements)</h3>
+                    <div style="margin-top:12px">
+                        <div style="color:var(--muted);font-size:0.85rem; margin-bottom:6px">N = 1,000 (small)</div>
+                        <div class="perf-row">
+                            <div class="perf-label">NumPy</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:14%; background:var(--green)">8 µs</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">CuPy</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:100%; background:var(--red)">60 µs</div>
+                            </div>
+                        </div>
+                        <div style="color:var(--muted);font-size:0.85rem; margin:12px 0 6px">N = 10,000,000 (large)
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">NumPy</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:100%; background:var(--red)">45 ms</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">CuPy</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:8%; background:var(--green)">3.5 ms</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout mt">
+                        <strong>Rule of thumb:</strong> GPU wins when total computation time per element &gt;&gt;
+                        transfer overhead per element. Switch over typically at ~100K elements.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 30: ELEMENTWISE KERNELS -->
+        <div class="slide">
+            <div class="section-label label-cupy">Custom Kernels</div>
+            <h2>CuPy ElementwiseKernel: Fused GPU Operations</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>By default, <code>cp.sin(x) + cp.cos(x)</code> launches <strong>two separate kernels</strong> and
+                        allocates a temporary array. We can fuse them:</p>
+                    <pre><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+<span class="cm"># Define a fused kernel (compiled JIT)</span>
+sincos_add = cp.ElementwiseKernel(
+  <span class="cm"># input types and names</span>
+  <span class="st">'float32 x'</span>,
+  <span class="cm"># output types and names</span>
+  <span class="st">'float32 z'</span>,
+  <span class="cm"># CUDA C++ expression</span>
+  <span class="st">'z = sinf(x) + cosf(x)'</span>,
+  <span class="cm"># kernel name</span>
+  <span class="st">'sincos_add'</span>
+)
+
+x = cp.random.randn(1_000_000, dtype=cp.float32)
+z = sincos_add(x)  <span class="cm"># single kernel, no temp!</span></code></pre>
+                </div>
+                <div>
+                    <h3>Two-input example: Lennard-Jones force</h3>
+                    <pre><code><span class="cm"># Lennard-Jones potential energy</span>
+lj_energy = cp.ElementwiseKernel(
+  <span class="st">'float32 r, float32 eps, float32 sigma'</span>,
+  <span class="st">'float32 E'</span>,
+  <span class="st">'''
+  float sr6 = powf(sigma/r, 6.0f);
+  E = 4.0f * eps * (sr6*sr6 - sr6);
+  '''</span>,
+  <span class="st">'lennard_jones'</span>
+)
+
+r   = cp.random.uniform(0.9, 3.0, 100000,
+                         dtype=cp.float32)
+eps   = cp.float32(1.0)
+sigma = cp.float32(1.0)
+E = lj_energy(r, eps, sigma)</code></pre>
+                    <div class="callout success mt">
+                        Single GPU kernel launch = no temporaries, optimal memory access. <strong>Critical for
+                            multiparticle simulations!</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 31: RAW CUDA KERNELS -->
+        <div class="slide">
+            <div class="section-label label-cupy">Custom Kernels</div>
+            <h2>RawKernel: Writing Real CUDA C++ from Python</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <pre><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+<span class="cm"># Raw CUDA kernel as a Python string</span>
+kernel_code = <span class="st">r'''
+extern "C" __global__
+void update_positions(
+    float* px, float* py,
+    float* vx, float* vy,
+    float dt, int N)
+{
+  int i = blockIdx.x * blockDim.x
+         + threadIdx.x;
+  if (i &lt; N) {
+    px[i] += vx[i] * dt;
+    py[i] += vy[i] * dt;
+  }
+}
+'''</span>
+
+kernel = cp.RawKernel(kernel_code,
+                      <span class="st">'update_positions'</span>)
+
+N = 1000000
+threads = 256
+blocks = (N + threads - 1) // threads
+kernel((blocks,), (threads,),
+       (px, py, vx, vy, dt, N))</code></pre>
+                </div>
+                <div>
+                    <div class="card card-purple">
+                        <h3>When to use RawKernel</h3>
+                        <ul>
+                            <li>Operations not expressible as elementwise</li>
+                            <li>Need <strong>shared memory</strong> for tile-based algorithms</li>
+                            <li>Complex control flow within threads</li>
+                            <li>Atomic operations (e.g., histogram)</li>
+                            <li>Warp-level primitives</li>
+                        </ul>
+                    </div>
+                    <div class="card card-accent" style="margin-top:14px">
+                        <h3>The thread index pattern</h3>
+                        <pre style="margin-top:8px; font-size:0.82rem"><code><span class="cm">// Every CUDA kernel starts with:</span>
+int i = blockIdx.x * blockDim.x
+       + threadIdx.x;
+if (i &lt; N) {
+  <span class="cm">// safe to process element i</span>
+}</code></pre>
+                        <p style="margin-top:8px; font-size:0.9rem">This maps one thread → one array element. The
+                            fundamental pattern.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 32: MULTIPARTICLE ON GPU -->
+        <div class="slide">
+            <div class="section-label label-cupy">Multiparticle Simulation</div>
+            <h2>N-Body / Multiparticle Simulation on GPU</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>CuPy implementation</h3>
+                    <pre style="font-size:0.82rem"><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+N = 10000  <span class="cm"># number of particles</span>
+
+<span class="cm"># All particle data lives on GPU</span>
+pos = cp.random.randn(N, 2, dtype=cp.float32)
+vel = cp.zeros((N, 2), dtype=cp.float32)
+mass = cp.ones(N, dtype=cp.float32)
+
+<span class="kw">def</span> <span class="fn">compute_forces</span>(pos, mass, G=1.0, eps=0.01):
+  <span class="cm"># Pairwise displacement vectors (N×N×2)</span>
+  dx = pos[:,0:1] - pos[:,0]   <span class="cm"># broadcast</span>
+  dy = pos[:,1:2] - pos[:,1]
+  r2 = dx**2 + dy**2 + eps**2  <span class="cm"># softening</span>
+  r3 = r2**1.5
+  Fx = -G * (mass * dx / r3).sum(axis=1)
+  Fy = -G * (mass * dy / r3).sum(axis=1)
+  <span class="kw">return</span> cp.stack([Fx, Fy], axis=1)
+
+<span class="kw">def</span> <span class="fn">step</span>(pos, vel, mass, dt=0.01):
+  F = compute_forces(pos, mass)
+  vel += F * dt
+  pos += vel * dt
+  <span class="kw">return</span> pos, vel</code></pre>
+                </div>
+                <div>
+                    <div class="card card-green">
+                        <h3>Performance</h3>
+                        <p>For N=10,000 particles, the pairwise computation involves <strong>100 million
+                                interactions</strong> per timestep.</p>
+                        <div style="margin-top:10px">
+                            <div class="perf-row">
+                                <div class="perf-label">Python loop</div>
+                                <div class="perf-bar-bg">
+                                    <div class="perf-bar" style="width:100%; background:var(--red)">~200 sec</div>
+                                </div>
+                            </div>
+                            <div class="perf-row">
+                                <div class="perf-label">NumPy</div>
+                                <div class="perf-bar-bg">
+                                    <div class="perf-bar" style="width:40%; background:var(--orange)">~8 sec</div>
+                                </div>
+                            </div>
+                            <div class="perf-row">
+                                <div class="perf-label">CuPy (RTX)</div>
+                                <div class="perf-bar-bg">
+                                    <div class="perf-bar" style="width:5%; background:var(--green)">~0.4 sec</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout warn mt">
+                        <strong>Memory:</strong> N×N pairwise matrix for N=10K is 400 MB of float32. GPU VRAM is the
+                        limiting factor. For very large N, use <strong>tile-based</strong> or <strong>tree
+                            methods</strong> (Barnes-Hut).
+                    </div>
+                    <div class="callout mt">
+                        The <code>eps</code> (softening length) prevents numerical singularity when two particles are
+                        very close — standard in N-body codes.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 33: VAN DER WAALS GAS -->
+        <div class="slide">
+            <div class="section-label label-cupy">Case Study</div>
+            <h2>Van der Waals Gas Simulation on GPU</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Lennard-Jones potential</h3>
+                    <div class="card" style="text-align:center; padding:16px">
+                        <div style="color:var(--accent); font-size:1.05rem">V(r) = 4ε [ (σ/r)¹² − (σ/r)⁶ ]</div>
+                        <div style="color:var(--muted); font-size:0.85rem; margin-top:8px">ε = well depth, σ = collision
+                            diameter</div>
+                    </div>
+                    <pre style="margin-top:14px; font-size:0.82rem"><code><span class="kw">def</span> <span class="fn">lj_force</span>(pos, eps=1.0, sigma=1.0):
+  <span class="cm"># pairwise displacement</span>
+  r_vec = pos[:,None,:] - pos[None,:,:]
+  r2 = (r_vec**2).sum(axis=-1) + 1e-10
+  sr2 = (sigma**2) / r2
+  sr6 = sr2**3
+  sr12 = sr6**2
+  <span class="cm"># Force magnitude × direction</span>
+  F_mag = 24*eps*(2*sr12 - sr6) / r2
+  F = (F_mag[:,:,None] * r_vec).sum(axis=1)
+  <span class="kw">return</span> F   <span class="cm"># shape: (N, 3)</span>
+
+<span class="cm"># Velocity Verlet integrator</span>
+<span class="kw">def</span> <span class="fn">verlet_step</span>(pos, vel, dt):
+  F = lj_force(pos)
+  vel += 0.5 * F * dt
+  pos += vel * dt
+  F = lj_force(pos)
+  vel += 0.5 * F * dt
+  <span class="kw">return</span> pos, vel</code></pre>
+                </div>
+                <div>
+                    <h3>Simulation parameters</h3>
+                    <table>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Typical value</th>
+                        </tr>
+                        <tr>
+                            <td>Particles N</td>
+                            <td>100 – 10,000</td>
+                        </tr>
+                        <tr>
+                            <td>Time step dt</td>
+                            <td>0.001 – 0.01</td>
+                        </tr>
+                        <tr>
+                            <td>Cutoff radius r_c</td>
+                            <td>2.5 σ</td>
+                        </tr>
+                        <tr>
+                            <td>Temperature T</td>
+                            <td>kT/ε = 0.5 – 2.0</td>
+                        </tr>
+                        <tr>
+                            <td>Number density ρ</td>
+                            <td>0.3 – 0.9 σ⁻³</td>
+                        </tr>
+                    </table>
+                    <div class="card card-accent" style="margin-top:14px">
+                        <h3>Observable quantities</h3>
+                        <ul>
+                            <li><strong>Kinetic energy:</strong> KE = ½ Σ mᵢvᵢ²</li>
+                            <li><strong>Temperature:</strong> T = 2·KE / (3Nk_B)</li>
+                            <li><strong>Pressure:</strong> virial theorem</li>
+                            <li><strong>Radial distribution g(r)</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 34: CUPY MEMORY MANAGEMENT -->
+        <div class="slide">
+            <div class="section-label label-cupy">CuPy Best Practices</div>
+            <h2>Memory Management &amp; Synchronization</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Memory pool (avoid allocation overhead)</h3>
+                    <pre><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+<span class="cm"># CuPy uses a memory pool by default</span>
+<span class="cm"># Reuses previously freed GPU memory</span>
+mempool = cp.get_default_memory_pool()
+pinpool = cp.get_default_pinned_memory_pool()
+
+<span class="cm"># After heavy computation, check usage</span>
+print(mempool.used_bytes())    <span class="cm"># bytes in use</span>
+print(mempool.total_bytes())   <span class="cm"># total reserved</span>
+
+<span class="cm"># Free all cached blocks</span>
+mempool.free_all_blocks()
+
+<span class="cm"># Pre-allocate to avoid fragmentation</span>
+with cp.cuda.Device(0):
+  cp.cuda.set_allocator(
+    cp.cuda.MemoryPool().malloc)</code></pre>
+                </div>
+                <div>
+                    <h3>Asynchronous execution</h3>
+                    <pre><code><span class="cm"># GPU ops are asynchronous by default!</span>
+x = cp.random.randn(1_000_000)
+<span class="cm"># This returns immediately (kernel queued)</span>
+y = cp.sin(x)
+
+<span class="cm"># Force synchronization (wait for GPU)</span>
+cp.cuda.Stream.null.synchronize()
+
+<span class="cm"># Or use events for timing</span>
+start = cp.cuda.Event()
+end = cp.cuda.Event()
+start.record()
+y = cp.fft.fft(x)
+end.record()
+end.synchronize()
+elapsed = cp.cuda.get_elapsed_time(
+              start, end)  <span class="cm"># milliseconds</span></code></pre>
+                    <div class="callout warn mt">
+                        Always synchronize before measuring time! Otherwise you measure kernel <em>launch time</em>, not
+                        execution time. This is a common benchmarking mistake.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 35: PINNED MEMORY -->
+        <div class="slide">
+            <div class="section-label label-cupy">CuPy Best Practices</div>
+            <h2>Pinned Memory: Faster CPU↔GPU Transfers</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>Regular NumPy arrays live in <strong>pageable memory</strong>. CUDA must first copy to a staging
+                        buffer before DMA transfer. <strong>Pinned (page-locked) memory</strong> allows direct DMA —
+                        ~2–3× faster transfers.</p>
+                    <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+<span class="cm"># Allocate pinned memory on the CPU</span>
+pinned = cp.cuda.alloc_pinned_memory(
+    1000000 * 4)      <span class="cm"># 4 bytes per float32</span>
+
+<span class="cm"># Wrap as NumPy array view</span>
+cpu_arr = np.frombuffer(pinned,
+              dtype=np.float32)
+cpu_arr[:] = np.random.randn(1000000)
+
+<span class="cm"># Fast transfer (async possible)</span>
+gpu_arr = cp.asarray(cpu_arr)</code></pre>
+                </div>
+                <div>
+                    <h3>Overlap compute and transfer</h3>
+                    <pre><code><span class="cm"># Use multiple CUDA streams to overlap</span>
+stream1 = cp.cuda.Stream()
+stream2 = cp.cuda.Stream()
+
+with stream1:
+  <span class="cm"># Transfer batch 1 to GPU</span>
+  gpu_1 = cp.asarray(batch_1)
+
+with stream2:
+  <span class="cm"># Process batch 0 while transferring 1</span>
+  result_0 = process(gpu_0)
+
+<span class="cm"># Synchronize both streams</span>
+stream1.synchronize()
+stream2.synchronize()</code></pre>
+                    <div class="callout success mt">
+                        Pipeline: transfer batch N+1 while computing batch N. Hides ~50% of PCIe latency.
+                    </div>
+                    <div class="callout warn mt">
+                        Pinned memory is a <strong>limited resource</strong>. Over-allocation can degrade system
+                        performance and cause OOM errors.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 36: CUPY vs ALTERNATIVES -->
+        <div class="slide">
+            <div class="section-label label-cupy">GPU Ecosystem</div>
+            <h2>CuPy vs Other GPU Python Options</h2>
+            <div class="divider"></div>
+            <table>
+                <tr>
+                    <th>Library</th>
+                    <th>Approach</th>
+                    <th>Best for</th>
+                    <th>GPU Model</th>
+                </tr>
+                <tr>
+                    <td><strong style="color:var(--purple)">CuPy</strong></td>
+                    <td>NumPy-compatible API</td>
+                    <td>Drop-in NumPy replacement, scientific computing</td>
+                    <td>CUDA (NVIDIA)</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:var(--accent)">Numba</strong></td>
+                    <td>JIT decorator <code>@cuda.jit</code></td>
+                    <td>Custom loops, existing Python code</td>
+                    <td>CUDA, ROCm</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:var(--green)">PyTorch</strong></td>
+                    <td>Tensor library + autograd</td>
+                    <td>ML, but also general GPU arrays</td>
+                    <td>CUDA, MPS, ROCm</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:var(--orange)">PyCUDA</strong></td>
+                    <td>Python wrapper for CUDA</td>
+                    <td>Low-level GPU coding, custom kernels</td>
+                    <td>CUDA only</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:var(--yellow)">JAX</strong></td>
+                    <td>NumPy + JIT + grad</td>
+                    <td>ML research, functional programming style</td>
+                    <td>CUDA, TPU</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:var(--red)">PyOpenCL</strong></td>
+                    <td>OpenCL from Python</td>
+                    <td>Cross-vendor GPU support</td>
+                    <td>Any OpenCL device</td>
+                </tr>
+            </table>
+            <div class="callout mt">
+                <strong>For scientific computing &amp; physics simulations:</strong> CuPy is usually the easiest
+                starting point. Numba is great when you need custom loops. PyTorch's <code>torch</code> tensors are an
+                option for code already using PyTorch.
+            </div>
+        </div>
+
+
+        <!-- ═══════════════════════ SECTION DIVIDER: PART 4 -->
+        <div class="slide section-slide">
+            <div class="section-num">4</div>
+            <div class="section-content">
+                <div class="section-label label-adv" style="margin: 0 auto 1em">Part 4</div>
+                <div class="slide-title">Advanced Topics<br>&amp; Ecosystem</div>
+                <div class="slide-subtitle">Numba, profiling, best practices, and the bigger picture</div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 38: NUMBA -->
+        <div class="slide">
+            <div class="section-label label-adv">Advanced: Numba</div>
+            <h2>Numba: JIT Compilation for Python Loops</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>Numba compiles Python functions to machine code using LLVM. The <code>@jit</code> decorator turns
+                        a normal Python function into a fast native one — <em>without changing the syntax</em>.</p>
+                    <pre><code><span class="kw">from</span> numba <span class="kw">import</span> jit
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># CPU JIT — compiles on first call</span>
+@jit(nopython=True)
+<span class="kw">def</span> <span class="fn">lj_potential_cpu</span>(positions, eps, sigma):
+  N = len(positions)
+  E = 0.0
+  <span class="kw">for</span> i <span class="kw">in</span> range(N):
+    <span class="kw">for</span> j <span class="kw">in</span> range(i+1, N):
+      dx = positions[i,0]-positions[j,0]
+      dy = positions[i,1]-positions[j,1]
+      r = (dx*dx + dy*dy)**0.5
+      sr6 = (sigma/r)**6
+      E += 4*eps*(sr6**2 - sr6)
+  <span class="kw">return</span> E</code></pre>
+                </div>
+                <div>
+                    <h3>Numba CUDA — GPU kernels in Python</h3>
+                    <pre><code><span class="kw">from</span> numba <span class="kw">import</span> cuda
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+@cuda.jit
+<span class="kw">def</span> <span class="fn">add_kernel</span>(a, b, c):
+  i = cuda.grid(1)   <span class="cm"># thread index</span>
+  <span class="kw">if</span> i &lt; a.shape[0]:
+    c[i] = a[i] + b[i]
+
+<span class="cm"># Launch on GPU</span>
+N = 1_000_000
+threads_per_block = 256
+blocks = (N + threads_per_block - 1) \
+         // threads_per_block
+
+add_kernel[blocks, threads_per_block](
+    a_gpu, b_gpu, c_gpu)</code></pre>
+                    <div class="callout success mt">Numba GPU kernels look like Python but run on the GPU. <strong>No
+                            separate CUDA C++ file required.</strong></div>
+                    <div class="callout mt">Numba works on both NVIDIA (CUDA) and AMD (ROCm) GPUs — more portable than
+                        CuPy.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 39: CYTHON -->
+        <div class="slide">
+            <div class="section-label label-adv">Advanced: Cython</div>
+            <h2>Cython: Writing C Extensions in Python-Like Syntax</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Standard Python</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">evaluate</span>(a, b):
+  c = np.zeros_like(a)
+  <span class="kw">for</span> i <span class="kw">in</span> range(a.size):
+    c[i] = 2*a[i] + 3*b[i]
+  <span class="kw">return</span> c</code></pre>
+                    <div class="callout warn mt">Slow! The loop + Python indexing costs dominate.</div>
+                    <h3 class="mt">Cython (.pyx file)</h3>
+                    <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">cimport</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">evaluate</span>(np.ndarray a, np.ndarray b):
+  cdef int i
+  cdef np.ndarray c = np.zeros_like(a)
+  <span class="kw">for</span> i <span class="kw">in</span> range(a.size):
+    c[i] = 2*a[i] + 3*b[i]
+  <span class="kw">return</span> c</code></pre>
+                    <div class="callout success mt">Compiled to C. Loop runs at near-C speed.</div>
+                </div>
+                <div>
+                    <h3>When to use Cython</h3>
+                    <div class="card card-orange">
+                        <ul>
+                            <li>Performance-critical inner loops that can't be vectorized</li>
+                            <li>Wrapping existing C/C++ libraries</li>
+                            <li>Complex data structures (trees, graphs) in tight loops</li>
+                            <li>When you need more control than Numba gives you</li>
+                        </ul>
+                    </div>
+                    <h3 class="mt">Comparison</h3>
+                    <table style="font-size:0.85rem; margin-top:8px">
+                        <tr>
+                            <th>Tool</th>
+                            <th>Ease</th>
+                            <th>Speed</th>
+                            <th>Flexibility</th>
+                        </tr>
+                        <tr>
+                            <td>NumPy</td>
+                            <td>★★★★★</td>
+                            <td>★★★★</td>
+                            <td>★★★</td>
+                        </tr>
+                        <tr>
+                            <td>Numba</td>
+                            <td>★★★★</td>
+                            <td>★★★★</td>
+                            <td>★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>Cython</td>
+                            <td>★★★</td>
+                            <td>★★★★★</td>
+                            <td>★★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>CuPy</td>
+                            <td>★★★★</td>
+                            <td>★★★★★</td>
+                            <td>★★★★</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 40: PROFILING -->
+        <div class="slide">
+            <div class="section-label label-adv">Profiling</div>
+            <h2>Profiling: Find the Bottleneck Before Optimizing</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>CPU profiling</h3>
+                    <pre><code><span class="cm"># Line profiler (install: pip install line-profiler)</span>
+<span class="kw">from</span> line_profiler <span class="kw">import</span> LineProfiler
+lp = LineProfiler()
+lp_wrap = lp(my_function)
+lp_wrap(args)
+lp.print_stats()
+
+<span class="cm"># IPython/Jupyter magic</span>
+%timeit my_function(args)
+%prun my_function(args)   <span class="cm"># cProfile</span>
+%lprun -f my_function my_function(args)</span>
+
+<span class="cm"># Built-in cProfile</span>
+<span class="kw">import</span> cProfile
+cProfile.run(<span class="st">'my_function(args)'</span>,
+             sort=<span class="st">'cumulative'</span>)</code></pre>
+                </div>
+                <div>
+                    <h3>GPU profiling</h3>
+                    <pre><code><span class="cm"># CuPy event-based timing</span>
+start = cp.cuda.Event()
+end = cp.cuda.Event()
+start.record()
+result = my_gpu_function(data)
+end.record()
+end.synchronize()
+ms = cp.cuda.get_elapsed_time(start, end)
+print(f"GPU time: {ms:.3f} ms")
+
+<span class="cm"># NVIDIA Nsight Systems / Nsight Compute</span>
+<span class="cm"># Most powerful GPU profiler — shows:</span>
+<span class="cm"># kernel timeline, memory transfers,</span>
+<span class="cm"># occupancy, memory bandwidth utilization</span></code></pre>
+                    <div class="callout warn mt">
+                        <strong>Premature optimization is the root of all evil.</strong> Profile first. Optimize only
+                        the 5% of code that takes 95% of the time.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 41: BEST PRACTICES CHECKLIST -->
+        <div class="slide">
+            <div class="section-label label-adv">Best Practices</div>
+            <h2>GPU Simulation Best Practices Checklist</h2>
+            <div class="divider"></div>
+            <div class="cols cols-3">
+                <div>
+                    <div class="card card-green">
+                        <h3>✓ Data management</h3>
+                        <ul>
+                            <li>Minimize CPU↔GPU transfers</li>
+                            <li>Use pinned memory for repeated transfers</li>
+                            <li>Keep simulation data on GPU between steps</li>
+                            <li>Use <code>float32</code> over <code>float64</code> when precision allows (2× throughput)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="card card-accent">
+                        <h3>✓ Algorithm design</h3>
+                        <ul>
+                            <li>Prefer vectorized array ops over Python loops</li>
+                            <li>Use <code>out=</code> to avoid temporaries</li>
+                            <li>Fuse elementwise ops with <code>ElementwiseKernel</code></li>
+                            <li>Use cutoff radius to reduce N² to N·k</li>
+                            <li>Consider Barnes-Hut for very large N</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="card card-purple">
+                        <h3>✓ Stability &amp; correctness</h3>
+                        <ul>
+                            <li>Always add softening length ε to avoid r=0</li>
+                            <li>Use Velocity Verlet, not Euler integration</li>
+                            <li>Monitor total energy conservation</li>
+                            <li>Test on small N with NumPy first</li>
+                            <li>Thermostat for constant-T ensemble</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="callout mt">
+                <strong>The golden rule:</strong> First make it correct (NumPy), then make it fast (CuPy). A fast wrong
+                answer is worse than a slow correct one.
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 42: SCIPY AND ECOSYSTEM -->
+        <div class="slide">
+            <div class="section-label label-adv">Ecosystem</div>
+            <h2>The Broader Scientific Python Ecosystem</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>CuPy-compatible libraries</h3>
+                    <table style="font-size:0.9rem">
+                        <tr>
+                            <th>Library</th>
+                            <th>Purpose</th>
+                        </tr>
+                        <tr>
+                            <td><strong>cupy.fft</strong></td>
+                            <td>FFT (wraps cuFFT)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>cupy.linalg</strong></td>
+                            <td>Linear algebra (cuBLAS)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>cupy.sparse</strong></td>
+                            <td>Sparse matrices (cuSPARSE)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>cupy.random</strong></td>
+                            <td>RNG (cuRAND)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>cupyx.scipy</strong></td>
+                            <td>SciPy compatibility layer</td>
+                        </tr>
+                        <tr>
+                            <td><strong>cucim</strong></td>
+                            <td>Image processing on GPU</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RAPIDS cuDF</strong></td>
+                            <td>GPU DataFrames (pandas-like)</td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <h3>General scientific Python tools</h3>
+                    <div class="cols cols-2" style="gap:10px">
+                        <div class="card" style="font-size:0.88rem">
+                            <strong style="color:var(--green)">scikit-learn</strong><br>
+                            <span style="color:var(--muted)">ML algorithms, clustering, dimensionality reduction</span>
+                        </div>
+                        <div class="card" style="font-size:0.88rem">
+                            <strong style="color:var(--accent)">scikit-image</strong><br>
+                            <span style="color:var(--muted)">Image processing with NumPy arrays</span>
+                        </div>
+                        <div class="card" style="font-size:0.88rem">
+                            <strong style="color:var(--purple)">MDAnalysis</strong><br>
+                            <span style="color:var(--muted)">Molecular dynamics trajectory analysis</span>
+                        </div>
+                        <div class="card" style="font-size:0.88rem">
+                            <strong style="color:var(--orange)">ASE</strong><br>
+                            <span style="color:var(--muted)">Atomic Simulation Environment</span>
+                        </div>
+                        <div class="card" style="font-size:0.88rem">
+                            <strong style="color:var(--yellow)">HOOMD-blue</strong><br>
+                            <span style="color:var(--muted)">GPU-native particle simulation</span>
+                        </div>
+                        <div class="card" style="font-size:0.88rem">
+                            <strong style="color:var(--red)">OpenMM</strong><br>
+                            <span style="color:var(--muted)">Molecular mechanics on GPU</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 43: CUSTOM NDARRAY (GPU DATA) -->
+        <div class="slide">
+            <div class="section-label label-adv">Advanced: Custom Arrays</div>
+            <h2>Extending ndarray: GPU-Aware Arrays</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>NumPy allows subclassing <code>ndarray</code> to create smart arrays that track their own state.
+                        The <strong>GPUData</strong> pattern (from glumpy) auto-tracks dirty memory regions:</p>
+                    <pre style="font-size:0.82rem"><code><span class="kw">class</span> <span class="fn">GPUData</span>(np.ndarray):
+  <span class="kw">def</span> <span class="fn">__new__</span>(cls, *args, **kwargs):
+    <span class="kw">return</span> np.ndarray.__new__(
+      cls, *args, **kwargs)
+
+  <span class="kw">def</span> <span class="fn">__array_finalize__</span>(self, obj):
+    <span class="kw">if not</span> isinstance(obj, GPUData):
+      self._extents = 0, self.size*self.itemsize
+      self._pending_data = self._extents
+
+  <span class="kw">def</span> <span class="fn">__setitem__</span>(self, key, value):
+    <span class="cm"># Track dirty region before writing</span>
+    self._add_pending_data(...)
+    np.ndarray.__setitem__(self, key, value)</code></pre>
+                </div>
+                <div>
+                    <div class="card card-purple">
+                        <h3>The dirty-region pattern</h3>
+                        <p>When you modify <code>V["position"][0,0] = 1.0</code>, instead of re-uploading the entire
+                            buffer to GPU, only the <em>minimal contiguous dirty region</em> is uploaded:</p>
+                        <div
+                            style="margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:var(--muted)">
+                            <div style="color:var(--accent)">Full buffer: 512 bytes</div>
+                            <div style="color:var(--green)">Modified: 8 bytes at offset 0</div>
+                            <div style="color:var(--orange)">Uploaded: 88 bytes (dirty extent)</div>
+                        </div>
+                    </div>
+                    <div class="callout mt">
+                        This is directly applicable to CuPy: instead of uploading 100MB of particle data every step,
+                        track which particles moved and only sync the changed portions.
+                    </div>
+                    <div class="callout success mt">
+                        <strong>For simulations with mostly-static data</strong> (e.g., fixed boundary conditions,
+                        static potential fields), this gives another 10–100× reduction in PCIe traffic.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 44: MD SIMULATION WORKFLOW -->
+        <div class="slide">
+            <div class="section-label label-adv">Putting It All Together</div>
+            <h2>A Complete Molecular Dynamics Simulation on GPU</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <pre style="font-size:0.8rem"><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+<span class="kw">from</span> cupy <span class="kw">import</span> ElementwiseKernel
+
+<span class="cm"># 1. Initialize on GPU (no CPU alloc)</span>
+N, T, dt = 5000, 1.0, 0.005
+pos = cp.random.uniform(0, 10, (N,3),
+                         dtype=cp.float32)
+vel = cp.random.randn(N, 3,
+        dtype=cp.float32) * cp.sqrt(T)
+vel -= vel.mean(axis=0)  <span class="cm"># zero COM vel</span>
+
+<span class="cm"># 2. Energy minimization (optional)</span>
+<span class="cm"># 3. Equilibration run</span>
+<span class="kw">for</span> step <span class="kw">in</span> range(n_equil):
+  F = lj_force(pos)
+  vel += 0.5 * F * dt
+  pos += vel * dt
+  F = lj_force(pos)
+  vel += 0.5 * F * dt
+  apply_thermostat(vel, T)  <span class="cm"># Andersen/Nosé</span>
+
+<span class="cm"># 4. Production run — collect observables</span>
+KE_list, PE_list = [], []
+<span class="kw">for</span> step <span class="kw">in</span> range(n_prod):
+  F = lj_force(pos)
+  vel += 0.5 * F * dt; pos += vel * dt
+  F = lj_force(pos); vel += 0.5 * F * dt
+  <span class="kw">if</span> step % 10 == 0:
+    KE = 0.5*(vel**2).sum()
+    KE_list.append(float(KE))</code></pre>
+                </div>
+                <div>
+                    <h3>Simulation pipeline</h3>
+                    <div class="timeline">
+                        <div class="tl-item">
+                            <div class="tl-time">Step 1</div>
+                            <strong>Initialize</strong> positions (lattice or random) &amp; velocities
+                            (Maxwell-Boltzmann)
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Step 2</div>
+                            <strong>Energy minimize</strong> to remove overlaps (steepest descent or conjugate gradient)
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Step 3</div>
+                            <strong>Equilibrate</strong> with thermostat — allow system to reach target T and P
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Step 4</div>
+                            <strong>Produce</strong> — run NVE (microcanonical) and collect data
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-time">Step 5</div>
+                            <strong>Analyze</strong> — g(r), MSD, autocorrelation, thermodynamic averages
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 45: RADIAL DISTRIBUTION -->
+        <div class="slide">
+            <div class="section-label label-adv">Analysis</div>
+            <h2>Post-Simulation Analysis: Radial Distribution Function g(r)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p>g(r) tells you the probability of finding a particle at distance r from another particle,
+                        normalized by ideal gas.</p>
+                    <pre style="font-size:0.82rem"><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+
+<span class="kw">def</span> <span class="fn">radial_distribution</span>(pos, L, n_bins=100,
+                           r_max=None):
+  <span class="kw">if</span> r_max <span class="kw">is None</span>: r_max = L / 2
+  N = len(pos)
+  
+  <span class="cm"># All pairwise distances with PBC</span>
+  dr = pos[:,None,:] - pos[None,:,:]
+  dr -= cp.round(dr / L) * L  <span class="cm"># PBC</span>
+  r = cp.sqrt((dr**2).sum(axis=-1))
+  
+  <span class="cm"># Histogram (upper triangle only)</span>
+  mask = (r &gt; 0) &amp; (r &lt; r_max)
+  hist, edges = cp.histogram(
+    r[mask], bins=n_bins, range=(0,r_max))
+  
+  <span class="cm"># Normalize by ideal gas shell volume</span>
+  rho = N / L**3
+  r_mid = 0.5*(edges[:-1] + edges[1:])
+  V_shell = 4*cp.pi*r_mid**2 * (edges[1]-edges[0])
+  norm = rho * N * V_shell / 2
+  <span class="kw">return</span> r_mid, hist / norm</code></pre>
+                </div>
+                <div>
+                    <div class="card card-accent">
+                        <h3>Physics you can read from g(r)</h3>
+                        <ul>
+                            <li><strong>First peak position:</strong> average nearest-neighbour distance ≈ σ</li>
+                            <li><strong>Peak height &gt; 1:</strong> structured liquid (high density)</li>
+                            <li><strong>g(r) → 1 for large r:</strong> decorrelation, ideal gas-like</li>
+                            <li><strong>Gas phase:</strong> g(r) ≈ 1 everywhere (no structure)</li>
+                            <li><strong>Crystalline solid:</strong> sharp δ-function-like peaks</li>
+                        </ul>
+                    </div>
+                    <div class="callout mt">
+                        g(r) is the most fundamental structural property of a liquid. Comparing simulated g(r) to
+                        experiment (via X-ray scattering) validates your force field.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 46: PERFORMANCE SUMMARY -->
+        <div class="slide">
+            <div class="section-label label-adv">Summary</div>
+            <h2>Performance Hierarchy: The Complete Picture</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Computation speed (relative)</h3>
+                    <div style="margin-top:12px">
+                        <div class="perf-row">
+                            <div class="perf-label">Python loop</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:1%; background:#ff7b72; min-width:30px">1×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">NumPy (C)</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:15%; background:#ffa657">100–500×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">Cython</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:20%; background:#e3b341">100–800×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">Numba JIT</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:22%; background:#79c0ff">200–1000×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">CuPy (GPU)</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:65%; background:#d2a8ff">1,000–50,000×</div>
+                            </div>
+                        </div>
+                        <div class="perf-row">
+                            <div class="perf-label">Custom CUDA</div>
+                            <div class="perf-bar-bg">
+                                <div class="perf-bar" style="width:100%; background:#3fb950">up to 100,000×</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt" style="font-size:0.85rem; color:var(--muted)">Values depend heavily on problem type,
+                        GPU, and optimization effort.</p>
+                </div>
+                <div>
+                    <h3>Decision guide</h3>
+                    <div class="card card-accent" style="margin-bottom:10px">
+                        <strong>Small arrays, complex logic?</strong><br>
+                        → Use <strong>NumPy</strong> — GPU overhead not worth it
+                    </div>
+                    <div class="card card-green" style="margin-bottom:10px">
+                        <strong>Large arrays, vectorizable?</strong><br>
+                        → Use <strong>CuPy</strong> — near-zero code change
+                    </div>
+                    <div class="card card-orange" style="margin-bottom:10px">
+                        <strong>Custom loops, can't vectorize?</strong><br>
+                        → Use <strong>Numba @cuda.jit</strong> or Cython
+                    </div>
+                    <div class="card card-purple">
+                        <strong>Maximum performance needed?</strong><br>
+                        → Write <strong>CuPy RawKernel</strong> with shared memory + tiling
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 47: INSTALLATION & SETUP -->
+        <div class="slide">
+            <div class="section-label label-adv">Getting Started</div>
+            <h2>Installing &amp; Setting Up CuPy</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Installation</h3>
+                    <pre><code><span class="cm"># Check your CUDA version first</span>
+nvcc --version
+nvidia-smi
+
+<span class="cm"># Install CuPy matching your CUDA version</span>
+pip install cupy-cuda12x   <span class="cm"># CUDA 12.x</span>
+pip install cupy-cuda11x   <span class="cm"># CUDA 11.x</span>
+pip install cupy-cuda102   <span class="cm"># CUDA 10.2</span>
+
+<span class="cm"># Or via conda (recommended)</span>
+conda install -c conda-forge cupy
+
+<span class="cm"># Verify installation</span>
+python -c "import cupy; print(cupy.__version__)"
+python -c "import cupy; cupy.show_config()"</code></pre>
+                    <div class="callout warn mt">CuPy version must match your installed CUDA toolkit version, not just
+                        your driver version.</div>
+                </div>
+                <div>
+                    <h3>First CuPy program</h3>
+                    <pre><code><span class="kw">import</span> cupy <span class="kw">as</span> cp
+<span class="kw">import</span> time
+
+<span class="cm"># Check GPU info</span>
+device = cp.cuda.Device()
+print(f<span class="st">"GPU: {device.id}"</span>)
+print(f<span class="st">"Free mem: {device.mem_info[0]//1e9:.1f} GB"</span>)
+
+<span class="cm"># Warm up (first kernel compile takes time)</span>
+x = cp.ones(1000)
+cp.cuda.Stream.null.synchronize()
+
+<span class="cm"># Actual benchmark</span>
+N = 10_000_000
+x = cp.random.randn(N, dtype=cp.float32)
+t0 = time.perf_counter()
+y = cp.sin(x)**2 + cp.cos(x)**2
+cp.cuda.Stream.null.synchronize()
+t1 = time.perf_counter()
+print(f<span class="st">"GPU: {(t1-t0)*1000:.1f} ms"</span>)</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 48: KEY TAKEAWAYS -->
+        <div class="slide">
+            <div class="section-label label-adv">Key Takeaways</div>
+            <h2>What We've Learned Today</h2>
+            <div class="divider"></div>
+            <div class="cols cols-3">
+                <div class="card card-accent">
+                    <h3>📐 Think in Arrays</h3>
+                    <ul>
+                        <li>Replace Python loops with NumPy/CuPy array operations</li>
+                        <li>Understand views vs copies (memory = speed)</li>
+                        <li>Use strides &amp; broadcasting to avoid data duplication</li>
+                        <li>Profile before optimizing!</li>
+                    </ul>
+                </div>
+                <div class="card card-green">
+                    <h3>🧩 Rethink the Problem</h3>
+                    <ul>
+                        <li>Code vectorization: same algorithm, NumPy syntax</li>
+                        <li>Problem vectorization: different algorithm entirely</li>
+                        <li>Spatial simulations → pairwise distance matrices</li>
+                        <li>PDEs → stencil array operations</li>
+                    </ul>
+                </div>
+                <div class="card card-purple">
+                    <h3>🚀 Scale to GPU</h3>
+                    <ul>
+                        <li>CuPy ≈ NumPy, but on thousands of cores</li>
+                        <li>Minimize CPU↔GPU transfers</li>
+                        <li>Use ElementwiseKernel to fuse operations</li>
+                        <li>RawKernel for maximum control</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="callout success mt">
+                <strong>The progression:</strong> Python loop → NumPy vectorization → Problem reformulation → CuPy GPU →
+                Custom CUDA kernels. Each step multiplies your performance by 10–100×.
+            </div>
+            <div class="callout mt">
+                <strong>Reference book:</strong> Nicolas P. Rougier, <em>From Python to NumPy</em> (open access) — the
+                foundation of this lecture. Available at <code>labri.fr/perso/nrougier/from-python-to-numpy</code>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 49: EXERCISES -->
+        <div class="slide">
+            <div class="section-label label-adv">Exercises</div>
+            <h2>Hands-On Exercises</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>🔵 Beginner</h3>
+                    <ol>
+                        <li class="mt">Port the <strong>Game of Life</strong> from NumPy to CuPy. Measure the speedup
+                            for a 1000×1000 grid over 1000 steps.</li>
+                        <li class="mt">Implement the <strong>Gray-Scott reaction-diffusion</strong> system (bacteria
+                            parameters: Du=0.16, Dv=0.08, f=0.035, k=0.065). Run for 10,000 steps on a 512×512 grid.
+                        </li>
+                        <li class="mt">Vectorize the <strong>Boids simulation</strong>: compute all pairwise distances
+                            once as an N×N matrix, then derive all three rules from it.</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3>🔴 Advanced</h3>
+                    <ol>
+                        <li class="mt">Implement a <strong>Lennard-Jones NVE MD simulation</strong> in CuPy for N=1000
+                            Argon atoms. Add periodic boundary conditions. Plot g(r) after equilibration.</li>
+                        <li class="mt">Write a <strong>CuPy ElementwiseKernel</strong> that implements the Lennard-Jones
+                            force in a single fused kernel. Compare memory usage and speed vs. the naive version.</li>
+                        <li class="mt">Implement a <strong>Verlet neighbor list</strong>: precompute which particle
+                            pairs are within r_c + skin_distance, and only update the list every 20 steps. How much
+                            speedup do you get?</li>
+                        <li class="mt">Use <strong>CUDA streams</strong> to overlap neighbor-list updates with force
+                            computation.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE 50: FINAL SLIDE -->
+        <div class="slide hero-slide">
+            <div class="hero-grid"></div>
+            <div style="display:flex; flex-direction:column; justify-content:center; height:100%; max-width:900px">
+                <div class="hero-title" style="font-size:3rem">Thank You!</div>
+                <div class="hero-sub" style="margin-bottom:1.5em">Questions? Let's simulate some particles! 🧪⚡</div>
+                <div class="cols cols-3" style="gap:20px">
+                    <div class="card card-accent">
+                        <h3>📚 Book</h3>
+                        <p style="font-size:0.9rem">Nicolas P. Rougier<br><em>From Python to NumPy</em><br>Open access,
+                            CC BY-NC-SA</p>
+                    </div>
+                    <div class="card card-green">
+                        <h3>🔗 CuPy Docs</h3>
+                        <p style="font-size:0.9rem">docs.cupy.dev<br><br>API reference, tutorials, performance tips</p>
+                    </div>
+                    <div class="card card-purple">
+                        <h3>⌨️ Navigate</h3>
+                        <p style="font-size:0.9rem"><kbd>→</kbd> or <kbd>Space</kbd> — next slide<br><kbd>←</kbd> —
+                            previous slide<br>50 slides total</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- #slideshow -->
+
+    <div id="counter">Slide <span id="cur">1</span> / <span id="tot">0</span></div>
+    <div id="nav">
+        <button onclick="prev()">← Prev</button>
+        <button onclick="next()">Next →</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let cur = 0;
+        document.getElementById('tot').textContent = slides.length;
+        document.getElementById('progress').style.width = (1 / slides.length * 100) + '%';
+
+        function show(n) {
+            slides[cur].classList.remove('active');
+            cur = Math.max(0, Math.min(n, slides.length - 1));
+            slides[cur].classList.add('active');
+            document.getElementById('cur').textContent = cur + 1;
+            document.getElementById('progress').style.width = ((cur + 1) / slides.length * 100) + '%';
+        }
+        function next() { show(cur + 1); }
+        function prev() { show(cur - 1); }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+        });
+    </script>
+</body>
+
+</html>
