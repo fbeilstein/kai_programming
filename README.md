@@ -22,6 +22,10 @@ Monday 13:30 (next week Wednesday 12:30)
 ### Lecture 7. Problem Set: Stationary Points Classification
 - [Download the Problemset (Stationary Points Classification)](https://github.com/fbeilstein/kai_programming/releases/download/problem_3/problem_3.zip)
 
+### Lecture 8. Numpy/Cupy Programming for Multiparticle Modelling
+- [Notes in Colab](https://colab.research.google.com/github/fbeilstein/kai_programming/blob/master/python_vs_cupy.ipynb)
+
+
 ## Draft for Syllabus
 
  1. Python Recap
