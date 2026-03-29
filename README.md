@@ -25,25 +25,9 @@ Monday 13:30 (next week Wednesday 12:30)
 ### Lecture 8. Numpy/Cupy Programming for Multiparticle Modelling
 - [Notes in Colab](https://colab.research.google.com/github/fbeilstein/kai_programming/blob/master/python_vs_cupy.ipynb)
 
+### Lecture 9. Problem Set: Optimization with GPU
+- [Download the Problemset (Multiparticle Simulation, Optimization with GPU)](https://github.com/fbeilstein/kai_programming/releases/download/problem_4/problem_4.zip)
 
-## Draft for Syllabus
-
- 1. Python Recap
- 2. Numpy Recap
- 3. Practice (Ray Tracing)
- 4. Debrief (show how to solve)
- 5. Practice (Electrostatics)
- 6. Differential Equations (theory)
- 7. Practice (ODE, stationary points)
- 8. Vectorization and Package `Cupy`
- 9.
-10.
-11.
-12.
-13.
-14.
-15.
-16.
 
 
 ## Useful Resources
