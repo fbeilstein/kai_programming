@@ -48,12 +48,12 @@ def create_galaxy(center, velocity, color_val):
     
     # Assign Colors (Make the Black Holes bright yellow/white!)
     cols = cp.full(N_stars + 1, color_val, dtype=cp.float32)
-    cols[0] = 5.0 
+    cols[0] = 0.5 
     
     return pos, vel, masses, cols
 
-pos_a, vel_a, mass_a, col_a = create_galaxy([-35, -8, 0], [1.2, 0.2, 0], 0.2)
-pos_b, vel_b, mass_b, col_b = create_galaxy([35, 8, 0], [-1.2, -0.2, 0], 0.8)
+pos_a, vel_a, mass_a, col_a = create_galaxy([-35, -8, 0], [1.2, 0.2, 0], 0.0) # Red
+pos_b, vel_b, mass_b, col_b = create_galaxy([35, 8, 0], [-1.2, -0.2, 0], 1.0) # Green
 
 pos = cp.vstack([pos_a, pos_b])
 vel = cp.vstack([vel_a, vel_b])
@@ -62,7 +62,7 @@ color_scalars = cp.concatenate([col_a, col_b]).get()
 
 # --- 2. PyVista Setup ---
 plotter = pv.Plotter(title="GPU Galaxy Collision (SMBH Engine)")
-plotter.set_background('#020205') 
+plotter.set_background('#000000') # Pure black for maximum contrast
 
 point_cloud = pv.PolyData(pos.get())
 point_cloud['ID'] = color_scalars
@@ -70,8 +70,8 @@ point_cloud['ID'] = color_scalars
 plotter.add_mesh(
     point_cloud, 
     scalars='ID', 
-    cmap='plasma', # Swapped to plasma to make the BHs glow beautifully
-    point_size=5.0, 
+    cmap='RdYlGn', # Red-Yellow-Green (No black!)
+    point_size=10.0, # Larger points for projector
     render_points_as_spheres=True, 
     show_scalar_bar=False
 )

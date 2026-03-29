@@ -19,7 +19,7 @@ def get_lambdas(tr, det):
     else:
         L_imag = np.sqrt(-disc) / 2
         L_real = tr / 2
-        return [L_real, L_imag, L_real, -L_imag]
+        return np.array([L_real, L_imag, L_real, -L_imag])
 
 
 def classify_system(tr, det):
@@ -72,7 +72,7 @@ class VectorizedLab:
 
     def draw_phase_portrait(self):
         res = get_lambdas(self.tr, self.det)
-        if res and len(res) == 4:
+        if res is not None and len(res) == 4:
             r1, i1, r2, i2 = res
             l1_str = f"λ1: {r1:5.2f} + {i1:5.2f}i"
             l2_str = f"λ2: {r2:5.2f} + {i2:5.2f}i"

@@ -11,19 +11,19 @@
         rel="stylesheet">
     <style>
         :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --surface2: #21262d;
-            --accent: #58a6ff;
-            --accent2: #79c0ff;
-            --green: #3fb950;
-            --orange: #ffa657;
-            --purple: #d2a8ff;
-            --red: #ff7b72;
-            --yellow: #e3b341;
-            --text: #e6edf3;
-            --muted: #8b949e;
-            --border: #30363d;
+            --bg: #ffffff;
+            --surface: #f6f8fa;
+            --surface2: #eaeef2;
+            --accent: #0969da;
+            --accent2: #0550ae;
+            --green: #1a7f37;
+            --orange: #9a6700;
+            --purple: #8250df;
+            --red: #d1242f;
+            --yellow: #9a6700;
+            --text: #1f2328;
+            --muted: #656d76;
+            --border: #d0d7de;
         }
 
         * {
@@ -90,7 +90,7 @@
         #nav button:hover {
             background: var(--accent);
             border-color: var(--accent);
-            color: #000;
+            color: #ffffff;
         }
 
         #counter {
@@ -143,7 +143,7 @@
 
         p {
             line-height: 1.7;
-            color: #c9d1d9;
+            color: var(--text);
             font-size: 1.05rem;
             margin-bottom: 0.8em;
         }
@@ -155,7 +155,7 @@
 
         li {
             line-height: 1.75;
-            color: #c9d1d9;
+            color: var(--text);
             font-size: 1.05rem;
             margin-bottom: 0.3em;
         }
@@ -215,7 +215,7 @@
 
         /* Code blocks */
         pre {
-            background: #010409;
+            background: #f6f8fa;
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 20px 24px;
@@ -230,34 +230,34 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9em;
             color: var(--orange);
-            background: rgba(255, 166, 87, 0.1);
+            background: rgba(154, 103, 0, 0.1);
             padding: 2px 6px;
             border-radius: 4px;
         }
 
         pre code {
-            color: #e6edf3;
+            color: var(--text);
             background: none;
             padding: 0;
         }
 
         .kw {
-            color: #ff7b72;
+            color: #d73a49;
         }
 
         /* keyword */
         .fn {
-            color: #d2a8ff;
+            color: #6f42c1;
         }
 
         /* function */
         .st {
-            color: #a5d6ff;
+            color: #032f62;
         }
 
         /* string */
         .cm {
-            color: #8b949e;
+            color: #6a737d;
             font-style: italic;
         }
 
@@ -471,7 +471,7 @@
         td {
             padding: 9px 14px;
             border-bottom: 1px solid var(--border);
-            color: #c9d1d9;
+            color: var(--text);
         }
 
         tr:hover td {
@@ -489,7 +489,7 @@
 
         /* Hero slide */
         .hero-slide {
-            background: radial-gradient(ellipse at 20% 50%, rgba(88, 166, 255, 0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(210, 168, 255, 0.1) 0%, transparent 50%), var(--bg);
+            background: radial-gradient(ellipse at 20% 50%, rgba(9, 105, 218, 0.05) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(130, 80, 223, 0.05) 0%, transparent 50%), var(--bg);
         }
 
         .hero-content {
@@ -544,7 +544,7 @@
 
         /* Section divider slide */
         .section-slide {
-            background: radial-gradient(ellipse at center, rgba(88, 166, 255, 0.08) 0%, transparent 70%), var(--surface);
+            background: radial-gradient(ellipse at center, rgba(9, 105, 218, 0.04) 0%, transparent 70%), var(--surface);
             text-align: center;
         }
 
@@ -557,7 +557,7 @@
             font-size: 8rem;
             font-weight: 900;
             line-height: 1;
-            color: rgba(88, 166, 255, 0.12);
+            color: rgba(9, 105, 218, 0.08);
             position: absolute;
         }
 
@@ -572,13 +572,13 @@
 
         /* Callout box */
         .callout {
-            background: rgba(88, 166, 255, 0.08);
+            background: rgba(9, 105, 218, 0.05);
             border-left: 3px solid var(--accent);
             border-radius: 0 8px 8px 0;
             padding: 14px 18px;
             margin: 0.5em 0;
             font-size: 0.95rem;
-            color: #c9d1d9;
+            color: var(--text);
         }
 
         .callout.warn {
@@ -1604,6 +1604,98 @@ G_gamma = np.empty_like(G)
                 <div class="section-label label-cupy" style="margin: 0 auto 1em">Part 3</div>
                 <div class="slide-title">CuPy &amp; GPU<br>Computing</div>
                 <div class="slide-subtitle">NumPy, but on the GPU — with thousands of cores</div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE: FLYNN'S TAXONOMY -->
+        <div class="slide">
+            <div class="section-label label-cupy">Fundamentals</div>
+            <h2>Flynn's Taxonomy & Execution Models</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div class="card card-accent">
+                    <h3>SISD & MIMD (CPUs)</h3>
+                    <ul>
+                        <li><strong>SISD</strong>: Single Instruction, Single Data. Traditional scalar execution.</li>
+                        <li><strong>MIMD</strong>: Multiple Instruction, Multiple Data. Modern multi-core CPUs where
+                            each core can run independent code on different data.</li>
+                        <li>High flexibility, but requires significant hardware logic per thread.</li>
+                    </ul>
+                </div>
+                <div class="card card-purple">
+                    <h3>SIMD & SIMT (GPUs)</h3>
+                    <ul>
+                        <li><strong>SIMD</strong>: Single Instruction, Multiple Data. CPU vector instructions (AVX/SSE).
+                        </li>
+                        <li><strong>SIMT</strong>: Single Instruction, Multiple Threads. The CUDA execution model.</li>
+                        <li>Thousands of threads execute the <em>same</em> instruction simultaneously on
+                            <em>different</em> data points.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE: AMDAHL VS GUSTAFSON -->
+        <div class="slide">
+            <div class="section-label label-cupy">Performance Limits</div>
+            <h2>Scaling Laws: Amdahl vs Gustafson</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Amdahl's Law (Strong Scaling)</h3>
+                    <p>Speedup is limited by the serial fraction of the code ($f$).</p>
+                    <div class="callout warn mt">
+                        <strong>Problem:</strong> If 5% of your code cannot be parallelized, the maximum theoretical
+                        speedup is 20×, even with an infinite number of GPU cores!
+                    </div>
+                </div>
+                <div>
+                    <h3>Gustafson's Law (Weak Scaling)</h3>
+                    <p>Instead of fixing the problem size, increase the problem size $W$ along with the number of
+                        processors $N$.</p>
+                    <div class="callout success mt">
+                        <strong>The GPU Paradigm:</strong> For multiparticle physics, we don't use thousands of cores to
+                        compute 100 particles faster. We use them to compute <strong>10,000,000 particles</strong> in
+                        the same amount of time!
+                    </div>
+                </div>
+            </div>
+            <div class="card card-orange mt2" style="text-align:center">
+                <h3>Takeaway</h3>
+                <p>GPUs thrive on <em>weak scaling</em>. Overwhelm the GPU with massive data arrays to hide latency and
+                    achieve extreme throughput.</p>
+            </div>
+        </div>
+
+        <!-- ═══ SLIDE: CONCURRENCY -->
+        <div class="slide">
+            <div class="section-label label-cupy">Concurrency</div>
+            <h2>Race Conditions & Synchronization</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>The Problem: Race Conditions</h3>
+                    <p>When thousands of threads read and write to the same memory location simultaneously, the final
+                        result is unpredictable.</p>
+                    <pre><code><span class="cm">// If 10,000 threads do this:</span>
+array[0] += 1;
+<span class="cm">// array[0] won't be 10000, it might be 2341!</span></code></pre>
+                </div>
+                <div>
+                    <h3>Solutions: Mutex & Semaphores</h3>
+                    <ul>
+                        <li><strong>Mutex (Mutual Exclusion):</strong> A lock allowing only one thread to access a
+                            resource at a time. High performance penalty on GPUs.</li>
+                        <li><strong>Semaphore:</strong> A counter limiting access to a resource to $N$ threads.</li>
+                        <li><strong>Atomic Operations:</strong> Hardware-level primitives (e.g. <code>atomicAdd</code>)
+                            that guarantee read-modify-write without interruption.</li>
+                    </ul>
+                    <div class="callout warn mt">
+                        On GPUs, heavy locking destroys parallelism and causes <em>deadlocks</em>. Prefer atomics or
+                        restructuring algorithms to be lock-free.
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -3019,6 +3111,453 @@ print(f<span class="st">"GPU: {(t1-t0)*1000:.1f} ms"</span>)</code></pre>
                         <li class="mt">Use <strong>CUDA streams</strong> to overlap neighbor-list updates with force
                             computation.</li>
                     </ol>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ═══════════════════════ SECTION DIVIDER: PART 5 -->
+        <div class="slide section-slide">
+            <div class="section-num">5</div>
+            <div class="section-content">
+                <div class="section-label label-intro" style="margin: 0 auto 1em">Part 5</div>
+                <div class="slide-title">Interactive<br>Exercises</div>
+                <div class="slide-subtitle">Let's solve problems together!</div>
+            </div>
+        </div>
+
+        <!-- EXERCISE 1 -->
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 1</div>
+            <h2>1. The Random Walk (Problem)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p><strong>Scenario:</strong> A particle takes $N=100,000$ steps. At each step, it randomly moves
+                        $+1$ or $-1$ with equal probability.</p>
+                    <p><strong>Goal:</strong> Calculate the exact position of the particle at <em>every single step</em>
+                        and store it in an array.</p>
+                </div>
+                <div class="card card-accent">
+                    <h3>Think about:</h3>
+                    <ul>
+                        <li>How do you generate 100,000 random variables efficiently?</li>
+                        <li>The position at step $k$ depends on the position at step $k-1$. How do we avoid a loop?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 1</div>
+            <h2>1. The Random Walk (Python Loop)</h2>
+            <div class="divider"></div>
+            <pre><code><span class="kw">import</span> random
+<span class="kw">def</span> <span class="fn">random_walk_loop</span>(n):
+    position = 0
+    walk = [0] * n
+    <span class="kw">for</span> i <span class="kw">in</span> range(n):
+        step = 1 <span class="kw">if</span> random.random() > 0.5 <span class="kw">else</span> -1
+        position += step
+        walk[i] = position
+    <span class="kw">return</span> walk</code></pre>
+            <div class="callout warn mt"><strong>Performance:</strong> ~208 ms for N=100,000</div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 1</div>
+            <h2>1. The Random Walk (Hints)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div class="card card-green">
+                    <h3>Useful NumPy Functions</h3>
+                    <ul>
+                        <li><code>np.random.random(n)</code> &rarr; Generate $n$ floats between $0$ and $1$.</li>
+                        <li><code>np.where(condition, x, y)</code> &rarr; Return elements chosen from $x$ or $y$
+                            depending on a boolean condition.</li>
+                        <li><code>np.cumsum(array)</code> &rarr; Return the cumulative sum of the elements along a given
+                            axis.</li>
+                    </ul>
+                </div>
+                <div>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Random_walk_2500_animated.svg/1024px-Random_walk_2500_animated.svg.png"
+                        style="max-height: 250px; object-fit: contain; width: 100%;">
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-cupy">Exercise 1</div>
+            <h2>1. The Random Walk (Solution)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>NumPy</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">random_walk_numpy</span>(n):
+    steps = np.where(np.random.random(n) > 0.5, 1, -1)
+    <span class="kw">return</span> np.cumsum(steps)</code></pre>
+                    <div class="callout success"><strong>Performance:</strong> ~9.7 ms (20&times; faster)</div>
+                </div>
+                <div>
+                    <h3>CuPy</h3>
+                    <pre><code><span class="kw">def</span> <span class="fn">random_walk_cupy</span>(n):
+    steps = cp.where(cp.random.random(n) > 0.5, 1, -1)
+    <span class="kw">return</span> cp.cumsum(steps)</code></pre>
+                    <div class="callout success"><strong>Performance:</strong> ~0.6 ms (300&times; faster)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXERCISE 2 -->
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 2</div>
+            <h2>2. Game of Life (Problem)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p><strong>Scenario:</strong> Conway's Game of Life on a 2D Grid. A cell is born if it has exactly 3
+                        neighbors. It survives if it has 2 or 3 neighbors.</p>
+                    <p><strong>Goal:</strong> Compute the next state of a $512 imes 512$ grid.</p>
+                </div>
+                <div class="card card-accent">
+                    <h3>Think about:</h3>
+                    <ul>
+                        <li>Counting neighbors requires evaluating 8 adjacent cells.</li>
+                        <li>Can we shift the grid in 8 different directions and sum them up?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 2</div>
+            <h2>2. Game of Life (Python Loop)</h2>
+            <div class="divider"></div>
+            <pre><code><span class="kw">def</span> <span class="fn">gol_loop</span>(Z):
+    <span class="cm">...</span>
+        <span class="kw">for</span> r <span class="kw">in</span> range(1, rows-1):
+            <span class="kw">for</span> c <span class="kw">in</span> range(1, cols-1):
+                N = Z[r-1][c-1] + Z[r-1][c] + <span class="cm">...</span>
+                <span class="cm"># apply rules</span>
+    <span class="cm">...</span></code></pre>
+            <div class="callout warn mt"><strong>Performance:</strong> Too slow to even run 512x512 iteratively in
+                Python!</div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 2</div>
+            <h2>2. Game of Life (Hints)</h2>
+            <div class="divider"></div>
+            <div class="card card-green">
+                <h3>Uniform Vectorization</h3>
+                <p>Use array slicing to represent shifted views of the grid without copying data!</p>
+                <ul>
+                    <li><code>Z[:-2, :-2]</code> &rarr; Top-Left neighbor grid</li>
+                    <li><code>Z[1:-1, 1:-1]</code> &rarr; Center (Inner) grid</li>
+                    <li><code>Z[2:, 2:]</code> &rarr; Bottom-Right neighbor grid</li>
+                </ul>
+                <p>Add all 8 shifted arrays to get the neighbor counts `N`.</p>
+                <p>Then apply boolean masks: <code>(N == 3) | ((N == 2) & Z == 1)</code></p>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-cupy">Exercise 2</div>
+            <h2>2. Game of Life (Solution)</h2>
+            <div class="divider"></div>
+            <pre><code><span class="kw">def</span> <span class="fn">gol_vectorized</span>(Z, steps):
+    <span class="kw">for</span> _ <span class="kw">in</span> range(steps):
+        N = (Z[:-2,:-2] + Z[:-2,1:-1] + Z[:-2,2:] +
+             Z[1:-1,:-2]               + Z[1:-1,2:] +
+             Z[2:,:-2]  + Z[2:,1:-1]  + Z[2:,2:])
+        birth   = (N == 3) & (Z[1:-1,1:-1] == 0)
+        survive = ((N == 2) | (N == 3)) & (Z[1:-1,1:-1] == 1)
+        Z[...] = 0
+        Z[1:-1,1:-1][birth | survive] = 1
+    <span class="kw">return</span> Z</code></pre>
+            <div class="callout success">Same logic applies to <code>numpy</code> and <code>cupy</code>.
+                <strong>CuPy</strong> reaches sub-millisecond per frame on 512x512!
+            </div>
+        </div>
+
+        <!-- EXERCISE 3 -->
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 3</div>
+            <h2>3. Mandelbrot Set (Problem)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p><strong>Scenario:</strong> $f(z) = z^2 + c$. We iterate this function. If it escapes $|z| > 2$,
+                        we color the pixel by the iteration number.</p>
+                    <p><strong>Goal:</strong> Compute the escape iteration for an $800 imes 600$ grid of complex
+                        numbers.</p>
+                </div>
+                <div class="card card-accent">
+                    <h3>Think about:</h3>
+                    <ul>
+                        <li>Pixels escape at DIFFERENT iterations. How do you stop updating some pixels while continuing
+                            to update others?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 3</div>
+            <h2>3. Mandelbrot Set (Python Loop)</h2>
+            <div class="divider"></div>
+            <pre><code><span class="kw">for</span> j <span class="kw">in</span> range(yn):
+    <span class="kw">for</span> i <span class="kw">in</span> range(xn):
+        c = complex(x_val, y_val)
+        z = 0j
+        <span class="kw">for</span> n <span class="kw">in</span> range(maxiter):
+            <span class="kw">if</span> abs(z) > 2.0:
+                result[j][i] = n
+                <span class="kw">break</span>
+            z = z*z + c</code></pre>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 3</div>
+            <h2>3. Mandelbrot Set (Hints)</h2>
+            <div class="divider"></div>
+            <div class="card card-green">
+                <h3>Temporal Vectorization</h3>
+                <p>Move the <code>for loop</code> to the outside, representing time (iterations). Process ALL pixels
+                    simultaneously on the inside.</p>
+                <ul>
+                    <li><code>I = np.abs(Z) &lt; 2.0</code> evaluates which pixels haven't escaped.</li>
+                    <li>Update ONLY the non-escaped pixels using array masking: <code>Z[I] = Z[I]**2 + C[I]</code></li>
+                    <li>Update the iteration tracker: <code>N[I] = n</code></li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-cupy">Exercise 3</div>
+            <h2>3. Mandelbrot Set (Solution)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <pre style="width:100%"><code><span class="kw">def</span> <span class="fn">mandelbrot_vectorized</span>(C, maxiter):
+    Z = np.zeros_like(C)
+    N = np.zeros(C.shape, dtype=np.int32)
+    <span class="kw">for</span> n <span class="kw">in</span> range(maxiter):
+        I = np.abs(Z) < 2.0
+        N[I] = n
+        Z[I] = Z[I]**2 + C[I]
+    <span class="kw">return</span> N</code></pre>
+                <div>
+                    <p>Works for both NumPy and CuPy.</p>
+                    <p><strong>NumPy:</strong> 164.7 ms</p>
+                    <p><strong>CuPy:</strong> 120.4 ms</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXERCISE 4 -->
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 4</div>
+            <h2>4. Pairwise Distances (Problem)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p><strong>Scenario:</strong> You have an array of $N=2000$ particles in 2D space.
+                        <code>shape=(2000, 2)</code>.
+                    </p>
+                    <p><strong>Goal:</strong> Compute the distance between <em>every completely pair</em> of particles
+                        to make an $N imes N$ distance matrix.</p>
+                </div>
+                <div class="card card-accent">
+                    <h3>Think about:</h3>
+                    <ul>
+                        <li>How to compute an $N imes N imes 2$ grid without using two <code>for loops</code>.</li>
+                        <li>Broadcasting rules!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 4</div>
+            <h2>4. Pairwise Distances (Python Loop)</h2>
+            <div class="divider"></div>
+            <pre><code><span class="kw">for</span> i <span class="kw">in</span> range(n):
+    <span class="kw">for</span> j <span class="kw">in</span> range(i+1, n):
+        dx = pos[i][0] - pos[j][0]
+        dy = pos[i][1] - pos[j][1]
+        d = math.sqrt(dx*dx + dy*dy)
+        dist[i][j] = d
+        dist[j][i] = d</code></pre>
+            <div class="callout warn mt"><strong>Performance:</strong> Completely unscalable for $N > 10,000$ in Python.
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 4</div>
+            <h2>4. Pairwise Distances (Hints)</h2>
+            <div class="divider"></div>
+            <div class="card card-green">
+                <h3>Spatial Vectorization (Broadcasting)</h3>
+                <p>If we subtract an array of shape <code>(N, 1, 2)</code> from an array of shape
+                    <code>(1, N, 2)</code>, NumPy will automatically expand them to form an output of shape
+                    <code>(N, N, 2)</code>.
+                </p>
+                <ul>
+                    <li><code>pos[:, np.newaxis, :]</code> adds an empty dimension in the middle.</li>
+                    <li><code>np.sum(diff**2, axis=-1)</code> sums along the last axis to get $dx^2 + dy^2$.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-cupy">Exercise 4</div>
+            <h2>4. Pairwise Distances (Solution)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <pre><code><span class="kw">def</span> <span class="fn">pairwise_numpy</span>(pos):
+    <span class="cm"># Broadcast (N,1,2) - (1,N,2)</span>
+    diff = pos[:, np.newaxis, :] -            pos[np.newaxis, :, :]
+    
+    <span class="cm"># square, sum, sqrt</span>
+    <span class="kw">return</span> np.sqrt((diff**2).sum(axis=-1))</code></pre>
+                    <div class="callout success"><strong>Performance:</strong> Numpy ~138ms, CuPy ~50ms</div>
+                </div>
+                <div>
+                    <p>Bonus: Once you have the <code>dist</code> matrix, finding interactions is easy:</p>
+                    <pre><code>neighbours = dist < 0.05
+n_neighbours = neighbours.sum(axis=1)</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXERCISE 5 -->
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 5</div>
+            <h2>5. Lennard-Jones Forces (Problem)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p><strong>Scenario:</strong> $N=1000$ particles in 3D. The force between particles depends on the
+                        Lennard-Jones potential $V(r)$.</p>
+                    <p><strong>Goal:</strong> Calculate the total 3D force vector acting on each particle.</p>
+                </div>
+                <div class="card card-accent">
+                    <h3>Think about:</h3>
+                    <ul>
+                        <li>We must calculate $dx, dy, dz$, adjust for periodic boundaries, sum the forces acting on
+                            each particle $i$ from all neighbors $j$.</li>
+                        <li>Avoid dividing by zero! (self-interaction $r=0$).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 5</div>
+            <h2>5. Lennard-Jones Forces (Python Loop)</h2>
+            <div class="divider"></div>
+            <pre style="max-height: 400px; overflow-y: auto;"><code><span class="kw">for</span> i <span class="kw">in</span> range(n):
+    <span class="kw">for</span> j <span class="kw">in</span> range(i+1, n):
+        dx = positions[i][0] - positions[j][0]
+        <span class="cm">...</span>
+        dx -= L * round(dx / L) <span class="cm"># Minimum-image</span>
+        r2 = dx*dx + dy*dy + dz*dz
+        <span class="kw">if</span> r2 < cutoff**2 <span class="kw">and</span> r2 > 0:
+            sr2 = (sigma**2) / r2
+            sr6 = sr2**3
+            f_over_r = 24 * eps * (2*sr6**2 - sr6) / r2
+            forces[i][0] += f_over_r * dx <span class="cm"># Newton's 3rd Law</span>
+            forces[j][0] -= f_over_r * dx
+            <span class="cm">...</span></code></pre>
+        </div>
+        <div class="slide">
+            <div class="section-label label-numpy">Exercise 5</div>
+            <h2>5. Lennard-Jones Forces (Hints)</h2>
+            <div class="divider"></div>
+            <div class="card card-green">
+                <h3>Masking and Safe Arrays</h3>
+                <ul>
+                    <li>Calculate the <code>r_vec = pos[:, None, :] - pos[None, :, :]</code> as before.</li>
+                    <li>Periodic boundary: <code>r_vec -= L * np.round(r_vec / L)</code></li>
+                    <li>Avoid dividing by zero: Create a mask for $r > 0$ and $r < cutoff$. Use <code>np.where(mask, r2,
+                            1.0)</code> where 1.0 prevents division by zero completely.</li>
+                    <li>Sum the forces over axis 1: <code>F = (f_over_r[:, :, np.newaxis] * r_vec).sum(axis=1)</code>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-cupy">Exercise 5</div>
+            <h2>5. Lennard-Jones Forces (Solution)</h2>
+            <div class="divider"></div>
+            <pre><code><span class="kw">def</span> <span class="fn">lj_forces_vectorized</span>(pos, eps, sigma, L, cutoff):
+    r_vec = pos[:, np.newaxis, :] - pos[np.newaxis, :, :]
+    r_vec -= L * np.round(r_vec / L)
+    r2 = (r_vec**2).sum(axis=-1)
+    
+    mask = (r2 > 1e-6) & (r2 < cutoff**2)
+    r2_safe = np.where(mask, r2, 1.0)
+    
+    sr6 = ((sigma**2) / r2_safe)**3
+    f_over_r = 24 * eps * (2*sr6**2 - sr6) / r2_safe
+    f_over_r = np.where(mask, f_over_r, 0.0)
+    
+    <span class="kw">return</span> (f_over_r[:, :, np.newaxis] * r_vec).sum(axis=1)</code></pre>
+            <div class="callout success"><strong>Performance:</strong> NumPy ~123.1 ms, CuPy ~13.8 ms. CuPy easily
+                handles the massive $(N, N, 3)$ tensor multiplication.</div>
+        </div>
+
+        <!-- EXERCISE 6 -->
+        <div class="slide">
+            <div class="section-label label-adv">Exercise 6</div>
+            <h2>6. Velocity Verlet Integrator (Problem)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <p><strong>Scenario:</strong> Putting it all together. Over 100 timesteps, calculate forces, update
+                        velocity (half-step), update position, calculate forces again, update velocity (half-step).</p>
+                    <p><strong>Goal:</strong> Simulate thousands of particles over time.</p>
+                </div>
+                <div class="card card-accent">
+                    <h3>Think about:</h3>
+                    <ul>
+                        <li>Vectorized operations map to many kernel launches on the GPU.</li>
+                        <li>Is there a way to write this loop directly in Python as a <em>single, massive kernel</em>?
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-adv">Exercise 6</div>
+            <h2>6. Integrator (Vectorized)</h2>
+            <div class="divider"></div>
+            <pre><code><span class="kw">def</span> <span class="fn">run_md_vectorized</span>(pos, vel, steps=100):
+    <span class="kw">for</span> step <span class="kw">in</span> range(steps):
+        F = lj_forces(pos, LJ_EPS, LJ_SIGMA, BOX_L, LJ_CUTOFF)
+        vel += 0.5 * F * DT
+        pos += vel * DT
+        pos %= BOX_L
+        F = lj_forces(pos, LJ_EPS, LJ_SIGMA, BOX_L, LJ_CUTOFF)
+        vel += 0.5 * F * DT
+    <span class="kw">return</span> pos, vel</code></pre>
+            <div class="callout warn mt">For $N=10,000$, keeping an $N imes N imes 3$ matrix of floats takes 1.2 GB of
+                VRAM. It quickly scales out of bounds. The actual solution is to use Custom Kernels!</div>
+        </div>
+        <div class="slide">
+            <div class="section-label label-adv">Exercise 6</div>
+            <h2>6. Integrator (Custom GPU Kernels / Numba)</h2>
+            <div class="divider"></div>
+            <div class="cols cols-2">
+                <div>
+                    <h3>Numba JIT</h3>
+                    <p>Instead of relying purely on generalized NumPy expressions, we can write Python loops explicitly
+                        and compile them directly to CUDA using <code>@cuda.jit</code>.</p>
+                    <pre><code>@cuda.jit
+<span class="kw">def</span> <span class="fn">lj_forces_numba</span>(pos, F):
+    i = cuda.grid(1)
+    <span class="kw">if</span> i >= pos.shape[0]: <span class="kw">return</span>
+    <span class="cm"># thread i loops over j=0..N</span>
+    <span class="cm"># calculates forces on particle i</span></code></pre>
+                </div>
+                <div>
+                    <h3>CuPy RawKernel</h3>
+                    <p>Or write actual C++ CUDA inline in your python script.</p>
+                    <pre><code>kernel = cp.RawKernel(r'''
+extern "C" __global__
+void lj_forces(float* pos, float* f) {
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    // ...
+}
+''', 'lj_forces')</code></pre>
                 </div>
             </div>
         </div>
