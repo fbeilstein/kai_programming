@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\geometry{a4paper, margin=1in}
+%\usepackage{tikz}
+%\usetikzlibrary{calc, positioning, arrows.meta}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstset{
+    language=Python,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegray},
+    keywordstyle=\color{magenta},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    showstringspaces=false
+}
+
+\title{Programming Lab: Optimizing Python with GPU}
+\author{VB}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+
+
+\section*{What to install}
+
+
+You will need Python 3.8+ and the following standard libraries.
+Open your terminal and run:
+\begin{lstlisting}
+    pip install numpy matplotlib pyvista vispy PyQt5
+\end{lstlisting}
+
+To actually write the fast GPU code, you need CuPy. CuPy requires an Nvidia GPU and the CUDA toolkit installed on your system.
+\begin{lstlisting}
+    pip install cupy
+\end{lstlisting}
+
+
+\subsection*{\textcolor{red}{Read this if you cannot run Nvidia!}}
+
+If you are on a Mac or a computer without a dedicated Nvidia GPU, \lstinline|import cupy| will crash. To complete the assignments, simply change the import statement at the top of each file to: \lstinline|import numpy as cp|.
+
+Your code will run, you will learn the vectorized math, and you \textbf{will be graded normally (as if it was cupy)}, but you will not get the massive speed boost when you turn off debug mode.
+
+
+\section*{Problem organization}
+
+You will get a number of numpy files with \textbf{already working code}\,--- use this fact to your advantage, e.g. compare if your code produces the same result during debug.
+\begin{itemize}
+ \item \lstinline|game_of_life.py| (Game of Life, 2D Array Slicing and Boolean Logic).
+\item \lstinline|galaxies_colliding.py| (Galaxy Collision, N-Body problems, $O(N^2)$ bottlenecks, and Matrix Broadcasting).
+\item \lstinline|lennard_jones.py| (Thermodynamics, Complex math kernels, Thermostats, and Boundary Collisions).
+\item \lstinline|mandelbrot.py| (Fractals, In-place data generation and Escape-time Boolean masking).
+\item \lstinline|waves_3d.py| (3D Wave Equation, Partial Differential Equations and Time-History Buffers).
+\end{itemize}
+Inside of each file you will find functions designated as subproblems. You have to look for blocks like these:
+\begin{lstlisting}
+# ===================================================================
+# SUBPROBLEM 1: COMPUTE LENNARD-JONES FORCES (The O(N^2) Bottleneck)
+# Optimize this function removing cycles
+# ===================================================================
+\end{lstlisting}
+Your goal is to optimize these functions removig Python cycles and using CuPy/numpy arrays. For more details see comments in appropriate files.
+
+\textbf{Note:} all given files can be run immediately and you can see some result, but they use slow-machine-parameters (e.g. low number particles). If you successfully optimize the code\,--- change \lstinline|DEBUG = True| to \lstinline|DEBUG = False| and you should see nice demo with large number of particles.
+
+
+\section*{\textcolor{red}{Submission}}
+
+Submit all files listed above for review.
+
+
+\end{document}
+
