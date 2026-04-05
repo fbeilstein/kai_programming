@@ -1,0 +1,898 @@
+<div style="position: relative; width: 100%; aspect-ratio: 16 / 9; margin: 0 auto;">
+<div style="position: absolute; left: 16%; top: 19%; width: 80%; height: 18%;">
+
+## Scientific Programming
+
+</div>
+<div style="position: absolute; left: 26%; top: 43%; width: 63%; height: 14%;">
+
+# This strange quantum world
+
+</div>
+<div style="position: absolute; left: 60%; top: 71%; width: 30%; height: 6%;">
+
+## Tymchyshyn V.B.
+
+</div>
+</div>
+
+---
+
+# Why QM?
+
+* Chemical bond is a quantum mechanical effect
+* Solid bodies cannot exists in classical world (system of charges is unstable due to Earnshaw's theorem)
+* Tunneling effects observed for enzyme catalysis (https://royalsocietypublishing.org/doi/10.1098/rspa.2018.0037)
+* Magnetism is impossible in classical physics (we need spins)
+* The color of objects (and fluorescence) is explained by quantum mechanics
+
+
+# Before Quantum Mechanics
+
+* Light = waves in ether
+* Particles = tiny balls that respect Newton’s laws
+
+---
+
+# Charge electroscope, negative charge
+
+![youtube](NtYMyqBqq2w){left="5%" top="23%" width="90%"}
+
+---
+
+# High intensity, low photon energy
+
+![youtube](BdIwajDk1Iw){left="5%" top="23%" width="90%"}
+
+---
+
+# Low intensity, high photon energy
+
+![youtube](APycpbCzpWU){left="5%" top="23%" width="90%"}
+
+---
+
+# Charge electroscope, positive charge
+
+![youtube](IMcJiHSV5wU){left="5%" top="23%" width="90%"}
+---
+
+# Low intensity, high photon energy
+
+![youtube](INOKaUrSqWA){left="5%" top="23%" width="90%"}
+
+---
+
+# Particles have certain wave properties
+
+:::matrix { cols="48/48" rows="10/80" gap="5%" height="100%"}
+
+[[0, 0]] {text-align: center;}
+**Particles**
+
+[[0, 1]] {text-align: center;}
+**Waves? Wave-particles?**
+
+[[1, 0]]
+![](assets/slide_8_img_1.png){width=100%}
+
+[[1, 1]]
+![](assets/slide_8_img_2.png){width=100%}
+
+:::
+
+---
+
+:::matrix { cols="48/48" rows="16/42/42" height="100%"}
+
+[[0, 0:2]]
+The Davisson-Germer experiment was an experiment in which electrons, scattered by the surface of a crystal of nickel metal, displayed a diffraction pattern. This confirmed the hypothesis of wave-particle duality.
+
+[[1, 0]] ![](assets/slide_9_img_3.png)
+[[1, 1]] ![](assets/slide_9_img_4.png)
+[[2, 0]] ![](assets/slide_9_img_5.png)
+[[2, 1]] ![](assets/slide_9_img_6.png)
+
+:::
+
+---
+
+# Electrons hitting the screen
+
+![](assets/slide_10_img_7.png){width=100%}
+
+---
+
+:::matrix { cols="50/50" rows="50/50" height="100%"}
+
+[[0, 0]] ![youtube](B5IPU19nMks)
+[[0, 1]] ![youtube](MBnNhsRlMK8)
+[[1, 0]] ![youtube](62hyKVwuoXk)
+[[1, 1]] <p style="padding-left: 20px;">We describe particle with a wave-function. Absolute values squared defines the probability to find the particle somewhere. Wave-function may have nodes where particle cannot be found.</p>
+
+:::
+
+---
+
+:::matrix { cols="50/50" rows="80/20" height="100%"}
+[[0, 0]] ![](assets/slide_12_img_8.png){width=100%}
+[[0, 1]] ![](assets/slide_12_img_10.png)
+[[1, 0:2]]
+Time-dependent Schrödinger equation (general)
+$$
+i\hbar\frac{\partial}{\partial t}|\Psi(\mathbf{r},t)\rangle=\hat{H}|\Psi(\mathbf{r},t)\rangle
+$$
+:::
+
+---
+
+**Key messages:**
+
+* Wave-particle duality
+* Unlike classical mechanics we describe particle not with 3 numbers (position),  but with a function defined everywhere in the space.
+* $|\Psi|^2$ is the probability to find the particle 
+* $\Psi$-function oscillates
+* These oscillations may interfere constructively or destructively, thus increasing or decreasing the probability to find the particle somewhere.
+
+![](assets/slide_13_img_11.png){center}
+
+---
+
+:::matrix { cols="30/70" rows="40/60" width="100%" height="100%"}
+
+[[0:2, 0:2]] ![](assets/slide_14_img_12.png){height=100% center}
+[[1, 0]] 
+## Mach-Zehnder interferometer
+* **Note:** phase change $90^\circ$ on reflection, crucial for beam splitters
+
+:::
+
+---
+
+No matter how strange it seems,  but modern lenses use anti-reflective coating based on the same principle. Notice the violet-bluish tint.
+
+![](assets/slide_15_img_13.png){height=100% center}
+
+---
+
+:::matrix { cols="30/70" rows="40/60" width="100%" height="100%"}
+
+[[0:2, 0:2]] ![](assets/slide_16_img_14.png){height=100% center}
+[[1, 0]] 
+## Mach-Zehnder interferometer
+* **Note:** one path is blocked, see what happens to output
+
+:::
+
+---
+
+# Elitzur–Vaidman bomb tester
+
+![](assets/slide_17_img_15.png){height=100% center}
+
+---
+
+## The Stern-Gerlach experiment demonstrated that the spatial orientation of angular momentum is quantized.
+
+:::matrix { cols="50/50" rows="50/50" width="100%" height="80%"}
+[[0:2, 0]] ![](assets/slide_18_img_18.png){height=100% center}
+[[0, 1]] ![](assets/slide_18_img_16.png){height=100% center}
+[[1, 1]] ![](assets/slide_18_img_17.png){height=100% center}
+:::
+
+<div style="position: absolute; left: 6%; top: 50%; z-index: 10;">
+  <h2><sub>47</sub>Ag</h2>
+</div>
+
+---
+
+* Magnetic moment is clearly quantized
+* Rotating S-G device rotates the image: wave function collapses during measurement
+
+![](assets/slide_19_img_19.png){width=100% center}
+
+---
+
+# Key messages:
+
+* Particles have certain internal property called "spin"
+* Spin is quantized
+* Particles can be divided into bosons (integer spin, example: photon) and fermions (half-integer spin, example: electron, proton, neutron)
+* Quantum measurement reduces wave function into an eigenstate of measurement operator, eigenvalues is the result of the measurement
+* We will deal almost exclusively with electrons: these are fermions, have spins $+\frac{1}{2}$ and $-\frac{1}{2}$ also called "spin up" and "spin down".
+
+---
+
+# Photon Spin
+
+![youtube](fX2sZzBUH_Y)
+
+---
+
+# Photon Spin
+
+![youtube](kPi7Uv2HphQ)
+
+---
+
+# Photon Spin
+
+![youtube](zTioGdT80y4)
+
+---
+
+# Photon Spin
+
+![](assets/slide_24_img_20.png){width=100% center}
+
+---
+
+# Hydrogen Atom Model
+
+:::matrix { cols="50/50" rows="80/20" height="80%"}
+[[0, 0]] ![](assets/slide_26_img_21.png)
+[[0, 1]] ![](assets/slide_26_img_23.png)
+[[1, 0:2]]
+Time-dependent Schrödinger equation (general)
+$$
+i\hbar\frac{\partial}{\partial t}|\Psi(\mathbf{r},t)\rangle=\hat{H}|\Psi(\mathbf{r},t)\rangle
+$$
+:::
+
+---
+
+# Energy levels,  hydrogen (and hydrogen-like) atom
+
+:::matrix { cols="50/50" rows="100" height="100%"}
+[[0, 0]] ![](assets/slide_27_img_24.png)
+[[0, 1]] 
+The principal quantum number, $n$
+* Different values for $n$ divide orbitals into groups of similar energies called shells. Numerical values for $n$ are used in ordinary speech.
+
+:::
+
+---
+
+# Spectra
+
+:::matrix { cols="50/50" rows="50/50" width="100%" height="80%"}
+[[0:2, 1]] ![](assets/slide_28_img_25.png){height=100% center}
+[[0, 0]] ![](assets/slide_28_img_26.png){height=100% center}
+[[1, 0]] ![](assets/slide_28_img_27.png){height=100% center}
+:::
+
+---
+
+:::matrix { cols="50/50" rows="100" height="100%" gap="5%"}
+[[0, 0]] ![gdrive](1qFuPLRLBP65DqDCrIX56OKuAHEdG3b3L){height=100%}
+[[0, 1]] ![gdrive](18zEr9m4eJdE0aSfYK2FVCZVEWJ2CTQoU){height=100%}
+:::
+
+---
+
+# Postulates of Quantum Mechanics
+
+---
+
+## Postulate 1: State Space
+
+A quantum system is completely described by a **state vector** $|\psi\rangle$ in a complex Hilbert space $\mathcal{H}$.
+
+* Classical: particle described by position $\vec{r}$ and momentum $\vec{p}$ (6 numbers)
+* Quantum: particle described by $\psi(\vec{r}, t)$ — a complex function defined **everywhere**
+* Normalization: $\langle\psi|\psi\rangle = \int |\psi(\vec{r})|^2 d^3r = 1$
+
+---
+
+## Postulate 2: Observables
+
+Every measurable physical quantity $A$ corresponds to a **Hermitian operator** $\hat{A}$.
+
+| Physical quantity | Operator | Representation |
+|------------------|----------|---------------|
+| Position | $\hat{x}$ | $x$ |
+| Momentum | $\hat{p}$ | $-i\hbar\frac{\partial}{\partial x}$ |
+| Energy | $\hat{H}$ | $-\frac{\hbar^2}{2m}\nabla^2 + V$ |
+| Angular momentum | $\hat{L}_z$ | $-i\hbar\frac{\partial}{\partial\phi}$ |
+
+Hermitian: $\hat{A} = \hat{A}^\dagger$ — guarantees **real eigenvalues** (measurement outcomes are real numbers)
+
+---
+
+## Postulate 3: Measurement
+
+Measuring observable $A$ on state $|\psi\rangle$:
+
+* Result is always an **eigenvalue** $a_n$ of $\hat{A}$
+* Probability: $P(a_n) = |\langle a_n | \psi \rangle|^2$
+* After measurement, state **collapses** to $|a_n\rangle$
+
+$$
+\hat{A}|a_n\rangle = a_n|a_n\rangle
+$$
+
+> Measurement fundamentally disturbs the system — this is not a limitation of our instruments!
+
+---
+
+## Postulate 4: Time Evolution
+
+The state evolves according to the **Schrödinger equation**:
+
+$$
+i\hbar\frac{\partial}{\partial t}|\psi(t)\rangle = \hat{H}|\psi(t)\rangle
+$$
+
+* $\hat{H}$ is the Hamiltonian (total energy operator)
+* Evolution is **unitary** and **deterministic** between measurements
+* Randomness enters only at the moment of measurement (Postulate 3)
+
+---
+
+## Postulate 5: Canonical Commutation
+
+Position and momentum satisfy:
+
+$$
+[\hat{x}, \hat{p}] = \hat{x}\hat{p} - \hat{p}\hat{x} = i\hbar
+$$
+
+* Non-commuting observables **cannot be simultaneously measured** with arbitrary precision
+* This is the mathematical root of the uncertainty principle
+
+---
+
+# "Derivation" of the Schrödinger Equation
+
+---
+
+## From de Broglie to Schrödinger
+
+Start with what we know about free particles:
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**de Broglie relations:**
+$$E = \hbar\omega, \quad p = \hbar k$$
+
+**Free particle plane wave:**
+$$\psi(x,t) = e^{i(kx - \omega t)}$$
+
+[[0, 1]]
+**Take derivatives:**
+
+$$\frac{\partial\psi}{\partial t} = -i\omega\psi \implies E\psi = i\hbar\frac{\partial\psi}{\partial t}$$
+
+$$\frac{\partial^2\psi}{\partial x^2} = -k^2\psi \implies p^2\psi = -\hbar^2\frac{\partial^2\psi}{\partial x^2}$$
+
+:::
+
+---
+
+## Substituting into the energy relation
+
+Classical energy: $E = \frac{p^2}{2m} + V(x)$
+
+Replace $E$ and $p^2$ with their operator forms:
+
+$$
+i\hbar\frac{\partial\psi}{\partial t} = -\frac{\hbar^2}{2m}\frac{\partial^2\psi}{\partial x^2} + V(x)\psi
+$$
+
+> This is the **time-dependent Schrödinger equation** — not derived from first principles, but *motivated* by wave mechanics. It is a **postulate** confirmed by experiment.
+
+---
+
+## Time-independent Schrödinger equation
+
+For stationary states, separate variables: $\psi(x,t) = \phi(x) \cdot e^{-iEt/\hbar}$
+
+Substitute:
+
+$$
+-\frac{\hbar^2}{2m}\frac{d^2\phi}{dx^2} + V(x)\phi(x) = E\phi(x)
+$$
+
+$$
+\hat{H}\phi = E\phi \qquad \text{(eigenvalue problem!)}
+$$
+
+* Solutions $\phi_n(x)$ are **stationary states** — probability density $|\phi_n|^2$ doesn't change with time
+* But the **phase** $e^{-iE_n t/\hbar}$ keeps rotating!
+
+---
+
+# Heisenberg Uncertainty Principle
+
+---
+
+## The Uncertainty Principle
+
+$$
+\boxed{\Delta x \cdot \Delta p \geq \frac{\hbar}{2}}
+$$
+
+**Physical meaning** — not about instrument precision, but a **fundamental property of nature**:
+
+* A state with well-defined position has completely uncertain momentum
+* A state with well-defined momentum is spread over all space
+* This is a direct consequence of $[\hat{x}, \hat{p}] = i\hbar$
+
+---
+
+## Fourier Intuition
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Narrow wavepacket** (small $\Delta x$):
+* Well-localized in space
+* Requires many Fourier components
+* Broad momentum spectrum (large $\Delta p$)
+
+**Wide wavepacket** (large $\Delta x$):
+* Spread out in space
+* Few Fourier components needed
+* Sharp momentum (small $\Delta p$)
+
+[[0, 1]]
+**Fourier transform duality:**
+
+$$\psi(x) = \frac{1}{\sqrt{2\pi\hbar}}\int\tilde{\psi}(p)\,e^{ipx/\hbar}\,dp$$
+
+A function cannot be simultaneously narrow and have a narrow Fourier transform — this is a **mathematical theorem**, not physics!
+
+:::
+
+---
+
+## Consequences of Uncertainty
+
+* **Zero-point energy**: A particle confined in a box cannot have $E=0$ (would require $\Delta p = 0$ and $\Delta x < L$)
+
+* **Energy-time uncertainty**: $\Delta E \cdot \Delta t \geq \frac{\hbar}{2}$
+    * Short-lived excited states have broad spectral lines (natural linewidth)
+    * Virtual particles can briefly violate energy conservation
+
+* **Stability of atoms**: Electron cannot collapse into nucleus — confinement would increase $\Delta p$ and thus kinetic energy
+
+---
+
+# Solving the Schrödinger Equation
+
+---
+
+## Infinite Square Well (Particle in a Box)
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Setup:**
+* $V(x) = 0$ inside $[0, L]$
+* $V(x) = \infty$ outside
+* Boundary conditions: $\psi(0) = \psi(L) = 0$
+
+**Solutions:**
+$$\psi_n(x) = \sqrt{\frac{2}{L}}\sin\left(\frac{n\pi x}{L}\right)$$
+
+$$E_n = \frac{n^2\pi^2\hbar^2}{2mL^2}, \quad n = 1, 2, 3, \ldots$$
+
+[[0, 1]]
+**Key observations:**
+* Energies are **quantized** — only discrete values allowed
+* Ground state $E_1 > 0$ (zero-point energy — consequence of uncertainty!)
+* Each $\psi_n$ has $n-1$ **nodes** (zeros)
+* Higher energy → more oscillations → shorter wavelength → higher momentum
+
+:::
+
+---
+
+## Infinite Well: Wavefunctions
+
+**[Demo: `demo_well_wavefunctions.py`]** — first 5 wavefunctions and probability densities for an electron in a 1 nm box
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+$$|\psi_n(x)|^2 = \frac{2}{L}\sin^2\left(\frac{n\pi x}{L}\right)$$
+
+* Probability density tells us **where the particle is likely to be found**
+* For $n=1$: most probable at center
+* For $n=2$: zero probability at center!
+
+[[0, 1]]
+**Energy spacing:**
+
+For electron in 1 nm box:
+
+$$E_1 = \frac{\pi^2 (1.055 \times 10^{-34})^2}{2 \cdot 9.109 \times 10^{-31} \cdot (10^{-9})^2} \approx 0.38 \text{ eV}$$
+
+* Comparable to chemical bond energies
+* Explains why quantum effects dominate at nanoscale
+
+:::
+
+---
+
+## Finite Square Well
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Setup:**
+* $V(x) = 0$ inside $[-a, a]$
+* $V(x) = V_0$ outside
+* Particle energy $E < V_0$
+
+**Key differences from infinite well:**
+* Wavefunction **penetrates** into classically forbidden region
+* Exponential decay: $\psi \sim e^{-\kappa x}$
+* $\kappa = \sqrt{2m(V_0 - E)/\hbar^2}$
+* Finite number of bound states
+
+[[0, 1]]
+**Classically forbidden region:**
+
+In classical mechanics, a particle with $E < V_0$ **cannot exist** in the barrier region.
+
+In quantum mechanics, $|\psi|^2 > 0$ inside the barrier — there is a **nonzero probability** of finding the particle there!
+
+This leads to **quantum tunneling**.
+
+:::
+
+---
+
+## Quantum Tunneling
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**A particle can pass through a barrier** even when $E < V_0$!
+
+Transmission coefficient (rectangular barrier, width $d$):
+
+$$T \approx e^{-2\kappa d}, \quad \kappa = \frac{\sqrt{2m(V_0 - E)}}{\hbar}$$
+
+* Exponentially sensitive to barrier width and height
+* Probability decreases rapidly with thicker/taller barriers
+
+[[0, 1]]
+**Real examples of tunneling:**
+
+* **Alpha decay**: alpha particle tunnels out of nucleus
+* **Scanning Tunneling Microscope (STM)**: current depends exponentially on tip-surface distance → atomic resolution!
+* **Flash memory**: electrons tunnel through oxide layer
+* **Nuclear fusion in stars**: protons tunnel through Coulomb barrier
+
+:::
+
+---
+
+# Phase in Quantum Mechanics
+
+---
+
+## Meaning of Phase
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Global phase has NO physical meaning:**
+
+$e^{i\alpha}|\psi\rangle \equiv |\psi\rangle$ for any real $\alpha$
+
+All probabilities $|\langle a_n|e^{i\alpha}\psi\rangle|^2 = |\langle a_n|\psi\rangle|^2$ are identical.
+
+[[0, 1]]
+**Relative phase DOES matter:**
+
+$|\psi\rangle = \frac{1}{\sqrt{2}}(|0\rangle + e^{i\phi}|1\rangle)$
+
+Different $\phi$ → different interference patterns!
+
+**Phase accumulation in time:**
+
+$\psi_n(t) = \phi_n \cdot e^{-iE_n t/\hbar}$
+
+Different energy components rotate at different rates → wavepacket spreading and interference
+
+:::
+
+---
+
+## Aharonov-Bohm Effect
+
+:::matrix { cols="40/60" rows="100" height="80%"}
+
+[[0, 0]]
+Electrons pass around a solenoid where $\mathbf{B} = 0$ on their path.
+
+Yet the **interference pattern shifts!**
+
+Phase difference:
+$$\Delta\phi = \frac{e}{\hbar}\oint \mathbf{A} \cdot d\mathbf{l} = \frac{e\Phi_B}{\hbar}$$
+
+where $\Phi_B$ is the magnetic flux through the solenoid.
+
+[[0, 1]]
+**Conclusions:**
+
+* The vector potential $\mathbf{A}$ is **physically real**, not just a mathematical convenience
+* Phase is a measurable quantity (via interference)
+* First proposed: Aharonov & Bohm (1959)
+* Confirmed experimentally: Chambers (1960), Tonomura (1986) with electron holography
+
+**Also related:** Berry phase (geometric phase acquired during adiabatic cyclic evolution)
+
+:::
+
+---
+
+## Devices Using Quantum Effects
+
+| Device | Quantum Effect | Key Physics |
+|--------|---------------|-------------|
+| **Laser** | Stimulated emission | Population inversion, coherent photons |
+| **LED** | Electron-hole recombination | Bandgap determines color |
+| **Scanning Tunneling Microscope** | Quantum tunneling | $I \propto e^{-2\kappa d}$ → atomic resolution |
+| **MRI** | Nuclear spin precession | Larmor frequency in magnetic field |
+| **Flash memory** | Fowler-Nordheim tunneling | Electrons through oxide barrier |
+| **Atomic clock** | Hyperfine transitions | Cs-133: 9,192,631,770 Hz defines the second |
+| **Solar cell** | Photoelectric effect | Photon → electron-hole pair |
+| **Electron microscope** | de Broglie wavelength | $\lambda \ll$ visible light → nm resolution |
+
+---
+
+## Dirac Equation (Brief Mention)
+
+Schrödinger equation is **non-relativistic** — what happens at high energies?
+
+$$
+(i\hbar\gamma^\mu\partial_\mu - mc)\psi = 0
+$$
+
+**Dirac's achievements (1928):**
+* Combined quantum mechanics with special relativity
+* Predicted **electron spin** as a natural consequence (not added by hand!)
+* Predicted **antimatter** — the positron (discovered by Anderson, 1932)
+* Explained fine structure of hydrogen spectrum
+
+> The Dirac equation is arguably the most beautiful equation in physics — from pure mathematics, it predicted a completely new form of matter.
+
+---
+
+# Quantum Cryptography
+
+---
+
+## The No-Cloning Theorem
+
+$$
+\text{There is NO unitary operation } U \text{ such that } U|\psi\rangle|0\rangle = |\psi\rangle|\psi\rangle \text{ for all } |\psi\rangle
+$$
+
+**Proof sketch:** Linearity of quantum mechanics forbids it.
+
+* If $U|0\rangle|0\rangle = |0\rangle|0\rangle$ and $U|1\rangle|0\rangle = |1\rangle|1\rangle$
+* Then $U\frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)|0\rangle = \frac{1}{\sqrt{2}}(|0\rangle|0\rangle + |1\rangle|1\rangle)$
+* But cloning would require $\frac{1}{\sqrt{2}}(|0\rangle + |1\rangle) \otimes \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$ — **different state!**
+
+> This "limitation" becomes a **feature** for cryptography!
+
+---
+
+## BB84 Protocol
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Alice sends qubits:**
+1. Random bit: 0 or 1
+2. Random basis: rectilinear $+$ or diagonal $\times$
+3. Encodes: $|0\rangle, |1\rangle$ or $|+\rangle, |-\rangle$
+
+**Bob measures:**
+1. Random basis choice
+2. Correct basis → correct bit (100%)
+3. Wrong basis → random result (50%)
+
+**Key sifting:**
+* Publicly compare bases (not bits!)
+* Keep only matching-basis measurements
+
+[[0, 1]]
+**Eavesdropper detection:**
+
+Eve intercepts and re-sends, but:
+* She doesn't know the basis
+* Wrong measurement disturbs the state (Postulate 3!)
+* Introduces ~25% error rate in sifted key
+
+**Alice and Bob check:**
+* Compare a subset of their sifted key
+* Error rate $> 11\%$ → someone is listening → abort!
+* Error rate $\approx 0\%$ → key is secure
+
+**This is information-theoretically secure** — not based on computational hardness!
+
+:::
+
+---
+
+## BB84: Live Demo
+
+**[Demo: `demo_bb84.py`]**
+
+Simulation shows:
+* Key generation with random bits and bases
+* Effect of eavesdropper on error rate
+* Histogram: error rates with and without Eve
+
+**Real-world QKD:**
+* Fiber-optic: ID Quantique (Geneva), up to ~100 km
+* Satellite: Micius (China, 2017), 1200 km
+* Post-quantum cryptography: classical algorithms resistant to quantum attacks (lattice-based, NIST standards)
+
+---
+
+# Numerical Solutions of the Schrödinger Equation
+
+---
+
+## The Split-Operator Method
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Core idea:** Alternate between position and momentum representations using FFT.
+
+Time evolution operator:
+$$e^{-i\hat{H}\Delta t/\hbar} \approx e^{-i\hat{V}\Delta t/2\hbar} \cdot e^{-i\hat{T}\Delta t/\hbar} \cdot e^{-i\hat{V}\Delta t/2\hbar}$$
+
+* $\hat{V}$ is diagonal in **position space** (just multiply!)
+* $\hat{T} = \frac{\hat{p}^2}{2m}$ is diagonal in **momentum space**
+
+[[0, 1]]
+**Algorithm for each time step:**
+
+1. Apply $e^{-iV(x)\Delta t/2\hbar}$ in position space
+2. FFT to momentum space
+3. Apply $e^{-ip^2\Delta t/2m\hbar}$ in momentum space
+4. Inverse FFT back to position space
+5. Apply $e^{-iV(x)\Delta t/2\hbar}$ again
+
+**Why it works:** Trotter-Suzuki decomposition — error is $O(\Delta t^3)$ per step!
+
+:::
+
+---
+
+## Split-Operator: Python Implementation
+
+```python
+import numpy as np
+from numpy.fft import fft, ifft, fftfreq
+
+def split_operator_step(psi, x, dx, dt, V, m=1.0, hbar=1.0):
+    """One time step of the split-operator method."""
+    # Half-step in position space
+    psi = psi * np.exp(-1j * V * dt / (2 * hbar))
+    
+    # Full step in momentum space
+    k = 2 * np.pi * fftfreq(len(x), d=dx)
+    psi_k = fft(psi)
+    psi_k = psi_k * np.exp(-1j * hbar * k**2 * dt / (2 * m))
+    psi = ifft(psi_k)
+    
+    # Half-step in position space
+    psi = psi * np.exp(-1j * V * dt / (2 * hbar))
+    return psi
+```
+
+Simple, fast, and numerically stable!
+
+---
+
+## Demo: Stationary States
+
+**[Demo: `demo_well_wavefunctions.py`]**
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Infinite square well:**
+* First 5 eigenstates $\psi_n(x)$
+* Probability densities $|\psi_n(x)|^2$
+* Energy levels vs $n^2$ scaling
+
+Computed via matrix diagonalization:
+```python
+H = np.diag(V) + T_matrix
+E, psi = np.linalg.eigh(H)
+```
+
+[[0, 1]]
+**Finite square well:**
+* Wavefunction penetration into forbidden region
+* Fewer bound states than infinite well
+* Exponential tail: $\psi \sim e^{-\kappa|x|}$
+
+Compare analytical (infinite) vs numerical (finite) — see how walls "soften" the solutions!
+
+:::
+
+---
+
+## Demo: Wave Packet in Infinite Well
+
+**[Demo: `demo_wave_packet.py`]** — Gaussian packet bouncing, spreading, and reviving
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Initial state:**
+$$\psi(x,0) = \left(\frac{1}{2\pi\sigma^2}\right)^{1/4} e^{-(x-x_0)^2/4\sigma^2} \cdot e^{ik_0 x}$$
+
+* Localized at $x_0$ with width $\sigma$
+* Moving with momentum $p_0 = \hbar k_0$
+
+[[0, 1]]
+**Observe:**
+* Packet bounces off walls
+* **Spreading**: uncertainty in position grows with time
+* **Quantum revival**: at $T_{rev} = \frac{4mL^2}{\pi\hbar}$, the packet reconstructs!
+* Classical limit: narrow momentum spread → long-lasting coherence
+
+:::
+
+---
+
+## Demo: Tunneling Through a Barrier
+
+**[Demo: `demo_wave_packet.py` — barrier mode]**
+
+A Gaussian packet hits a rectangular potential barrier:
+
+* Part of the packet **reflects** (classical behavior)
+* Part of the packet **tunnels through** (purely quantum!)
+* Probability of transmission matches $T \approx e^{-2\kappa d}$
+
+Watch in real-time: the transmitted packet appears on the other side with reduced amplitude but **identical shape** — the barrier acts as a filter, not a distortion!
+
+---
+
+# Quantum Computing
+
+---
+
+## There is such a cool thing...
+
+:::matrix { cols="50/50" rows="100" height="80%"}
+
+[[0, 0]]
+**Qubit** = quantum bit = spin-$\frac{1}{2}$ particle
+
+$$|\psi\rangle = \alpha|0\rangle + \beta|0\rangle$$
+
+Just like the Stern-Gerlach states we studied!
+
+**Quantum gates** = unitary matrices acting on qubits
+
+$$H = \frac{1}{\sqrt{2}}\begin{pmatrix}1 & 1\\ 1 & -1\end{pmatrix}$$
+
+[[0, 1]]
+**Why it matters:**
+
+* 300 qubits → $2^{300}$ amplitudes → more states than atoms in the universe
+* **Shor's algorithm**: factor large numbers exponentially faster (breaks RSA!)
+* **Grover's algorithm**: search unsorted database in $O(\sqrt{N})$
+* **Quantum simulation**: simulate molecules for drug discovery
+
+*Next time: we'll build a quantum computer simulator in 50 lines of Python!*
+
+:::
+
+---
