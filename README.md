@@ -28,6 +28,8 @@ Monday 13:30 (next week Wednesday 12:30)
 ### Lecture 9. Problem Set: Optimization with GPU
 - [Download the Problem Set (Multiparticle Simulation, Optimization with GPU)](https://github.com/fbeilstein/kai_programming/releases/download/problem_4/problem_4.zip)
 
+### Lecture 10. Quantum Effects Modelling
+- [Lecture Slides](https://fbeilstein.github.io/distributed_systems/slides.html?file=https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/lecture_1_this_quantum_world.md)
 
 
 ## Useful Resources
