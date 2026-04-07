@@ -243,7 +243,7 @@ $$
 
 ---
 
-# Energy levels,  hydrogen (and hydrogen-like) atom
+# Energy levels,  hydrogen-like atom
 
 :::matrix { cols="50/50" rows="100" height="100%"}
 [[0, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_27_img_24.png)
