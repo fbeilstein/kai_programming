@@ -356,9 +356,11 @@ Start with what we know about free particles:
 
 [[0, 0]]
 **de Broglie relations:**
+
 $$E = \hbar\omega, \quad p = \hbar k$$
 
 **Free particle plane wave:**
+
 $$\psi(x,t) = e^{i(kx - \omega t)}$$
 
 [[0, 1]]
@@ -425,7 +427,7 @@ $$
 
 ## Fourier Intuition
 
-:::matrix { cols="50/50" rows="100" height="80%"}
+:::matrix { cols="50/50" rows="100"}
 
 [[0, 0]]
 **Narrow wavepacket** (small $\Delta x$):
@@ -476,6 +478,7 @@ A function cannot be simultaneously narrow and have a narrow Fourier transform â
 * Boundary conditions: $\psi(0) = \psi(L) = 0$
 
 **Solutions:**
+
 $$\psi_n(x) = \sqrt{\frac{2}{L}}\sin\left(\frac{n\pi x}{L}\right)$$
 
 $$E_n = \frac{n^2\pi^2\hbar^2}{2mL^2}, \quad n = 1, 2, 3, \ldots$$
