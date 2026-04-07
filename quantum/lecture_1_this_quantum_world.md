@@ -65,7 +65,7 @@
 
 # Particles have certain wave properties
 
-:::matrix { cols="48/48" rows="10/80" gap="5%" height="100%"}
+:::matrix { cols="48/48" rows="10/80" gap="5%" height="90%"}
 
 [[0, 0]] {text-align: center;}
 **Particles**
