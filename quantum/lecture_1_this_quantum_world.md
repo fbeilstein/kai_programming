@@ -119,6 +119,7 @@ The Davisson-Germer experiment was an experiment in which electrons, scattered b
 [[0, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_12_img_10.png)
 [[1, 0:2]]
 Time-dependent Schrödinger equation (general)
+
 $$
 i\hbar\frac{\partial}{\partial t}|\Psi(\mathbf{r},t)\rangle=\hat{H}|\Psi(\mathbf{r},t)\rangle
 $$
@@ -151,7 +152,7 @@ $$
 
 No matter how strange it seems,  but modern lenses use anti-reflective coating based on the same principle. Notice the violet-bluish tint.
 
-![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_15_img_13.png){height=100% center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_15_img_13.png){height=90% center}
 
 ---
 
@@ -168,7 +169,7 @@ No matter how strange it seems,  but modern lenses use anti-reflective coating b
 
 # Elitzur–Vaidman bomb tester
 
-![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_17_img_15.png){height=100% center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_17_img_15.png){height=90% center}
 
 ---
 
@@ -189,7 +190,7 @@ No matter how strange it seems,  but modern lenses use anti-reflective coating b
 * Magnetic moment is clearly quantized
 * Rotating S-G device rotates the image: wave function collapses during measurement
 
-![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_19_img_19.png){width=100% center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_19_img_19.png){width=90% center}
 
 ---
 
@@ -205,19 +206,19 @@ No matter how strange it seems,  but modern lenses use anti-reflective coating b
 
 # Photon Spin
 
-![youtube](fX2sZzBUH_Y)
+![youtube](fX2sZzBUH_Y){left="5%" top="13%" width="90%"}
 
 ---
 
 # Photon Spin
 
-![youtube](kPi7Uv2HphQ)
+![youtube](kPi7Uv2HphQ){left="5%" top="13%" width="90%"}
 
 ---
 
 # Photon Spin
 
-![youtube](zTioGdT80y4)
+![youtube](zTioGdT80y4){left="5%" top="13%" width="90%"}
 
 ---
 
@@ -234,6 +235,7 @@ No matter how strange it seems,  but modern lenses use anti-reflective coating b
 [[0, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_26_img_23.png)
 [[1, 0:2]]
 Time-dependent Schrödinger equation (general)
+
 $$
 i\hbar\frac{\partial}{\partial t}|\Psi(\mathbf{r},t)\rangle=\hat{H}|\Psi(\mathbf{r},t)\rangle
 $$
