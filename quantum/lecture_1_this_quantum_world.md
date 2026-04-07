@@ -36,30 +36,30 @@
 
 # Charge electroscope, negative charge
 
-![youtube](NtYMyqBqq2w){left="5%" top="23%" width="90%"}
+![youtube](NtYMyqBqq2w){left="5%" top="13%" width="90%"}
 
 ---
 
 # High intensity, low photon energy
 
-![youtube](BdIwajDk1Iw){left="5%" top="23%" width="90%"}
+![youtube](BdIwajDk1Iw){left="5%" top="13%" width="90%"}
 
 ---
 
 # Low intensity, high photon energy
 
-![youtube](APycpbCzpWU){left="5%" top="23%" width="90%"}
+![youtube](APycpbCzpWU){left="5%" top="13%" width="90%"}
 
 ---
 
 # Charge electroscope, positive charge
 
-![youtube](IMcJiHSV5wU){left="5%" top="23%" width="90%"}
+![youtube](IMcJiHSV5wU){left="5%" top="13%" width="90%"}
 ---
 
 # Low intensity, high photon energy
 
-![youtube](INOKaUrSqWA){left="5%" top="23%" width="90%"}
+![youtube](INOKaUrSqWA){left="5%" top="13%" width="90%"}
 
 ---
 
@@ -74,10 +74,10 @@
 **Waves? Wave-particles?**
 
 [[1, 0]]
-![](assets/slide_8_img_1.png){width=100%}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_8_img_1.png){width=100%}
 
 [[1, 1]]
-![](assets/slide_8_img_2.png){width=100%}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_8_img_2.png){width=100%}
 
 :::
 
@@ -88,10 +88,10 @@
 [[0, 0:2]]
 The Davisson-Germer experiment was an experiment in which electrons, scattered by the surface of a crystal of nickel metal, displayed a diffraction pattern. This confirmed the hypothesis of wave-particle duality.
 
-[[1, 0]] ![](assets/slide_9_img_3.png)
-[[1, 1]] ![](assets/slide_9_img_4.png)
-[[2, 0]] ![](assets/slide_9_img_5.png)
-[[2, 1]] ![](assets/slide_9_img_6.png)
+[[1, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_9_img_3.png)
+[[1, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_9_img_4.png)
+[[2, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_9_img_5.png)
+[[2, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_9_img_6.png)
 
 :::
 
@@ -99,7 +99,7 @@ The Davisson-Germer experiment was an experiment in which electrons, scattered b
 
 # Electrons hitting the screen
 
-![](assets/slide_10_img_7.png){width=100%}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_10_img_7.png){width=100%}
 
 ---
 
@@ -115,8 +115,8 @@ The Davisson-Germer experiment was an experiment in which electrons, scattered b
 ---
 
 :::matrix { cols="50/50" rows="80/20" height="100%"}
-[[0, 0]] ![](assets/slide_12_img_8.png){width=100%}
-[[0, 1]] ![](assets/slide_12_img_10.png)
+[[0, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_12_img_8.png){width=100%}
+[[0, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_12_img_10.png)
 [[1, 0:2]]
 Time-dependent Schrödinger equation (general)
 $$
@@ -134,13 +134,13 @@ $$
 * $\Psi$-function oscillates
 * These oscillations may interfere constructively or destructively, thus increasing or decreasing the probability to find the particle somewhere.
 
-![](assets/slide_13_img_11.png){center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_13_img_11.png){center}
 
 ---
 
 :::matrix { cols="30/70" rows="40/60" width="100%" height="100%"}
 
-[[0:2, 0:2]] ![](assets/slide_14_img_12.png){height=100% center}
+[[0:2, 0:2]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_14_img_12.png){height=100% center}
 [[1, 0]] 
 ## Mach-Zehnder interferometer
 * **Note:** phase change $90^\circ$ on reflection, crucial for beam splitters
@@ -151,13 +151,13 @@ $$
 
 No matter how strange it seems,  but modern lenses use anti-reflective coating based on the same principle. Notice the violet-bluish tint.
 
-![](assets/slide_15_img_13.png){height=100% center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_15_img_13.png){height=100% center}
 
 ---
 
 :::matrix { cols="30/70" rows="40/60" width="100%" height="100%"}
 
-[[0:2, 0:2]] ![](assets/slide_16_img_14.png){height=100% center}
+[[0:2, 0:2]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_16_img_14.png){height=100% center}
 [[1, 0]] 
 ## Mach-Zehnder interferometer
 * **Note:** one path is blocked, see what happens to output
@@ -168,16 +168,16 @@ No matter how strange it seems,  but modern lenses use anti-reflective coating b
 
 # Elitzur–Vaidman bomb tester
 
-![](assets/slide_17_img_15.png){height=100% center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_17_img_15.png){height=100% center}
 
 ---
 
 ## The Stern-Gerlach experiment demonstrated that the spatial orientation of angular momentum is quantized.
 
 :::matrix { cols="50/50" rows="50/50" width="100%" height="80%"}
-[[0:2, 0]] ![](assets/slide_18_img_18.png){height=100% center}
-[[0, 1]] ![](assets/slide_18_img_16.png){height=100% center}
-[[1, 1]] ![](assets/slide_18_img_17.png){height=100% center}
+[[0:2, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_18_img_18.png){height=100% center}
+[[0, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_18_img_16.png){height=100% center}
+[[1, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_18_img_17.png){height=100% center}
 :::
 
 <div style="position: absolute; left: 6%; top: 50%; z-index: 10;">
@@ -189,7 +189,7 @@ No matter how strange it seems,  but modern lenses use anti-reflective coating b
 * Magnetic moment is clearly quantized
 * Rotating S-G device rotates the image: wave function collapses during measurement
 
-![](assets/slide_19_img_19.png){width=100% center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_19_img_19.png){width=100% center}
 
 ---
 
@@ -223,15 +223,15 @@ No matter how strange it seems,  but modern lenses use anti-reflective coating b
 
 # Photon Spin
 
-![](assets/slide_24_img_20.png){width=100% center}
+![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_24_img_20.png){width=100% center}
 
 ---
 
 # Hydrogen Atom Model
 
 :::matrix { cols="50/50" rows="80/20" height="80%"}
-[[0, 0]] ![](assets/slide_26_img_21.png)
-[[0, 1]] ![](assets/slide_26_img_23.png)
+[[0, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_26_img_21.png)
+[[0, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_26_img_23.png)
 [[1, 0:2]]
 Time-dependent Schrödinger equation (general)
 $$
@@ -244,7 +244,7 @@ $$
 # Energy levels,  hydrogen (and hydrogen-like) atom
 
 :::matrix { cols="50/50" rows="100" height="100%"}
-[[0, 0]] ![](assets/slide_27_img_24.png)
+[[0, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_27_img_24.png)
 [[0, 1]] 
 The principal quantum number, $n$
 * Different values for $n$ divide orbitals into groups of similar energies called shells. Numerical values for $n$ are used in ordinary speech.
@@ -256,9 +256,9 @@ The principal quantum number, $n$
 # Spectra
 
 :::matrix { cols="50/50" rows="50/50" width="100%" height="80%"}
-[[0:2, 1]] ![](assets/slide_28_img_25.png){height=100% center}
-[[0, 0]] ![](assets/slide_28_img_26.png){height=100% center}
-[[1, 0]] ![](assets/slide_28_img_27.png){height=100% center}
+[[0:2, 1]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_28_img_25.png){height=100% center}
+[[0, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_28_img_26.png){height=100% center}
+[[1, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_28_img_27.png){height=100% center}
 :::
 
 ---
