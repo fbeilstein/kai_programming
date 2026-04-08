@@ -245,7 +245,7 @@ $$
 
 # Energy levels,  hydrogen-like atom
 
-:::matrix { cols="50/50" rows="100" height="100%"}
+:::matrix { cols="50/50" rows="100" height="80%"}
 [[0, 0]] ![](https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/assets/slide_27_img_24.png)
 [[0, 1]] 
 The principal quantum number, $n$
