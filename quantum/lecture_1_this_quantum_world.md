@@ -671,8 +671,6 @@ $$
 
 # Quantum Cryptography
 
----
-
 ## The No-Cloning Theorem
 
 $$
@@ -727,25 +725,8 @@ Eve intercepts and re-sends, but:
 
 ---
 
-## BB84: Live Demo
-
-**[Demo: `demo_bb84.py`]**
-
-Simulation shows:
-* Key generation with random bits and bases
-* Effect of eavesdropper on error rate
-* Histogram: error rates with and without Eve
-
-**Real-world QKD:**
-* Fiber-optic: ID Quantique (Geneva), up to ~100 km
-* Satellite: Micius (China, 2017), 1200 km
-* Post-quantum cryptography: classical algorithms resistant to quantum attacks (lattice-based, NIST standards)
-
----
 
 # Numerical Solutions of the Schrödinger Equation
-
----
 
 ## The Split-Operator Method
 
@@ -801,77 +782,7 @@ Simple, fast, and numerically stable!
 
 ---
 
-## Demo: Stationary States
-
-**[Demo: `demo_well_wavefunctions.py`]**
-
-:::matrix { cols="50/50" rows="100" height="80%"}
-
-[[0, 0]]
-**Infinite square well:**
-* First 5 eigenstates $\psi_n(x)$
-* Probability densities $|\psi_n(x)|^2$
-* Energy levels vs $n^2$ scaling
-
-Computed via matrix diagonalization:
-```python
-H = np.diag(V) + T_matrix
-E, psi = np.linalg.eigh(H)
-```
-
-[[0, 1]]
-**Finite square well:**
-* Wavefunction penetration into forbidden region
-* Fewer bound states than infinite well
-* Exponential tail: $\psi \sim e^{-\kappa|x|}$
-
-Compare analytical (infinite) vs numerical (finite) — see how walls "soften" the solutions!
-
-:::
-
----
-
-## Demo: Wave Packet in Infinite Well
-
-**[Demo: `demo_wave_packet.py`]** — Gaussian packet bouncing, spreading, and reviving
-
-:::matrix { cols="50/50" rows="100" height="80%"}
-
-[[0, 0]]
-**Initial state:**
-$$\psi(x,0) = \left(\frac{1}{2\pi\sigma^2}\right)^{1/4} e^{-(x-x_0)^2/4\sigma^2} \cdot e^{ik_0 x}$$
-
-* Localized at $x_0$ with width $\sigma$
-* Moving with momentum $p_0 = \hbar k_0$
-
-[[0, 1]]
-**Observe:**
-* Packet bounces off walls
-* **Spreading**: uncertainty in position grows with time
-* **Quantum revival**: at $T_{rev} = \frac{4mL^2}{\pi\hbar}$, the packet reconstructs!
-* Classical limit: narrow momentum spread → long-lasting coherence
-
-:::
-
----
-
-## Demo: Tunneling Through a Barrier
-
-**[Demo: `demo_wave_packet.py` — barrier mode]**
-
-A Gaussian packet hits a rectangular potential barrier:
-
-* Part of the packet **reflects** (classical behavior)
-* Part of the packet **tunnels through** (purely quantum!)
-* Probability of transmission matches $T \approx e^{-2\kappa d}$
-
-Watch in real-time: the transmitted packet appears on the other side with reduced amplitude but **identical shape** — the barrier acts as a filter, not a distortion!
-
----
-
 # Quantum Computing
-
----
 
 ## There is such a cool thing...
 
@@ -896,7 +807,6 @@ $$H = \frac{1}{\sqrt{2}}\begin{pmatrix}1 & 1\\ 1 & -1\end{pmatrix}$$
 * **Grover's algorithm**: search unsorted database in $O(\sqrt{N})$
 * **Quantum simulation**: simulate molecules for drug discovery
 
-*Next time: we'll build a quantum computer simulator in 50 lines of Python!*
 
 :::
 
