@@ -31,6 +31,10 @@ Monday 13:30 (next week Wednesday 12:30)
 ### Lecture 10. Quantum Effects Modelling
 - [Lecture Slides](https://fbeilstein.github.io/distributed_systems/slides.html?file=https://raw.githubusercontent.com/fbeilstein/kai_programming/master/quantum/lecture_1_this_quantum_world.md)
 
+### Lecture 11. Problem Set: Quantum Tunneling
+- [Download the Problem Set (Quantum Tunneling)](https://github.com/fbeilstein/kai_programming/releases/download/problem_5/problem_5.zip)
+
+
 
 ## Useful Resources
 
